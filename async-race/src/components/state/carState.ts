@@ -1,7 +1,7 @@
 export interface ICarItemState {
   id: number;
-  brand: string;
-  model: string;
+  name: string;
+  color: string;
 }
 
 export interface ICarState {
@@ -17,18 +17,18 @@ export const carState = {
   cars: [
     {
       id: 1,
-      brand: 'BMW',
-      model: 'X6',
+      name: 'BMW',
+      color: '#155405',
     },
     {
       id: 2,
-      brand: 'Hyundai',
-      model: 'Solaris',
+      name: 'Hyundai',
+      color: '#f90',
     },
     {
       id: 3,
-      brand: 'Opel',
-      model: 'Astra',
+      name: 'Opel',
+      color: '#533993',
     },
   ],
 };

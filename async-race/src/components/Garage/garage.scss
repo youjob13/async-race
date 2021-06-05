@@ -1,0 +1,9 @@
+.garage {
+  &__car {
+    .car {
+      &__image {
+        width: 140px;
+      }
+    }
+  }
+}
