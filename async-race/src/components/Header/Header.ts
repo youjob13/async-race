@@ -1,4 +1,4 @@
-import { IPropsToBaseControl } from './../shared/interfaces/api';
+import { IPropsToBaseControl } from '../shared/interfaces/api';
 import BaseControl from '../shared/BaseControl/BaseControl';
 import Button from '../shared/Button/Button';
 
@@ -13,7 +13,7 @@ class Header extends BaseControl<HTMLElement> {
 
   private handleClick = (e: Event): void => {
     e.preventDefault();
-    let target = <HTMLAnchorElement>e.target;
+    const target = <HTMLAnchorElement>e.target;
     this.changePage(target.getAttribute('href') || '');
   };
 

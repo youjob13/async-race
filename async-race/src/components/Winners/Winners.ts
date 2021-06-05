@@ -1,11 +1,10 @@
-import { IPropsToBaseControl } from './../shared/interfaces/api';
-import BaseControl from '../shared/BaseControl/BaseControl';
+import { IPropsToBaseControl } from '../shared/interfaces/api';
 import { IPage } from '../shared/interfaces/page-model';
+import BaseControl from '../shared/BaseControl/BaseControl';
 
 class Winners extends BaseControl<HTMLElement> implements IPage {
   constructor(propsToBaseControl: IPropsToBaseControl) {
     super(propsToBaseControl);
-    // this.render();
   }
 
   render(): HTMLElement {

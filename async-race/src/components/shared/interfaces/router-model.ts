@@ -1,10 +1,12 @@
+import { IPage } from './page-model';
+
 export interface IRouter {
   changePath: (path: string) => void;
   getHash: () => string;
-  routeToPage: () => void;
+  routeToPage: () => any;
 }
 
 export interface IRoute {
   path: string;
-  component: () => HTMLElement;
+  component: () => IPage;
 }

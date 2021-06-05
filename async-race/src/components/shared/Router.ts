@@ -1,27 +1,32 @@
 import Garage from '../Garage/Garage';
+import GarageContainer from '../Garage/GarageContainer';
+import { IGarageService } from '../services/GarageService';
 import Winners from '../Winners/Winners';
+import WinnersContainer from '../Winners/WinnersContainer';
+import { IPage } from './interfaces/page-model';
 import { IRoute, IRouter } from './interfaces/router-model';
 
 class Router implements IRouter {
   private routes: IRoute[];
-  constructor(private rootElem: HTMLElement) {
+
+  constructor(private garageService: IGarageService) {
     this.routes = [
       {
         path: '',
-        component: (): HTMLElement => {
-          return new Garage({ tagName: 'div', classes: ['garage'] }).render();
+        component: (): IPage => {
+          return new GarageContainer(this.garageService);
         },
       },
       {
         path: 'garage',
-        component: (): HTMLElement => {
-          return new Garage({ tagName: 'div', classes: ['garage'] }).render();
+        component: (): IPage => {
+          return new GarageContainer(this.garageService);
         },
       },
       {
         path: 'winners',
-        component: (): HTMLElement => {
-          return new Winners({ tagName: 'div', classes: ['winners'] }).render();
+        component: (): IPage => {
+          return new WinnersContainer();
         },
       },
     ];
@@ -33,11 +38,17 @@ class Router implements IRouter {
 
   getHash = (): string => window.location.hash.slice(1);
 
-  routeToPage(): void {
+  routeToPage(): IPage | '404 error' {
     const currentHash = this.getHash();
+    let currentPage: IPage | '404 error' = '404 error';
+
     this.routes.forEach((route) => {
-      route.path === currentHash && this.rootElem.append(route.component());
+      if (route.path === currentHash) {
+        currentPage = route.component();
+      }
     });
+
+    return currentPage;
   }
 }
 

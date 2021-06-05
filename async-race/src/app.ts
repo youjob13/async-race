@@ -1,11 +1,17 @@
 import HeaderContainer from './components/Header/HeaderContainer';
 import { IRouter } from './components/shared/interfaces/router-model';
 import Router from './components/shared/Router';
+import { IGarageService } from './components/services/GarageService';
 
 class App {
-  private router: IRouter = new Router(this.rootElem);
+  private router: IRouter;
 
-  constructor(private rootElem: HTMLElement) {}
+  constructor(
+    private rootElem: HTMLElement,
+    private garageService: IGarageService
+  ) {
+    this.router = new Router(this.garageService);
+  }
 
   init(): void {
     this.render();
@@ -15,7 +21,8 @@ class App {
   private render(): void {
     this.rootElem.innerHTML = '';
     this.rootElem.append(new HeaderContainer(this.router.changePath).render());
-    this.router.routeToPage();
+    const currentPage = this.router.routeToPage();
+    this.rootElem.append(currentPage.render());
   }
 
   private eventListeners(): void {
