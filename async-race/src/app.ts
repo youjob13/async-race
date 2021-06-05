@@ -1,6 +1,7 @@
 import './styles.scss';
 import { IGarageService } from './components/services/GarageService';
 import { IRouter } from './components/shared/interfaces/router-model';
+import { IObserver } from './components/shared/Observer';
 import Router from './components/shared/Router';
 import HeaderContainer from './components/Header/HeaderContainer';
 
@@ -9,19 +10,23 @@ class App {
 
   constructor(
     private rootElem: HTMLElement,
-    private garageService: IGarageService
+    private garageService: IGarageService,
+    private newCarObserver: IObserver
   ) {
-    this.router = new Router(this.garageService);
+    this.router = new Router(this.garageService, newCarObserver);
   }
 
   init(): void {
+    this.newCarObserver.subscribe(this.render.bind(this));
     this.render();
     this.eventListeners();
   }
 
   private render(): void {
     this.rootElem.innerHTML = '<h1 class="h1-title">Async Race</h1>';
-    this.rootElem.append(new HeaderContainer(this.router.changePath).render());
+    this.rootElem.append(
+      new HeaderContainer(this.router.changePath).render(this.router.getHash())
+    );
     const currentPage = this.router.routeToPage();
     this.rootElem.append(currentPage.render());
   }

@@ -8,11 +8,11 @@ class HeaderContainer implements IHeaderContainer {
     this.changePath(path);
   };
 
-  render(): HTMLElement {
+  render(hash: string): HTMLElement {
     return new Header(
       { tagName: 'header', classes: ['header'] },
       this.changePage
-    ).render();
+    ).render(hash);
   }
 }
 

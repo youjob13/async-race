@@ -12,16 +12,18 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     propsToBaseControl: IPropsToBaseControl,
     private cars: ICarItemState[],
     private handleInput: (type: string, value: string) => void,
-    private onGenerateCarBtnClick: () => void
+    private onGenerateCarBtnClick: () => void,
+    private onDeleteCarBtnClick: (id: number) => void,
+    private editCarParams: (id: number, type: string, value: string) => void
   ) {
     super(propsToBaseControl);
   }
 
-  startRace(): void {}
+  startRace = (): void => {};
 
-  returnCarToDefaultPosition(): void {}
+  returnCarToDefaultPosition = (): void => {};
 
-  createCar(): void {}
+  createCar = (): void => {};
 
   render(): HTMLElement {
     const garageHeader = new BaseControl({
@@ -112,7 +114,9 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     this.cars.forEach((car) => {
       const carItem = new Car(
         { tagName: 'div', classes: ['garage__car', 'car'] },
-        car
+        car,
+        this.onDeleteCarBtnClick,
+        this.editCarParams
       ).render();
       garageContent.node.append(carItem);
     });

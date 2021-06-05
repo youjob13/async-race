@@ -9,7 +9,6 @@ class Header extends BaseControl<HTMLElement> {
     private changePage: (path: string) => void
   ) {
     super(propsToBaseControl);
-    // this.render();
   }
 
   private handleClick = (e: Event): void => {
@@ -18,7 +17,7 @@ class Header extends BaseControl<HTMLElement> {
     this.changePage(target.getAttribute('href') || '');
   };
 
-  render(): HTMLElement {
+  render(hash: string): HTMLElement {
     const buttonsWrapper = new BaseControl({
       tagName: 'div',
       classes: ['header__buttons-wrapper'],
@@ -37,12 +36,30 @@ class Header extends BaseControl<HTMLElement> {
     const buttonToGaragePage = new Button(
       {
         tagName: 'a',
-        classes: ['header__button', 'button', 'active'],
+        classes: ['header__button', 'button'],
         text: 'Garage',
         attributes: { href: 'garage' },
       },
       this.handleClick
     );
+
+    switch (hash) {
+      case 'garage': {
+        buttonToGaragePage.node.classList.add('active');
+        break;
+      }
+      case '': {
+        buttonToGaragePage.node.classList.add('active');
+        break;
+      }
+      case 'winners': {
+        buttonToWinnersPage.node.classList.add('active');
+        break;
+      }
+      default: {
+        break;
+      }
+    }
 
     buttonsWrapper.node.append(
       buttonToWinnersPage.node,

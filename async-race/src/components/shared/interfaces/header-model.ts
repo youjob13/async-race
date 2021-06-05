@@ -1,3 +1,3 @@
 export interface IHeaderContainer {
-  render: () => HTMLElement;
+  render: (hash: string) => HTMLElement;
 }

@@ -3,7 +3,7 @@ import { IPage } from '../shared/interfaces/page-model';
 import BaseControl from '../shared/BaseControl/BaseControl';
 
 class Winners extends BaseControl<HTMLElement> implements IPage {
-  constructor(propsToBaseControl: IPropsToBaseControl) {
+  constructor(private propsToBaseControl: IPropsToBaseControl) {
     super(propsToBaseControl);
   }
 

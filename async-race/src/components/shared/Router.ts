@@ -1,24 +1,28 @@
 import { IGarageService } from '../services/GarageService';
 import { IPage } from './interfaces/page-model';
 import { IRoute, IRouter } from './interfaces/router-model';
+import { IObserver } from './Observer';
 import WinnersContainer from '../Winners/WinnersContainer';
 import GarageContainer from '../Garage/GarageContainer';
 
 class Router implements IRouter {
   private routes: IRoute[];
 
-  constructor(private garageService: IGarageService) {
+  constructor(
+    private garageService: IGarageService,
+    private newCarObserver: IObserver
+  ) {
     this.routes = [
       {
         path: '',
         component: (): IPage => {
-          return new GarageContainer(this.garageService);
+          return new GarageContainer(this.garageService, this.newCarObserver);
         },
       },
       {
         path: 'garage',
         component: (): IPage => {
-          return new GarageContainer(this.garageService);
+          return new GarageContainer(this.garageService, this.newCarObserver);
         },
       },
       {

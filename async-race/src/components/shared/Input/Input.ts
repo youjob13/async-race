@@ -1,11 +1,6 @@
 import BaseControl from '../BaseControl/BaseControl';
 import { IAttr } from '../interfaces/api';
 
-interface IRegExp {
-  exp: string;
-  flags?: string;
-}
-
 class Input extends BaseControl<HTMLInputElement> {
   constructor(
     private propsToBaseControl: {

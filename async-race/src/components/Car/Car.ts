@@ -2,24 +2,120 @@ import './car.scss';
 import { IPropsToBaseControl } from '../shared/interfaces/api';
 import { ICarItemState } from '../state/carState';
 import BaseControl from '../shared/BaseControl/BaseControl';
+import Button from '../shared/Button/Button';
+import Input from '../shared/Input/Input';
 
-export interface ICar {}
+// export interface ICar {}
 
-class Car extends BaseControl<HTMLElement> implements ICar {
+class Car extends BaseControl<HTMLElement> {
+  private isEdit: boolean;
+
+  private updateValueForm: any;
+
   constructor(
     propsToBaseControl: IPropsToBaseControl,
-    private car: ICarItemState
+    private car: ICarItemState,
+    private onDeleteCarBtnClick: (id: number) => void,
+    private editCarParams: (id: number, type: string, value: string) => void
   ) {
     super(propsToBaseControl);
+    this.updateValueForm = {
+      name: '',
+      color: '',
+    };
+    this.isEdit = false;
   }
 
+  private onConfirmEditBtnClick = () => {
+    this.isEdit = false;
+    this.editCarParams(
+      this.car.id,
+      this.updateValueForm.name,
+      this.updateValueForm.color
+    );
+    console.log(this.isEdit);
+  };
+
+  private handleInput = (type: string, value: string): void => {
+    this.updateValueForm[type] = value;
+  };
+
+  private onEditBtnClick = () => {
+    this.isEdit = true;
+  };
+
+  private onDeleteBtnClick = (): void => {
+    this.onDeleteCarBtnClick(this.car.id);
+  };
+
   render(): HTMLElement {
-    let carImgWrapper = new BaseControl({
+    const buttonsWrapper = new BaseControl({
+      tagName: 'div',
+      classes: ['car__buttons'],
+    });
+
+    const deleteCarBtn = new Button(
+      {
+        tagName: 'button',
+        classes: ['car__delete'],
+        text: 'Delete',
+      },
+      this.onDeleteBtnClick
+    );
+
+    if (this.isEdit) {
+      const inputName = new Input(
+        {
+          tagName: 'input',
+          classes: ['generate-car__input_name'],
+          attributes: { type: 'text', name: 'name' },
+        },
+        this.handleInput
+      );
+
+      const inputColor = new Input(
+        {
+          tagName: 'input',
+          classes: ['generate-car__input_name'],
+          attributes: { type: 'color', name: 'color' },
+        },
+        this.handleInput
+      );
+
+      const confirmEditBtn = new Button(
+        {
+          tagName: 'button',
+          classes: ['car__edit_confirm'],
+          text: 'Confirm',
+        },
+        this.onConfirmEditBtnClick
+      );
+
+      buttonsWrapper.node.append(
+        deleteCarBtn.node,
+        inputName.node,
+        inputColor.node,
+        confirmEditBtn.node
+      );
+    } else {
+      const editCarBtn = new Button(
+        {
+          tagName: 'button',
+          classes: ['car__edit'],
+          text: 'Edit',
+        },
+        this.onEditBtnClick
+      );
+
+      buttonsWrapper.node.append(deleteCarBtn.node, editCarBtn.node);
+    }
+
+    const carImgWrapper = new BaseControl({
       tagName: 'div',
       classes: ['car__img-wrapper'],
     });
 
-    let carImg = `<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+    const carImg = `<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
         width="100px" height="100%" viewBox="0 0 1280.000000 720.000000"
         preserveAspectRatio="xMidYMid meet">
       <g transform="translate(0.000000,720.000000) scale(0.100000,-0.100000)"
@@ -67,7 +163,7 @@ class Car extends BaseControl<HTMLElement> implements ICar {
       classes: ['car__info'],
       text: this.car.name,
     });
-    this.node.append(carImgWrapper.node, textContent.node);
+    this.node.append(buttonsWrapper.node, carImgWrapper.node, textContent.node);
     return this.node;
   }
 }
