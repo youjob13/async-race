@@ -6,7 +6,7 @@ interface IWinnersContainer {
 
 class WinnersContainer implements IWinnersContainer {
   render(): HTMLElement {
-    return new Winners({ tagName: 'div', classes: ['winners'] }).render();
+    return new Winners({ tagName: 'main', classes: ['winners'] }).render();
   }
 }
 

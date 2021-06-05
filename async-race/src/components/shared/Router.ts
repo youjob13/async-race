@@ -1,10 +1,8 @@
-import Garage from '../Garage/Garage';
-import GarageContainer from '../Garage/GarageContainer';
 import { IGarageService } from '../services/GarageService';
-import Winners from '../Winners/Winners';
-import WinnersContainer from '../Winners/WinnersContainer';
 import { IPage } from './interfaces/page-model';
 import { IRoute, IRouter } from './interfaces/router-model';
+import WinnersContainer from '../Winners/WinnersContainer';
+import GarageContainer from '../Garage/GarageContainer';
 
 class Router implements IRouter {
   private routes: IRoute[];

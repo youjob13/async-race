@@ -10,7 +10,7 @@ class GarageContainer implements IGarageContainer {
 
   render(): HTMLElement {
     const cars = this.garageService.getCars();
-    return new Garage({ tagName: 'div', classes: ['garage'] }, cars).render();
+    return new Garage({ tagName: 'main', classes: ['garage'] }, cars).render();
   }
 }
 
