@@ -1,7 +1,8 @@
-import HeaderContainer from './components/Header/HeaderContainer';
+import './styles.scss';
+import { IGarageService } from './components/services/GarageService';
 import { IRouter } from './components/shared/interfaces/router-model';
 import Router from './components/shared/Router';
-import { IGarageService } from './components/services/GarageService';
+import HeaderContainer from './components/Header/HeaderContainer';
 
 class App {
   private router: IRouter;
@@ -19,7 +20,7 @@ class App {
   }
 
   private render(): void {
-    this.rootElem.innerHTML = '';
+    this.rootElem.innerHTML = '<h1 class="h1-title">Async Race</h1>';
     this.rootElem.append(new HeaderContainer(this.router.changePath).render());
     const currentPage = this.router.routeToPage();
     this.rootElem.append(currentPage.render());

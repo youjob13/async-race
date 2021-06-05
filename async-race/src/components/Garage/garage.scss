@@ -1,4 +1,39 @@
 .garage {
+  &__header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #0f6868;
+    padding: 15px 120px;
+  }
+  &__cars-number {
+    font-size: 25px;
+    color: #fff;
+    padding-top: 20px;
+  }
+  &__buttons-wrapper {
+    display: flex;
+    column-gap: 15px;
+  }
+  &__button {
+    font-size: 20px;
+    padding: 4px 25px;
+    border-radius: 6px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: 0.2s;
+    &:hover {
+      background-color: turquoise;
+    }
+    &:active {
+      background-color: rgb(25, 151, 139);
+    }
+  }
+  &__inner {
+    padding: 0 120px;
+    background-color: #96b1f0;
+  }
   &__car {
     .car {
       &__image {

@@ -1,3 +1,4 @@
+import './car.scss';
 import { IPropsToBaseControl } from '../shared/interfaces/api';
 import { ICarItemState } from '../state/carState';
 import BaseControl from '../shared/BaseControl/BaseControl';

@@ -8,9 +8,22 @@ interface IGarageContainer {
 class GarageContainer implements IGarageContainer {
   constructor(private garageService: IGarageService) {}
 
+  private onGenerateCarBtnClick = (): void => {
+    this.garageService.generateNewCar();
+  };
+
+  private handleInput = (type: string, value: string): void => {
+    this.garageService.updateGenerateCarForm(type, value);
+  };
+
   render(): HTMLElement {
     const cars = this.garageService.getCars();
-    return new Garage({ tagName: 'main', classes: ['garage'] }, cars).render();
+    return new Garage(
+      { tagName: 'main', classes: ['garage'] },
+      cars,
+      this.handleInput,
+      this.onGenerateCarBtnClick
+    ).render();
   }
 }
 

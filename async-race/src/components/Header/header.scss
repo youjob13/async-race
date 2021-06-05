@@ -1,0 +1,33 @@
+.header {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+  background-color: #25355a;
+  &__buttons-wrapper {
+    display: flex;
+    column-gap: 15px;
+  }
+  &__button {
+    padding: 10px 40px;
+    border-radius: 6px;
+    background-color: #7f6cbb;
+    text-decoration: none;
+    color: #fffff0;
+    font-size: 21px;
+    font-weight: 600;
+    font-family: "Teko", sans-serif;
+    transition: 0.2s;
+    border: 2px solid transparent;
+    &:hover {
+      background-color: #4c2db3;
+    }
+    &:active {
+      background-color: #3b1ba5;
+      border: 2px solid #fff;
+    }
+  }
+  &__button + .active {
+    background-color: #3b1ba5;
+    border: 2px solid #fff;
+  }
+}
