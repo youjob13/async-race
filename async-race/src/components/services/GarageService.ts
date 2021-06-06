@@ -47,7 +47,7 @@ class GarageService {
       const newCar = {
         name: carNameRandomGenerator(),
         color: colorRandomGenerator(),
-        id: Date.now(),
+        id: Date.now() - i,
         isEdit: false,
       };
       this.cars.unshift(newCar);
