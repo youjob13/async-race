@@ -2,11 +2,14 @@ import { carState, ICarItemState } from '../state/carState';
 
 export interface IGarageService {
   getCars: () => ICarItemState[];
+  getCurrentGaragePage: () => number;
   generateNewCar: () => void;
   updateCarParams: (id: number, name: string, color: string) => void;
   deleteCar: (id: number) => void;
   setEditMode: (id: number) => void;
   updateGenerateCarForm: (type: string, value: string) => void;
+  prevPage: () => void;
+  nextPage: () => void;
 }
 
 export interface ICarForm {
@@ -16,14 +19,34 @@ export interface ICarForm {
 class GarageService {
   private cars: ICarItemState[];
 
+  private currentGaragePage: number;
+
   private generateCarForm: ICarForm;
 
   constructor() {
+    this.currentGaragePage = 1;
     this.generateCarForm = {
       name: '',
       color: '#000',
     };
     this.cars = [...carState.cars];
+  }
+
+  private clearGenerateCarForm(): void {
+    this.generateCarForm.name = '';
+    this.generateCarForm.color = '';
+  }
+
+  prevPage(): void {
+    this.currentGaragePage--;
+  }
+
+  nextPage(): void {
+    this.currentGaragePage++;
+  }
+
+  getCurrentGaragePage(): number {
+    return this.currentGaragePage;
   }
 
   setEditMode(id: number): void {
@@ -35,11 +58,6 @@ class GarageService {
       }
       return car;
     });
-  }
-
-  private clearGenerateCarForm(): void {
-    this.generateCarForm.name = '';
-    this.generateCarForm.color = '';
   }
 
   updateCarParams(id: number, name: string, color: string): void {

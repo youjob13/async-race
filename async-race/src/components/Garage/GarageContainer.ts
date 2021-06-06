@@ -7,10 +7,24 @@ interface IGarageContainer {
 }
 
 class GarageContainer implements IGarageContainer {
+  currentPage: number;
+
   constructor(
     private garageService: IGarageService,
     private newCarObserver: IObserver
-  ) {}
+  ) {
+    this.currentPage = this.garageService.getCurrentGaragePage();
+  }
+
+  private onPrevPageBtnClick = (): void => {
+    this.garageService.prevPage();
+    this.newCarObserver.broadcast();
+  };
+
+  private onNextPageBtnClick = (): void => {
+    this.garageService.nextPage();
+    this.newCarObserver.broadcast();
+  };
 
   private editCarParams = (id: number, name: string, color: string): void => {
     this.garageService.updateCarParams(id, name, color);
@@ -38,6 +52,7 @@ class GarageContainer implements IGarageContainer {
 
   render(): HTMLElement {
     const cars = this.garageService.getCars();
+
     return new Garage(
       { tagName: 'main', classes: ['garage'] },
       cars,
@@ -45,7 +60,10 @@ class GarageContainer implements IGarageContainer {
       this.onGenerateCarBtnClick,
       this.onDeleteCarBtnClick,
       this.editCarParams,
-      this.setEditMode
+      this.setEditMode,
+      this.currentPage,
+      this.onNextPageBtnClick,
+      this.onPrevPageBtnClick
     ).render();
   }
 }

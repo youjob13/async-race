@@ -31,13 +31,38 @@
     }
   }
   &__inner {
-    padding: 0 120px;
+    padding: 2em 120px;
     background-color: #96b1f0;
   }
   &__car {
     .car {
       &__image {
-        width: 140px;
+        width: 90px;
+      }
+    }
+  }
+  &__pages {
+    padding: 15px 120px;
+    background-color: darkslategray;
+    display: flex;
+    column-gap: 15px;
+    .arrow {
+      cursor: pointer;
+      background-color: #fff;
+      padding: 4px 10px;
+      border-radius: 5px;
+      border: 2px solid transparent;
+      transition: 0.2s;
+      &:hover {
+        border: 2px solid #333;
+      }
+      &:active {
+        background-color: rgb(224, 224, 224);
+      }
+    }
+    .arrow[disabled] {
+      &:hover {
+        border: 2px solid transparent;
       }
     }
   }

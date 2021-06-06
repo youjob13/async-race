@@ -15,7 +15,10 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     private onGenerateCarBtnClick: () => void,
     private onDeleteCarBtnClick: (id: number) => void,
     private editCarParams: (id: number, type: string, value: string) => void,
-    private setEditMode: (id: number) => void
+    private setEditMode: (id: number) => void,
+    private currentPage: number,
+    private onNextPageBtnClick: () => void,
+    private onPrevPageBtnClick: () => void
   ) {
     super(propsToBaseControl);
   }
@@ -25,6 +28,10 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
   returnCarToDefaultPosition = (): void => {};
 
   createCar = (): void => {};
+
+  onNextPageClick = (): void => {};
+
+  onPrevPageClick = (): void => {};
 
   render(): HTMLElement {
     const garageHeader = new BaseControl({
@@ -95,7 +102,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
 
     buttonsWrapper.node.append(startRaceBtn.node, resetBtn.node);
 
-    const carsNumber = new BaseControl({
+    const carsNumberOutput = new BaseControl({
       tagName: 'p',
       classes: ['garage__cars-number'],
       text: this.cars.length.toString(),
@@ -103,7 +110,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
 
     garageHeader.node.append(
       generateCarWrapper.node,
-      carsNumber.node,
+      carsNumberOutput.node,
       buttonsWrapper.node
     );
 
@@ -112,18 +119,61 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       classes: ['garage__inner'],
     });
 
-    this.cars.forEach((car) => {
-      const carItem = new CarContainer(
-        { tagName: 'div', classes: ['garage__car', 'car'] },
-        car,
-        this.onDeleteCarBtnClick,
-        this.editCarParams,
-        this.setEditMode
-      ).render();
-      garageContent.node.append(carItem);
+    const arrowsPagesWrapper = new BaseControl({
+      tagName: 'div',
+      classes: ['garage__pages'],
     });
 
-    this.node.append(garageHeader.node, garageContent.node);
+    const carsNumber = this.cars.length;
+    const carsOnPage = 7;
+    const pagesNumber = Math.ceil(carsNumber / carsOnPage);
+
+    const leftArrow = new Button(
+      {
+        tagName: 'button',
+        classes: ['arrow', 'arrow-left'],
+        text: 'Prev',
+      },
+      this.onPrevPageBtnClick
+    );
+
+    const rightArrow = new Button(
+      {
+        tagName: 'button',
+        classes: ['arrow', 'arrow-right'],
+        text: 'Next',
+      },
+      this.onNextPageBtnClick
+    );
+
+    this.currentPage === 1 &&
+      leftArrow.node.setAttribute('disabled', 'disabled');
+
+    this.currentPage === pagesNumber &&
+      rightArrow.node.setAttribute('disabled', 'disabled');
+
+    this.cars.forEach((car, index) => {
+      if (
+        (this.currentPage - 1) * carsOnPage <= index &&
+        index < carsOnPage * this.currentPage
+      ) {
+        const carItem = new CarContainer(
+          { tagName: 'div', classes: ['garage__car', 'car'] },
+          car,
+          this.onDeleteCarBtnClick,
+          this.editCarParams,
+          this.setEditMode
+        ).render();
+        garageContent.node.append(carItem);
+      }
+    });
+
+    arrowsPagesWrapper.node.append(leftArrow.node, rightArrow.node);
+    this.node.append(
+      garageHeader.node,
+      garageContent.node,
+      arrowsPagesWrapper.node
+    );
     return this.node;
   }
 }
