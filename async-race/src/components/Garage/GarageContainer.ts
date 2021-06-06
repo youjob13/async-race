@@ -41,6 +41,11 @@ class GarageContainer implements IGarageContainer {
     this.newCarObserver.broadcast();
   };
 
+  private onGenerateRandomCarsBtnClick = (): void => {
+    this.garageService.generateRandomCars();
+    this.newCarObserver.broadcast();
+  }
+
   private onGenerateCarBtnClick = (): void => {
     this.garageService.generateNewCar();
     this.newCarObserver.broadcast();
@@ -56,14 +61,15 @@ class GarageContainer implements IGarageContainer {
     return new Garage(
       { tagName: 'main', classes: ['garage'] },
       cars,
+      this.currentPage,
       this.handleInput,
       this.onGenerateCarBtnClick,
       this.onDeleteCarBtnClick,
       this.editCarParams,
       this.setEditMode,
-      this.currentPage,
       this.onNextPageBtnClick,
-      this.onPrevPageBtnClick
+      this.onPrevPageBtnClick,
+      this.onGenerateRandomCarsBtnClick
     ).render();
   }
 }

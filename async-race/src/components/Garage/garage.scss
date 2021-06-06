@@ -7,10 +7,11 @@
     background-color: #0f6868;
     padding: 15px 120px;
   }
-  &__cars-number {
+  &__cars-number,
+  &__current-page {
     font-size: 25px;
     color: #fff;
-    padding-top: 20px;
+    padding: 10px;
   }
   &__buttons-wrapper {
     display: flex;
@@ -63,6 +64,44 @@
     .arrow[disabled] {
       &:hover {
         border: 2px solid transparent;
+      }
+    }
+  }
+  .generate-car {
+    &__wrapper {
+      display: flex;
+    }
+    &__button {
+      cursor: pointer;
+      padding: 4px 8px;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      &:active {
+        transform: scale(0.97);
+      }
+      &:last-child {
+        margin-left: 20px;
+        border-radius: 4px;
+      }
+    }
+    &__button,
+    &__input {
+      height: 2em;
+      border: 2px solid transparent;
+      transition: 0.2s;
+      &:hover {
+        border: 2px solid #96b1f0;
+      }
+    }
+    &__input {
+      padding: 0 5px;
+      &_color {
+        border-right: 2px solid #96b1f0;
+        border-left: 2px solid #96b1f0;
+      }
+      &_name {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
       }
     }
   }

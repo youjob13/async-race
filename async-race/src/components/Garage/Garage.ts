@@ -11,14 +11,15 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
   constructor(
     propsToBaseControl: IPropsToBaseControl,
     private cars: ICarItemState[],
+    private currentPage: number,
     private handleInput: (type: string, value: string) => void,
     private onGenerateCarBtnClick: () => void,
     private onDeleteCarBtnClick: (id: number) => void,
     private editCarParams: (id: number, type: string, value: string) => void,
     private setEditMode: (id: number) => void,
-    private currentPage: number,
     private onNextPageBtnClick: () => void,
-    private onPrevPageBtnClick: () => void
+    private onPrevPageBtnClick: () => void,
+    private onGenerateRandomCarsBtnClick: () => void
   ) {
     super(propsToBaseControl);
   }
@@ -26,12 +27,6 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
   startRace = (): void => {};
 
   returnCarToDefaultPosition = (): void => {};
-
-  createCar = (): void => {};
-
-  onNextPageClick = (): void => {};
-
-  onPrevPageClick = (): void => {};
 
   render(): HTMLElement {
     const garageHeader = new BaseControl({
@@ -47,7 +42,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     const inputName = new Input(
       {
         tagName: 'input',
-        classes: ['generate-car__input_name'],
+        classes: ['generate-car__input', 'generate-car__input_name'],
         attributes: { type: 'text', name: 'name' },
       },
       this.handleInput
@@ -56,7 +51,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     const inputColor = new Input(
       {
         tagName: 'input',
-        classes: ['generate-car__input_name'],
+        classes: ['generate-car__input', 'generate-car__input_color'],
         attributes: { type: 'color', name: 'color' },
       },
       this.handleInput
@@ -65,16 +60,26 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     const generateCarBtn = new Button(
       {
         tagName: 'button',
-        classes: ['generate__button'],
+        classes: ['generate-car__button', 'button'],
         text: 'Generate car',
       },
       this.onGenerateCarBtnClick
     );
 
+    const generateRandomCarsBtn = new Button(
+      {
+        tagName: 'button',
+        classes: ['generate-car__button', 'button'],
+        text: 'Generate 100 cars',
+      },
+      this.onGenerateRandomCarsBtnClick
+    );
+
     generateCarWrapper.node.append(
       inputName.node,
       inputColor.node,
-      generateCarBtn.node
+      generateCarBtn.node,
+      generateRandomCarsBtn.node
     );
 
     const buttonsWrapper = new BaseControl({
@@ -103,15 +108,22 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     buttonsWrapper.node.append(startRaceBtn.node, resetBtn.node);
 
     const carsNumberOutput = new BaseControl({
-      tagName: 'p',
+      tagName: 'output',
       classes: ['garage__cars-number'],
-      text: this.cars.length.toString(),
+      text: `Cars in garage: ${this.cars.length.toString()}`,
+    });
+
+    const currentPage = new BaseControl({
+      tagName: 'output',
+      classes: ['garage__current-page'],
+      text: `#Page: ${this.currentPage}`,
     });
 
     garageHeader.node.append(
       generateCarWrapper.node,
       carsNumberOutput.node,
-      buttonsWrapper.node
+      buttonsWrapper.node,
+      currentPage.node
     );
 
     const garageContent = new BaseControl({

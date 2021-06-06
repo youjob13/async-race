@@ -1,9 +1,14 @@
+import {
+  carNameRandomGenerator,
+  colorRandomGenerator,
+} from '../shared/functions/valueRandomGenerator';
 import { carState, ICarItemState } from '../state/carState';
 
 export interface IGarageService {
   getCars: () => ICarItemState[];
   getCurrentGaragePage: () => number;
   generateNewCar: () => void;
+  generateRandomCars: () => void;
   updateCarParams: (id: number, name: string, color: string) => void;
   deleteCar: (id: number) => void;
   setEditMode: (id: number) => void;
@@ -35,6 +40,18 @@ class GarageService {
   private clearGenerateCarForm(): void {
     this.generateCarForm.name = '';
     this.generateCarForm.color = '';
+  }
+
+  generateRandomCars(): void {
+    for (let i = 0; i < 100; i++) {
+      const newCar = {
+        name: carNameRandomGenerator(),
+        color: colorRandomGenerator(),
+        id: Date.now(),
+        isEdit: false,
+      };
+      this.cars.unshift(newCar);
+    }
   }
 
   prevPage(): void {
