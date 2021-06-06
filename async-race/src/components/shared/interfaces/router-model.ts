@@ -3,7 +3,7 @@ import { IPage } from './page-model';
 export interface IRouter {
   changePath: (path: string) => void;
   getHash: () => string;
-  routeToPage: () => any;
+  routeToPage: () => IPage | '404 error' | any;
 }
 
 export interface IRoute {

@@ -3,27 +3,38 @@ import { carState, ICarItemState } from '../state/carState';
 export interface IGarageService {
   getCars: () => ICarItemState[];
   generateNewCar: () => void;
-  updateCarParams: (id: number, type: string, value: string) => void;
+  updateCarParams: (id: number, name: string, color: string) => void;
   deleteCar: (id: number) => void;
+  setEditMode: (id: number) => void;
   updateGenerateCarForm: (type: string, value: string) => void;
 }
 
-export interface IGenerateCarForm {
+export interface ICarForm {
   [key: string]: string;
 }
 
 class GarageService {
   private cars: ICarItemState[];
 
-  private generateCarForm: IGenerateCarForm;
+  private generateCarForm: ICarForm;
 
   constructor() {
     this.generateCarForm = {
       name: '',
       color: '#000',
     };
+    this.cars = [...carState.cars];
+  }
 
-    this.cars = carState.cars.map((car) => car);
+  setEditMode(id: number): void {
+    this.cars = this.cars.map((car) => {
+      if (car.id === id) {
+        const carCopy = { ...car };
+        carCopy.isEdit = true;
+        return carCopy;
+      }
+      return car;
+    });
   }
 
   private clearGenerateCarForm(): void {
@@ -31,16 +42,20 @@ class GarageService {
     this.generateCarForm.color = '';
   }
 
-  updateCarParams(id: number, type: string, value: string): void {
-    this.cars.forEach((car) => {
+  updateCarParams(id: number, name: string, color: string): void {
+    this.cars = this.cars.map((car) => {
       if (car.id === id) {
-        if (type !== '') {
-          car.name = type;
+        const carCopy = { ...car };
+        if (name !== '') {
+          carCopy.name = name;
         }
-        if (value !== '') {
-          car.color = value;
+        if (color !== '') {
+          carCopy.color = color;
         }
+        carCopy.isEdit = false;
+        return carCopy;
       }
+      return car;
     });
   }
 

@@ -8,45 +8,16 @@ import Input from '../shared/Input/Input';
 // export interface ICar {}
 
 class Car extends BaseControl<HTMLElement> {
-  private isEdit: boolean;
-
-  private updateValueForm: any;
-
   constructor(
     propsToBaseControl: IPropsToBaseControl,
     private car: ICarItemState,
-    private onDeleteCarBtnClick: (id: number) => void,
-    private editCarParams: (id: number, type: string, value: string) => void
+    private onConfirmEditBtnClick: () => void,
+    private handleInput: (type: string, value: string) => void,
+    private onEditBtnClick: () => void,
+    private onDeleteBtnClick: () => void
   ) {
     super(propsToBaseControl);
-    this.updateValueForm = {
-      name: '',
-      color: '',
-    };
-    this.isEdit = false;
   }
-
-  private onConfirmEditBtnClick = () => {
-    this.isEdit = false;
-    this.editCarParams(
-      this.car.id,
-      this.updateValueForm.name,
-      this.updateValueForm.color
-    );
-    console.log(this.isEdit);
-  };
-
-  private handleInput = (type: string, value: string): void => {
-    this.updateValueForm[type] = value;
-  };
-
-  private onEditBtnClick = () => {
-    this.isEdit = true;
-  };
-
-  private onDeleteBtnClick = (): void => {
-    this.onDeleteCarBtnClick(this.car.id);
-  };
 
   render(): HTMLElement {
     const buttonsWrapper = new BaseControl({
@@ -63,7 +34,7 @@ class Car extends BaseControl<HTMLElement> {
       this.onDeleteBtnClick
     );
 
-    if (this.isEdit) {
+    if (this.car.isEdit) {
       const inputName = new Input(
         {
           tagName: 'input',
@@ -163,6 +134,7 @@ class Car extends BaseControl<HTMLElement> {
       classes: ['car__info'],
       text: this.car.name,
     });
+
     this.node.append(buttonsWrapper.node, carImgWrapper.node, textContent.node);
     return this.node;
   }

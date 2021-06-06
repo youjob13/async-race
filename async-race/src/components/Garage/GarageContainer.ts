@@ -1,7 +1,6 @@
 import { IGarageService } from '../services/GarageService';
 import { IObserver } from '../shared/Observer';
 import Garage from './Garage';
-// import newCarObserver from '../..';
 
 interface IGarageContainer {
   render: () => HTMLElement;
@@ -13,8 +12,13 @@ class GarageContainer implements IGarageContainer {
     private newCarObserver: IObserver
   ) {}
 
-  private editCarParams = (id: number, type: string, value: string): void => {
-    this.garageService.updateCarParams(id, type, value);
+  private editCarParams = (id: number, name: string, color: string): void => {
+    this.garageService.updateCarParams(id, name, color);
+    this.newCarObserver.broadcast();
+  };
+
+  private setEditMode = (id: number): void => {
+    this.garageService.setEditMode(id);
     this.newCarObserver.broadcast();
   };
 
@@ -40,7 +44,8 @@ class GarageContainer implements IGarageContainer {
       this.handleInput,
       this.onGenerateCarBtnClick,
       this.onDeleteCarBtnClick,
-      this.editCarParams
+      this.editCarParams,
+      this.setEditMode
     ).render();
   }
 }

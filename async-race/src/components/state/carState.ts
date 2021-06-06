@@ -2,16 +2,17 @@ export interface ICarItemState {
   id: number;
   name: string;
   color: string;
+  isEdit?: boolean;
 }
 
-export interface ICarState {
-  cars: ICarItemState[];
-}
+// export interface ICarState {
+//   cars: ICarItemState[];
+// }
 
-interface IAction {
-  type: string;
-  value: ICarState;
-}
+// interface IAction {
+//   type: string;
+//   value: ICarState;
+// }
 
 export const carState = {
   cars: [
@@ -33,7 +34,7 @@ export const carState = {
   ],
 };
 
-const ACTION_1 = 'CARS';
+// const ACTION_1 = 'CARS';
 
 // const carReducer = (state: ICarState, action: any): any => {
 //   switch (action.type) {
