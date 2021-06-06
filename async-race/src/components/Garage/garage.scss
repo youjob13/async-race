@@ -1,6 +1,6 @@
 .garage {
   display: grid;
-  grid-template-rows: 85px auto 60px;
+  grid-template-rows: 80px auto 60px;
   height: calc(100% - 50px);
   &__header {
     display: flex;
@@ -34,7 +34,7 @@
     }
   }
   &__inner {
-    padding: 2em 120px;
+    padding: 1em 120px;
     background-color: #96b1f0;
   }
   &__car {

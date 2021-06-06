@@ -172,10 +172,10 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       this.onNextPageBtnClick
     );
 
-    this.currentPage === 1 &&
+    if (this.currentPage === 1)
       leftArrow.node.setAttribute('disabled', 'disabled');
 
-    this.currentPage === pagesNumber &&
+    if (this.currentPage === pagesNumber)
       rightArrow.node.setAttribute('disabled', 'disabled');
 
     this.cars.forEach((car, index) => {

@@ -3,7 +3,7 @@ const randomNumberInRange = (min = 0, max = 1) => {
 };
 
 export const carNameRandomGenerator = (): string => {
-  let brands = [
+  const brands = [
     'Opel',
     'BMW',
     'Mercedes',
@@ -18,7 +18,7 @@ export const carNameRandomGenerator = (): string => {
     'Ferrari',
     'Porshe',
   ];
-  let model = [
+  const model = [
     'Astra',
     'X5',
     'Benz',
@@ -37,5 +37,5 @@ export const carNameRandomGenerator = (): string => {
 };
 
 export const colorRandomGenerator = (): string => {
-  return '#' + (Math.random().toString(16) + '000000').substring(2, 8);
+  return `#${`${Math.random().toString(16)}000000`.substring(2, 8)}`;
 };

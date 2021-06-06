@@ -44,7 +44,7 @@ class GarageContainer implements IGarageContainer {
   private onGenerateRandomCarsBtnClick = (): void => {
     this.garageService.generateRandomCars();
     this.newCarObserver.broadcast();
-  }
+  };
 
   private onGenerateCarBtnClick = (): void => {
     this.garageService.generateNewCar();
