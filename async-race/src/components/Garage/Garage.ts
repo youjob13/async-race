@@ -34,6 +34,16 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       classes: ['garage__header'],
     });
 
+    const garageGenerateWrapper = new BaseControl({
+      tagName: 'div',
+      classes: ['garage__control'],
+    });
+
+    const garageRaceWrapper = new BaseControl({
+      tagName: 'div',
+      classes: ['garage__race'],
+    });
+
     const generateCarWrapper = new BaseControl({
       tagName: 'div',
       classes: ['garage__generate-car', 'generate-car__wrapper'],
@@ -119,11 +129,15 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       text: `#Page: ${this.currentPage}`,
     });
 
-    garageHeader.node.append(
+    garageGenerateWrapper.node.append(
       generateCarWrapper.node,
-      carsNumberOutput.node,
-      buttonsWrapper.node,
-      currentPage.node
+      carsNumberOutput.node
+    );
+    garageRaceWrapper.node.append(buttonsWrapper.node, currentPage.node);
+
+    garageHeader.node.append(
+      garageRaceWrapper.node,
+      garageGenerateWrapper.node
     );
 
     const garageContent = new BaseControl({

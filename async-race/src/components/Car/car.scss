@@ -1,3 +1,42 @@
 .car {
   border-bottom: 2px solid #000;
+  &__content {
+    display: flex;
+    align-items: center;
+  }
+  &__info {
+    margin-right: 12px;
+    font-size: 16px;
+    font-weight: 400;
+  }
+  &__buttons {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  &__update-params-wrapper {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: 100%;
+    top: 0;
+  }
+  .button {
+    padding: 0 10px;
+    border-radius: 6px;
+    transition: 0.2s;
+    background-color: #fff;
+    cursor: pointer;
+    &:hover {
+      background-color: rgb(172, 165, 165);
+    }
+    &:active {
+      background-color: rgb(214, 214, 214);
+    }
+  }
+  &__edit_confirm {
+    border-radius: 0 !important;
+    border-bottom-right-radius: 6px !important;
+    border-top-right-radius: 6px !important;
+  }
 }

@@ -1,20 +1,21 @@
 .header {
   display: flex;
   justify-content: center;
-  padding: 20px 0;
+  padding: 10px 0;
   background-color: #25355a;
+  height: 50px;
   &__buttons-wrapper {
     display: flex;
     column-gap: 15px;
   }
   &__button {
-    padding: 10px 40px;
+    padding: 2px 30px;
     border-radius: 6px;
     background-color: #7f6cbb;
     text-decoration: none;
     color: #fffff0;
-    font-size: 21px;
-    font-weight: 600;
+    font-size: 19px;
+    font-weight: 500;
     font-family: "Teko", sans-serif;
     transition: 0.2s;
     border: 2px solid transparent;

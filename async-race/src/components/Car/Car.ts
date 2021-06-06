@@ -28,17 +28,21 @@ class Car extends BaseControl<HTMLElement> {
     const deleteCarBtn = new Button(
       {
         tagName: 'button',
-        classes: ['car__delete'],
+        classes: ['car__delete', 'button'],
         text: 'Delete',
       },
       this.onDeleteBtnClick
     );
 
     if (this.car.isEdit) {
+      const updateCarParamsWrapper = new BaseControl({
+        tagName: 'div',
+        classes: ['car__update-params-wrapper'],
+      });
       const inputName = new Input(
         {
           tagName: 'input',
-          classes: ['generate-car__input_name'],
+          classes: ['generate-car__input', 'generate-car__input_name'],
           attributes: { type: 'text', name: 'name' },
         },
         this.handleInput
@@ -47,7 +51,7 @@ class Car extends BaseControl<HTMLElement> {
       const inputColor = new Input(
         {
           tagName: 'input',
-          classes: ['generate-car__input_name'],
+          classes: ['generate-car__input', 'generate-car__input_name'],
           attributes: { type: 'color', name: 'color' },
         },
         this.handleInput
@@ -56,28 +60,29 @@ class Car extends BaseControl<HTMLElement> {
       const confirmEditBtn = new Button(
         {
           tagName: 'button',
-          classes: ['car__edit_confirm'],
+          classes: ['car__edit_confirm', 'button'],
           text: 'Confirm',
         },
         this.onConfirmEditBtnClick
       );
-
-      buttonsWrapper.node.append(
-        deleteCarBtn.node,
+      updateCarParamsWrapper.node.append(
         inputName.node,
         inputColor.node,
         confirmEditBtn.node
+      );
+      buttonsWrapper.node.append(
+        deleteCarBtn.node,
+        updateCarParamsWrapper.node
       );
     } else {
       const editCarBtn = new Button(
         {
           tagName: 'button',
-          classes: ['car__edit'],
+          classes: ['car__edit', 'button'],
           text: 'Edit',
         },
         this.onEditBtnClick
       );
-
       buttonsWrapper.node.append(deleteCarBtn.node, editCarBtn.node);
     }
 
@@ -129,13 +134,20 @@ class Car extends BaseControl<HTMLElement> {
 
     carImgWrapper.node.innerHTML = carImg;
 
+    const carContent = new BaseControl({
+      tagName: 'div',
+      classes: ['car__content'],
+    });
+
     const textContent = new BaseControl({
       tagName: 'p',
       classes: ['car__info'],
       text: this.car.name,
     });
 
-    this.node.append(buttonsWrapper.node, carImgWrapper.node, textContent.node);
+    carContent.node.append(textContent.node, buttonsWrapper.node);
+
+    this.node.append(carContent.node, carImgWrapper.node);
     return this.node;
   }
 }
