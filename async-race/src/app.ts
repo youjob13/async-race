@@ -13,7 +13,7 @@ class App {
     private garageService: IGarageService,
     private newCarObserver: IObserver
   ) {
-    this.router = new Router(this.garageService, newCarObserver);
+    this.router = new Router(this.garageService, this.newCarObserver);
   }
 
   init(): void {

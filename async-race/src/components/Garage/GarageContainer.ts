@@ -1,5 +1,6 @@
 import { IGarageService } from '../services/GarageService';
 import { IObserver } from '../shared/Observer';
+import { ICarItemState } from '../state/carState';
 import Garage from './Garage';
 
 interface IGarageContainer {
@@ -9,25 +10,32 @@ interface IGarageContainer {
 class GarageContainer implements IGarageContainer {
   currentPage: number;
 
+  cars: ICarItemState[];
+
   constructor(
     private garageService: IGarageService,
     private newCarObserver: IObserver
   ) {
+    this.cars = this.garageService.getCars();
     this.currentPage = this.garageService.getCurrentGaragePage();
   }
 
-  private onPrevPageBtnClick = (): void => {
-    this.garageService.prevPage();
+  private onPrevPageBtnClick = async (): Promise<void> => {
+    await this.garageService.prevPage();
     this.newCarObserver.broadcast();
   };
 
-  private onNextPageBtnClick = (): void => {
-    this.garageService.nextPage();
+  private onNextPageBtnClick = async (): Promise<void> => {
+    await this.garageService.nextPage();
     this.newCarObserver.broadcast();
   };
 
-  private editCarParams = (id: number, name: string, color: string): void => {
-    this.garageService.updateCarParams(id, name, color);
+  private editCarParams = async (
+    id: number,
+    name: string,
+    color: string
+  ): Promise<void> => {
+    await this.garageService.updateCarParams(id, name, color);
     this.newCarObserver.broadcast();
   };
 
@@ -36,18 +44,18 @@ class GarageContainer implements IGarageContainer {
     this.newCarObserver.broadcast();
   };
 
-  private onDeleteCarBtnClick = (id: number): void => {
-    this.garageService.deleteCar(id);
+  private onDeleteCarBtnClick = async (id: number): Promise<void> => {
+    await this.garageService.deleteCar(id);
     this.newCarObserver.broadcast();
   };
 
-  private onGenerateRandomCarsBtnClick = (): void => {
-    this.garageService.generateRandomCars();
+  private onGenerateRandomCarsBtnClick = async (): Promise<void> => {
+    await this.garageService.generateRandomCars();
     this.newCarObserver.broadcast();
   };
 
-  private onGenerateCarBtnClick = (): void => {
-    this.garageService.generateNewCar();
+  private onGenerateCarBtnClick = async (): Promise<void> => {
+    await this.garageService.generateNewCar();
     this.newCarObserver.broadcast();
   };
 
@@ -56,11 +64,9 @@ class GarageContainer implements IGarageContainer {
   };
 
   render(): HTMLElement {
-    const cars = this.garageService.getCars();
-
     return new Garage(
       { tagName: 'main', classes: ['garage'] },
-      cars,
+      this.cars,
       this.currentPage,
       this.handleInput,
       this.onGenerateCarBtnClick,

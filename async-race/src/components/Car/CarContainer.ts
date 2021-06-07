@@ -1,5 +1,5 @@
 import { ICarForm } from '../services/GarageService';
-import { IPropsToBaseControl } from '../shared/interfaces/api';
+import { IPropsToBaseControl } from '../shared/interfaces/api-models';
 import { ICarItemState } from '../state/carState';
 import Car from './Car';
 

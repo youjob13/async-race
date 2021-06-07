@@ -1,3 +1,4 @@
+import api from '../api/api';
 import {
   carNameRandomGenerator,
   colorRandomGenerator,
@@ -22,8 +23,6 @@ export interface ICarForm {
 }
 
 class GarageService {
-  private cars: ICarItemState[];
-
   private currentGaragePage: number;
 
   private generateCarForm: ICarForm;
@@ -34,7 +33,6 @@ class GarageService {
       name: '',
       color: '#000',
     };
-    this.cars = [...carState.cars];
   }
 
   private clearGenerateCarForm(): void {
@@ -42,43 +40,31 @@ class GarageService {
     this.generateCarForm.color = '';
   }
 
-  generateRandomCars(): void {
-    for (let i = 0; i < 100; i++) {
-      const newCar = {
+  generateRandomCars = async (): Promise<void> => {
+    for (let i = 0; i < 5; i++) {
+      const newRandomCar = {
         name: carNameRandomGenerator(),
         color: colorRandomGenerator(),
         id: Date.now() - i,
         isEdit: false,
       };
-      this.cars.unshift(newCar);
+      const newCar = await api.createCar(
+        <ICarItemState>(<unknown>newRandomCar)
+      );
+      carState.cars.unshift(newCar);
     }
-  }
+  };
 
-  prevPage(): void {
-    this.currentGaragePage--;
-  }
-
-  nextPage(): void {
-    this.currentGaragePage++;
-  }
-
-  getCurrentGaragePage(): number {
-    return this.currentGaragePage;
-  }
-
-  setEditMode(id: number): void {
-    this.cars = this.cars.map((car) => {
-      if (car.id === id) {
-        const carCopy = { ...car };
-        carCopy.isEdit = true;
-        return carCopy;
-      }
-      return car;
-    });
-  }
-
-  updateCarParams(id: number, name: string, color: string): void {
-    this.cars = this.cars.map((car) => {
+  updateCarParams = async (
+    id: number,
+    name: string,
+    color: string
+  ): Promise<void> => {
+    const data: { name: string; color: string } = {
+      name: '',
+      color: '',
+    };
+    carState.cars = carState.cars.map((car) => {
       if (car.id === id) {
         const carCopy = { ...car };
         if (name !== '') {
@@ -87,30 +73,59 @@ class GarageService {
         if (color !== '') {
           carCopy.color = color;
         }
+        data.name = carCopy.name;
+        data.color = carCopy.color;
         carCopy.isEdit = false;
         return carCopy;
       }
       return car;
     });
-  }
+    await api.updateCar(id, data);
+  };
 
-  deleteCar(id: number): void {
-    this.cars = this.cars.filter((car) => car.id !== id);
-  }
+  deleteCar = async (id: number): Promise<void> => {
+    await api.deleteCar(id);
+    carState.cars = carState.cars.filter((car) => car.id !== id);
+  };
 
-  generateNewCar(): void {
-    const newCar = <ICarItemState>(<unknown>{ ...this.generateCarForm });
+  generateNewCar = async (): Promise<void> => {
+    const newCar = await api.createCar(<ICarItemState>(
+      (<unknown>{ ...this.generateCarForm })
+    ));
     newCar.id = Date.now();
-    this.cars.unshift(newCar);
+    carState.cars.unshift(newCar); // TODO: action creator
     this.clearGenerateCarForm();
-  }
+  };
+
+  setEditMode = (id: number): void => {
+    carState.cars = carState.cars.map((car) => {
+      if (car.id === id) {
+        const carCopy = { ...car };
+        carCopy.isEdit = true;
+        return carCopy;
+      }
+      return car;
+    });
+  };
+
+  getCars = (): ICarItemState[] => {
+    return carState.cars;
+  };
 
   updateGenerateCarForm(type: string, value: string): void {
     this.generateCarForm[type] = value;
   }
 
-  getCars(): ICarItemState[] {
-    return this.cars;
+  getCurrentGaragePage(): number {
+    return this.currentGaragePage;
+  }
+
+  prevPage(): void {
+    this.currentGaragePage--;
+  }
+
+  nextPage(): void {
+    this.currentGaragePage++;
   }
 }
 

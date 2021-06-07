@@ -1,5 +1,5 @@
 import './car.scss';
-import { IPropsToBaseControl } from '../shared/interfaces/api';
+import { IPropsToBaseControl } from '../shared/interfaces/api-models';
 import { ICarItemState } from '../state/carState';
 import BaseControl from '../shared/BaseControl/BaseControl';
 import Button from '../shared/Button/Button';

@@ -1,5 +1,5 @@
 import './header.scss';
-import { IPropsToBaseControl } from '../shared/interfaces/api';
+import { IPropsToBaseControl } from '../shared/interfaces/api-models';
 import BaseControl from '../shared/BaseControl/BaseControl';
 import Button from '../shared/Button/Button';
 

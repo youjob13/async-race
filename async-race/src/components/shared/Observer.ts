@@ -1,6 +1,7 @@
 export interface IObserver {
   observers: any[];
-  broadcast: (data?: any) => void;
+  data?: unknown;
+  broadcast: () => void;
   subscribe: (fn: () => void) => void;
 }
 
@@ -11,7 +12,7 @@ class Observer {
     this.observers = [];
   }
 
-  subscribe(fn: () => void): void {
+  subscribe<T>(fn: T): void {
     this.observers.push(fn);
   }
 
@@ -19,7 +20,7 @@ class Observer {
     this.observers.filter((observer) => observer !== fn);
   }
 
-  broadcast(data?: any): void {
+  broadcast(data?: unknown): void {
     this.observers.forEach((observer) => observer(data));
   }
 }

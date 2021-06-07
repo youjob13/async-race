@@ -1,4 +1,4 @@
-import { IAttr, IBaseControl } from '../interfaces/api';
+import { IAttr, IBaseControl } from '../interfaces/api-models';
 
 class BaseControl<T extends HTMLElement> implements IBaseControl<T> {
   readonly node: T;
