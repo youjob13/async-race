@@ -10,19 +10,28 @@ class Router implements IRouter {
 
   constructor(
     private garageService: IGarageService,
-    private newCarObserver: IObserver
+    private newCarObserver: IObserver,
+    private carService: any
   ) {
     this.routes = [
       {
         path: '',
         component: (): IPage => {
-          return new GarageContainer(this.garageService, this.newCarObserver);
+          return new GarageContainer(
+            this.garageService,
+            this.newCarObserver,
+            this.carService
+          );
         },
       },
       {
         path: 'garage',
         component: (): IPage => {
-          return new GarageContainer(this.garageService, this.newCarObserver);
+          return new GarageContainer(
+            this.garageService,
+            this.newCarObserver,
+            this.carService
+          );
         },
       },
       {

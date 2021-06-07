@@ -18,12 +18,12 @@ export const apiEngine = {
     status: string
   ): Promise<{ velocity: number; distance: number }> {
     try {
-      let url = new URL(`${this.baseURL}`);
+      const url = new URL(`${this.baseURL}`);
       url.searchParams.append('id', `${id}`);
       url.searchParams.append('status', `${status}`);
 
-      let response = await fetch(`${url}`);
-      let res = await response.json();
+      const response = await fetch(`${url}`);
+      const res = await response.json();
       console.log(res);
 
       return res;
@@ -66,8 +66,7 @@ const apiCars: IApi = {
 
   async deleteCar(id: number): Promise<void> {
     try {
-      const url = new URL(`${this.baseURL}`);
-      url.searchParams.append('id', `${id}`);
+      const url = new URL(`${this.baseURL}/${id}`);
       await fetch(`${url}`, {
         method: 'DELETE',
       });

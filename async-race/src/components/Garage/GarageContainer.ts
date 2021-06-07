@@ -1,3 +1,4 @@
+import { ICarServices } from '../services/CarServices';
 import { IGarageService } from '../services/GarageService';
 import { IObserver } from '../shared/Observer';
 import { ICarItemState } from '../state/carState';
@@ -14,15 +15,12 @@ class GarageContainer implements IGarageContainer {
 
   constructor(
     private garageService: IGarageService,
-    private newCarObserver: IObserver
+    private newCarObserver: IObserver,
+    private carService: ICarServices
   ) {
     this.cars = this.garageService.getCars();
     this.currentPage = this.garageService.getCurrentGaragePage();
   }
-
-  private onStartEngineBtnClick = async (id: number): Promise<number> => {
-    return await this.garageService.startCarEngine(id);
-  };
 
   private onPrevPageBtnClick = async (): Promise<void> => {
     await this.garageService.prevPage();
@@ -31,25 +29,6 @@ class GarageContainer implements IGarageContainer {
 
   private onNextPageBtnClick = async (): Promise<void> => {
     await this.garageService.nextPage();
-    this.newCarObserver.broadcast();
-  };
-
-  private editCarParams = async (
-    id: number,
-    name: string,
-    color: string
-  ): Promise<void> => {
-    await this.garageService.updateCarParams(id, name, color);
-    this.newCarObserver.broadcast();
-  };
-
-  private setEditMode = (id: number): void => {
-    this.garageService.setEditMode(id);
-    this.newCarObserver.broadcast();
-  };
-
-  private onDeleteCarBtnClick = async (id: number): Promise<void> => {
-    await this.garageService.deleteCar(id);
     this.newCarObserver.broadcast();
   };
 
@@ -64,7 +43,7 @@ class GarageContainer implements IGarageContainer {
   };
 
   private handleInput = (type: string, value: string): void => {
-    this.garageService.updateGenerateCarForm(type, value);
+    this.garageService.updateCarGenerationForm(type, value);
   };
 
   render(): HTMLElement {
@@ -74,13 +53,11 @@ class GarageContainer implements IGarageContainer {
       this.currentPage,
       this.handleInput,
       this.onGenerateCarBtnClick,
-      this.onDeleteCarBtnClick,
-      this.editCarParams,
-      this.setEditMode,
       this.onNextPageBtnClick,
       this.onPrevPageBtnClick,
       this.onGenerateRandomCarsBtnClick,
-      this.onStartEngineBtnClick
+      this.carService,
+      this.newCarObserver
     ).render();
   }
 }

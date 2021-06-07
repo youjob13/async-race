@@ -11,8 +11,9 @@ import Input from '../shared/Input/Input';
 // export interface ICar {}
 
 class Car extends BaseControl<HTMLElement> {
-  carImgWrapper: any | IBaseControl<HTMLElement>;
-  road: any | IBaseControl<HTMLElement>;
+  carImgWrapper: IBaseControl<HTMLElement>;
+
+  road: IBaseControl<HTMLElement>;
 
   constructor(
     propsToBaseControl: IPropsToBaseControl,
@@ -35,16 +36,16 @@ class Car extends BaseControl<HTMLElement> {
   }
 
   onStartEngineBtnClick = async (): Promise<void> => {
-    let time = await this.startEngine();
+    const time = await this.startEngine();
     let counter = 0;
-    let idAnimation: any;
-    let startTime = Date.now();
-    let speed = this.carImgWrapper.node.getBoundingClientRect().width / time;
+    let idAnimation: number;
+    const startTime = Date.now();
+    const speed = this.carImgWrapper.node.getBoundingClientRect().width / time;
     console.log(speed);
 
     const carMove = () => {
       counter += 50;
-      let progress = Date.now() - startTime;
+      const progress = Date.now() - startTime;
       this.carImgWrapper.node.style.transform = `translate(${counter}px)`;
       if (
         counter <=
@@ -54,7 +55,6 @@ class Car extends BaseControl<HTMLElement> {
         window.requestAnimationFrame(carMove);
       }
       window.cancelAnimationFrame(idAnimation);
-      return;
     };
 
     idAnimation = window.requestAnimationFrame(carMove);

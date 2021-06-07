@@ -6,6 +6,8 @@ import BaseControl from '../shared/BaseControl/BaseControl';
 import Button from '../shared/Button/Button';
 import Input from '../shared/Input/Input';
 import CarContainer from '../Car/CarContainer';
+import { IObserver } from '../shared/Observer';
+import { ICarServices } from '../services/CarServices';
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
   constructor(
@@ -14,13 +16,11 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     private currentPage: number,
     private handleInput: (type: string, value: string) => void,
     private onGenerateCarBtnClick: () => void,
-    private onDeleteCarBtnClick: (id: number) => void,
-    private editCarParams: (id: number, type: string, value: string) => void,
-    private setEditMode: (id: number) => void,
     private onNextPageBtnClick: () => void,
     private onPrevPageBtnClick: () => void,
     private onGenerateRandomCarsBtnClick: () => void,
-    private onStartEngineBtnClick: (id: number) => Promise<number>
+    private carService: ICarServices,
+    private newCarObserver: IObserver
   ) {
     super(propsToBaseControl);
   }
@@ -187,10 +187,8 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
         const carItem = new CarContainer(
           { tagName: 'div', classes: ['garage__car', 'car'] },
           car,
-          this.onDeleteCarBtnClick,
-          this.editCarParams,
-          this.setEditMode,
-          this.onStartEngineBtnClick
+          this.carService,
+          this.newCarObserver
         ).render();
         garageContent.node.append(carItem);
       }

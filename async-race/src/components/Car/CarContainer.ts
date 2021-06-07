@@ -1,5 +1,7 @@
+import { ICarServices } from '../services/CarServices';
 import { ICarForm } from '../services/GarageService';
 import { IPropsToBaseControl } from '../shared/interfaces/api-models';
+import { IObserver } from '../shared/Observer';
 import { ICarItemState } from '../state/carState';
 import Car from './Car';
 
@@ -9,10 +11,8 @@ class CarContainer {
   constructor(
     private propsToBaseControl: IPropsToBaseControl,
     private car: ICarItemState,
-    private onDeleteCarBtnClick: (id: number) => void,
-    private editCarParams: (id: number, name: string, color: string) => void,
-    private setEditMode: (id: number) => void,
-    private startEngine: (id: number) => Promise<number>
+    private carService: ICarServices,
+    private newCarObserver: IObserver
   ) {
     this.updateValueCarForm = {
       name: '',
@@ -21,27 +21,30 @@ class CarContainer {
   }
 
   private onStartEngineBtnClick = async (): Promise<number> => {
-    return await this.startEngine(this.car.id);
+    return this.carService.startEngine(this.car.id);
   };
 
-  private onConfirmEditBtnClick = (): void => {
-    this.editCarParams(
+  private onEditBtnClick = (): void => {
+    this.carService.setEditMode(this.car.id);
+    this.newCarObserver.broadcast();
+  };
+
+  private onConfirmEditBtnClick = async (): Promise<void> => {
+    await this.carService.updateCarParams(
       this.car.id,
       this.updateValueCarForm.name,
       this.updateValueCarForm.color
     );
+    this.newCarObserver.broadcast();
   };
 
   private handleInput = (type: string, value: string): void => {
     this.updateValueCarForm[type] = value;
   };
 
-  private onEditBtnClick = (): void => {
-    this.setEditMode(this.car.id);
-  };
-
-  private onDeleteBtnClick = (): void => {
-    this.onDeleteCarBtnClick(this.car.id);
+  private onDeleteBtnClick = async (): Promise<void> => {
+    await this.carService.deleteCar(this.car.id);
+    this.newCarObserver.broadcast();
   };
 
   render(): HTMLElement {

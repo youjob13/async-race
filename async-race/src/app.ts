@@ -4,6 +4,7 @@ import { IRouter } from './components/shared/interfaces/router-model';
 import { IObserver } from './components/shared/Observer';
 import Router from './components/shared/Router';
 import HeaderContainer from './components/Header/HeaderContainer';
+import { ICarServices } from './components/services/CarServices';
 
 class App {
   private router: IRouter;
@@ -11,9 +12,14 @@ class App {
   constructor(
     private rootElem: HTMLElement,
     private garageService: IGarageService,
-    private newCarObserver: IObserver
+    private newCarObserver: IObserver,
+    private carService: ICarServices
   ) {
-    this.router = new Router(this.garageService, this.newCarObserver);
+    this.router = new Router(
+      this.garageService,
+      this.newCarObserver,
+      this.carService
+    );
   }
 
   init(): void {
