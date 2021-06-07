@@ -11,13 +11,18 @@ class CarContainer {
     private car: ICarItemState,
     private onDeleteCarBtnClick: (id: number) => void,
     private editCarParams: (id: number, name: string, color: string) => void,
-    private setEditMode: (id: number) => void
+    private setEditMode: (id: number) => void,
+    private startEngine: (id: number) => Promise<number>
   ) {
     this.updateValueCarForm = {
       name: '',
       color: '',
     };
   }
+
+  private onStartEngineBtnClick = async (): Promise<number> => {
+    return await this.startEngine(this.car.id);
+  };
 
   private onConfirmEditBtnClick = (): void => {
     this.editCarParams(
@@ -46,7 +51,8 @@ class CarContainer {
       this.onConfirmEditBtnClick,
       this.handleInput,
       this.onEditBtnClick,
-      this.onDeleteBtnClick
+      this.onDeleteBtnClick,
+      this.onStartEngineBtnClick
     ).render();
   }
 }

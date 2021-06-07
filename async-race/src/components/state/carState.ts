@@ -1,5 +1,5 @@
 import newCarObserver from '../..';
-import api from '../api/api';
+import apiCars from '../api/api';
 
 export interface ICarItemState {
   id: number;
@@ -22,7 +22,7 @@ export const carState: ICarState = {
 };
 
 (async function () {
-  carState.cars = await api.getCars();
+  carState.cars = await apiCars.getAllCars();
   newCarObserver.broadcast();
 })();
 

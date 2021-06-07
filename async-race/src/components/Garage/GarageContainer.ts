@@ -20,6 +20,10 @@ class GarageContainer implements IGarageContainer {
     this.currentPage = this.garageService.getCurrentGaragePage();
   }
 
+  private onStartEngineBtnClick = async (id: number): Promise<number> => {
+    return await this.garageService.startCarEngine(id);
+  };
+
   private onPrevPageBtnClick = async (): Promise<void> => {
     await this.garageService.prevPage();
     this.newCarObserver.broadcast();
@@ -75,7 +79,8 @@ class GarageContainer implements IGarageContainer {
       this.setEditMode,
       this.onNextPageBtnClick,
       this.onPrevPageBtnClick,
-      this.onGenerateRandomCarsBtnClick
+      this.onGenerateRandomCarsBtnClick,
+      this.onStartEngineBtnClick
     ).render();
   }
 }

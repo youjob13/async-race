@@ -19,7 +19,8 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     private setEditMode: (id: number) => void,
     private onNextPageBtnClick: () => void,
     private onPrevPageBtnClick: () => void,
-    private onGenerateRandomCarsBtnClick: () => void
+    private onGenerateRandomCarsBtnClick: () => void,
+    private onStartEngineBtnClick: (id: number) => Promise<number>
   ) {
     super(propsToBaseControl);
   }
@@ -188,7 +189,8 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
           car,
           this.onDeleteCarBtnClick,
           this.editCarParams,
-          this.setEditMode
+          this.setEditMode,
+          this.onStartEngineBtnClick
         ).render();
         garageContent.node.append(carItem);
       }

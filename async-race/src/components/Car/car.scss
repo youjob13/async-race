@@ -1,5 +1,10 @@
 .car {
   border-bottom: 2px solid #000;
+  &__img-wrapper {
+    position: relative;
+    transition: 0.5s;
+    display: inline-block;
+  }
   &__content {
     display: flex;
     align-items: center;
@@ -11,10 +16,11 @@
     font-weight: 400;
   }
   &__buttons {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
     position: absolute;
-    left: -6em;
+    left: -7em;
   }
   &__update-params-wrapper {
     display: flex;

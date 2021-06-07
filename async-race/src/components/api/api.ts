@@ -4,18 +4,41 @@ type Data = { name: string; color: string };
 
 interface IApi {
   baseURL: string;
-  getCars: () => Promise<ICarItemState[]>;
+  getAllCars: () => Promise<ICarItemState[]>;
   createCar: (data: Data) => Promise<ICarItemState>;
   deleteCar: (id: number) => Promise<void>;
   updateCar: (id: number, data: Data) => Promise<ICarItemState>;
 }
 
-const api: IApi = {
-  baseURL: 'http://127.0.0.1:3000',
+export const apiEngine = {
+  baseURL: 'http://127.0.0.1:3000/engine',
 
-  async getCars(): Promise<ICarItemState[]> {
+  async toggleEngine(
+    id: number,
+    status: string
+  ): Promise<{ velocity: number; distance: number }> {
     try {
-      const url = new URL(`${this.baseURL}/garage`);
+      let url = new URL(`${this.baseURL}`);
+      url.searchParams.append('id', `${id}`);
+      url.searchParams.append('status', `${status}`);
+
+      let response = await fetch(`${url}`);
+      let res = await response.json();
+      console.log(res);
+
+      return res;
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+};
+
+const apiCars: IApi = {
+  baseURL: 'http://127.0.0.1:3000/garage',
+
+  async getAllCars(): Promise<ICarItemState[]> {
+    try {
+      const url = new URL(this.baseURL);
       const response = await fetch(`${url}`);
       const res = await response.json();
       return res;
@@ -26,7 +49,7 @@ const api: IApi = {
 
   async createCar(data: Data): Promise<ICarItemState> {
     try {
-      const url = new URL(`${this.baseURL}/garage`);
+      const url = new URL(this.baseURL);
       const response = await fetch(`${url}`, {
         method: 'POST',
         headers: {
@@ -43,7 +66,8 @@ const api: IApi = {
 
   async deleteCar(id: number): Promise<void> {
     try {
-      const url = new URL(`${this.baseURL}/garage/${id}`);
+      const url = new URL(`${this.baseURL}`);
+      url.searchParams.append('id', `${id}`);
       await fetch(`${url}`, {
         method: 'DELETE',
       });
@@ -54,7 +78,7 @@ const api: IApi = {
 
   async updateCar(id: number, data: Data): Promise<ICarItemState> {
     try {
-      const url = new URL(`${this.baseURL}/garage/${id}`);
+      const url = new URL(`${this.baseURL}/${id}`);
       const response = await fetch(`${url}`, {
         method: 'PUT',
         headers: {
@@ -69,4 +93,4 @@ const api: IApi = {
     }
   },
 };
-export default api;
+export default apiCars;

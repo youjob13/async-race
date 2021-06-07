@@ -1,4 +1,5 @@
-import api from '../api/api';
+import { apiEngine } from './../api/api';
+import apiCars from '../api/api';
 import {
   carNameRandomGenerator,
   colorRandomGenerator,
@@ -6,6 +7,7 @@ import {
 import { carState, ICarItemState } from '../state/carState';
 
 export interface IGarageService {
+  startCarEngine: (id: number) => Promise<number>;
   getCars: () => ICarItemState[];
   getCurrentGaragePage: () => number;
   generateNewCar: () => void;
@@ -22,7 +24,7 @@ export interface ICarForm {
   [key: string]: string;
 }
 
-class GarageService {
+class GarageService implements IGarageService {
   private currentGaragePage: number;
 
   private generateCarForm: ICarForm;
@@ -40,15 +42,26 @@ class GarageService {
     this.generateCarForm.color = '';
   }
 
+  private calcCarSpeed(result: { velocity: number; distance: number }): number {
+    let { velocity, distance } = result;
+    return distance / velocity;
+  }
+
+  startCarEngine = async (id: number): Promise<number> => {
+    let result = await apiEngine.toggleEngine(id, 'started');
+    let carSpeed = this.calcCarSpeed(result);
+    console.log(id);
+    console.log(carSpeed);
+    return carSpeed;
+  };
+
   generateRandomCars = async (): Promise<void> => {
     for (let i = 0; i < 5; i++) {
       const newRandomCar = {
         name: carNameRandomGenerator(),
         color: colorRandomGenerator(),
-        id: Date.now() - i,
-        isEdit: false,
       };
-      const newCar = await api.createCar(
+      const newCar = await apiCars.createCar(
         <ICarItemState>(<unknown>newRandomCar)
       );
       carState.cars.unshift(newCar);
@@ -80,19 +93,21 @@ class GarageService {
       }
       return car;
     });
-    await api.updateCar(id, data);
+    await apiCars.updateCar(id, data);
   };
 
   deleteCar = async (id: number): Promise<void> => {
-    await api.deleteCar(id);
+    await apiCars.deleteCar(id);
     carState.cars = carState.cars.filter((car) => car.id !== id);
   };
 
   generateNewCar = async (): Promise<void> => {
-    const newCar = await api.createCar(<ICarItemState>(
+    const newCar = await apiCars.createCar(<ICarItemState>(
       (<unknown>{ ...this.generateCarForm })
     ));
-    newCar.id = Date.now();
+    console.log(newCar);
+
+    // newCar.id = Date.now();
     carState.cars.unshift(newCar); // TODO: action creator
     this.clearGenerateCarForm();
   };

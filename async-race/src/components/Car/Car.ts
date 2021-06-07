@@ -1,5 +1,8 @@
 import './car.scss';
-import { IPropsToBaseControl } from '../shared/interfaces/api-models';
+import {
+  IBaseControl,
+  IPropsToBaseControl,
+} from '../shared/interfaces/api-models';
 import { ICarItemState } from '../state/carState';
 import BaseControl from '../shared/BaseControl/BaseControl';
 import Button from '../shared/Button/Button';
@@ -8,22 +11,78 @@ import Input from '../shared/Input/Input';
 // export interface ICar {}
 
 class Car extends BaseControl<HTMLElement> {
+  carImgWrapper: any | IBaseControl<HTMLElement>;
+  road: any | IBaseControl<HTMLElement>;
+
   constructor(
     propsToBaseControl: IPropsToBaseControl,
     private car: ICarItemState,
     private onConfirmEditBtnClick: () => void,
     private handleInput: (type: string, value: string) => void,
     private onEditBtnClick: () => void,
-    private onDeleteBtnClick: () => void
+    private onDeleteBtnClick: () => void,
+    private startEngine: () => Promise<number>
   ) {
     super(propsToBaseControl);
+    this.road = new BaseControl({
+      tagName: 'div',
+      classes: ['car__road'],
+    });
+    this.carImgWrapper = new BaseControl({
+      tagName: 'div',
+      classes: ['car__img-wrapper'],
+    });
   }
+
+  onStartEngineBtnClick = async (): Promise<void> => {
+    let time = await this.startEngine();
+    let counter = 0;
+    let idAnimation: any;
+    let startTime = Date.now();
+    let speed = this.carImgWrapper.node.getBoundingClientRect().width / time;
+    console.log(speed);
+
+    const carMove = () => {
+      counter += 50;
+      let progress = Date.now() - startTime;
+      this.carImgWrapper.node.style.transform = `translate(${counter}px)`;
+      if (
+        counter <=
+        this.road.node.getBoundingClientRect().width -
+          this.carImgWrapper.node.getBoundingClientRect().width
+      ) {
+        window.requestAnimationFrame(carMove);
+      }
+      window.cancelAnimationFrame(idAnimation);
+      return;
+    };
+
+    idAnimation = window.requestAnimationFrame(carMove);
+  };
 
   render(): HTMLElement {
     const buttonsWrapper = new BaseControl({
       tagName: 'div',
       classes: ['car__buttons'],
     });
+
+    const startEngineBtn = new Button(
+      {
+        tagName: 'button',
+        classes: ['car__start-engine', 'button'],
+        text: 'Start',
+      },
+      this.onStartEngineBtnClick
+    );
+
+    const stopEngineBtn = new Button(
+      {
+        tagName: 'button',
+        classes: ['car__start-engine', 'button'],
+        text: 'Stop',
+      },
+      this.onStartEngineBtnClick
+    );
 
     const deleteCarBtn = new Button(
       {
@@ -72,7 +131,9 @@ class Car extends BaseControl<HTMLElement> {
       );
       buttonsWrapper.node.append(
         deleteCarBtn.node,
-        updateCarParamsWrapper.node
+        updateCarParamsWrapper.node,
+        startEngineBtn.node,
+        stopEngineBtn.node
       );
     } else {
       const editCarBtn = new Button(
@@ -83,13 +144,18 @@ class Car extends BaseControl<HTMLElement> {
         },
         this.onEditBtnClick
       );
-      buttonsWrapper.node.append(deleteCarBtn.node, editCarBtn.node);
+      buttonsWrapper.node.append(
+        deleteCarBtn.node,
+        editCarBtn.node,
+        startEngineBtn.node,
+        stopEngineBtn.node
+      );
     }
 
-    const carImgWrapper = new BaseControl({
-      tagName: 'div',
-      classes: ['car__img-wrapper'],
-    });
+    // const carImgWrapper = new BaseControl({
+    //   tagName: 'div',
+    //   classes: ['car__img-wrapper'],
+    // });
 
     const carImg = `<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
         width="80px" height="100%" viewBox="0 0 1280.000000 720.000000"
@@ -132,7 +198,8 @@ class Car extends BaseControl<HTMLElement> {
       </g>
     </svg>`;
 
-    carImgWrapper.node.innerHTML = carImg;
+    this.carImgWrapper.node.innerHTML = carImg;
+    this.road.node.append(this.carImgWrapper.node);
 
     const carContent = new BaseControl({
       tagName: 'div',
@@ -147,7 +214,7 @@ class Car extends BaseControl<HTMLElement> {
 
     carContent.node.append(textContent.node, buttonsWrapper.node);
 
-    this.node.append(carContent.node, carImgWrapper.node);
+    this.node.append(carContent.node, this.road.node);
     return this.node;
   }
 }
