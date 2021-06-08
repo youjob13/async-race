@@ -24,7 +24,7 @@ class App {
 
   init(): void {
     this.newCarObserver.subscribe(this.render.bind(this));
-    this.render();
+    // this.render();
     this.eventListeners();
   }
 

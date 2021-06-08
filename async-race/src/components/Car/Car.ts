@@ -11,9 +11,15 @@ import Input from '../shared/Input/Input';
 // export interface ICar {}
 
 class Car extends BaseControl<HTMLElement> {
-  carImgWrapper: IBaseControl<HTMLElement>;
+  private carImgWrapper: IBaseControl<HTMLElement>;
 
-  road: IBaseControl<HTMLElement>;
+  private road: IBaseControl<HTMLElement>;
+
+  private startEngineBtn: Button;
+
+  private stopEngineBtn: Button;
+
+  private requestAnimId: number;
 
   constructor(
     propsToBaseControl: IPropsToBaseControl,
@@ -22,7 +28,9 @@ class Car extends BaseControl<HTMLElement> {
     private handleInput: (type: string, value: string) => void,
     private onEditBtnClick: () => void,
     private onDeleteBtnClick: () => void,
-    private startEngine: () => Promise<number>
+    private startEngine: () => Promise<number>,
+    private showDriveMode: () => Promise<boolean>,
+    private stopCarEngine: () => Promise<void>
   ) {
     super(propsToBaseControl);
     this.road = new BaseControl({
@@ -33,40 +41,7 @@ class Car extends BaseControl<HTMLElement> {
       tagName: 'div',
       classes: ['car__img-wrapper'],
     });
-  }
-
-  onStartEngineBtnClick = async (): Promise<void> => {
-    const time = await this.startEngine();
-    let counter = 0;
-    let idAnimation: number;
-    const startTime = Date.now();
-    const speed = this.carImgWrapper.node.getBoundingClientRect().width / time;
-    console.log(speed);
-
-    const carMove = () => {
-      counter += 50;
-      const progress = Date.now() - startTime;
-      this.carImgWrapper.node.style.transform = `translate(${counter}px)`;
-      if (
-        counter <=
-        this.road.node.getBoundingClientRect().width -
-          this.carImgWrapper.node.getBoundingClientRect().width
-      ) {
-        window.requestAnimationFrame(carMove);
-      }
-      window.cancelAnimationFrame(idAnimation);
-    };
-
-    idAnimation = window.requestAnimationFrame(carMove);
-  };
-
-  render(): HTMLElement {
-    const buttonsWrapper = new BaseControl({
-      tagName: 'div',
-      classes: ['car__buttons'],
-    });
-
-    const startEngineBtn = new Button(
+    this.startEngineBtn = new Button(
       {
         tagName: 'button',
         classes: ['car__start-engine', 'button'],
@@ -74,15 +49,67 @@ class Car extends BaseControl<HTMLElement> {
       },
       this.onStartEngineBtnClick
     );
-
-    const stopEngineBtn = new Button(
+    this.stopEngineBtn = new Button(
       {
         tagName: 'button',
         classes: ['car__start-engine', 'button'],
         text: 'Stop',
       },
-      this.onStartEngineBtnClick
+      this.onStopEngineBtnClick
     );
+    this.requestAnimId = 0;
+  }
+
+  onStopEngineBtnClick = async (): Promise<void> => {
+    await this.stopCarEngine();
+    this.carImgWrapper.node.style.transform = `translateX(0)`;
+    this.startEngineBtn.node.removeAttribute('disabled');
+  };
+
+  onStartEngineBtnClick = async (): Promise<void> => {
+    this.startEngineBtn.node.setAttribute('disabled', 'disabled');
+
+    const time = await this.startEngine();
+    let driveMode = true;
+    let counter = 0;
+    const startTime = Date.now();
+    const speed =
+      (this.carImgWrapper.node.getBoundingClientRect().width / time) * 1000;
+
+    const stopCarMove = (): void => {
+      window.cancelAnimationFrame(this.requestAnimId);
+    };
+
+    const startCarMove = (): void => {
+      counter += 1;
+      const progress = Date.now() - startTime;
+
+      if (!driveMode) {
+        stopCarMove();
+        return;
+      }
+
+      this.carImgWrapper.node.style.transform = `translateX(${counter}px)`;
+      if (
+        counter >=
+        this.road.node.getBoundingClientRect().width -
+          this.carImgWrapper.node.getBoundingClientRect().width
+      ) {
+        stopCarMove();
+        return;
+      }
+      window.requestAnimationFrame(startCarMove);
+    };
+
+    this.requestAnimId = window.requestAnimationFrame(startCarMove);
+    driveMode = await this.showDriveMode();
+  };
+
+  render(): HTMLElement {
+    const buttonsWrapper = new BaseControl({
+      tagName: 'div',
+      classes: ['car__buttons'],
+    });
 
     const deleteCarBtn = new Button(
       {
@@ -132,8 +159,8 @@ class Car extends BaseControl<HTMLElement> {
       buttonsWrapper.node.append(
         deleteCarBtn.node,
         updateCarParamsWrapper.node,
-        startEngineBtn.node,
-        stopEngineBtn.node
+        this.startEngineBtn.node,
+        this.stopEngineBtn.node
       );
     } else {
       const editCarBtn = new Button(
@@ -147,8 +174,8 @@ class Car extends BaseControl<HTMLElement> {
       buttonsWrapper.node.append(
         deleteCarBtn.node,
         editCarBtn.node,
-        startEngineBtn.node,
-        stopEngineBtn.node
+        this.startEngineBtn.node,
+        this.stopEngineBtn.node
       );
     }
 

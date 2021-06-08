@@ -20,6 +20,14 @@ class CarContainer {
     };
   }
 
+  private stopCarEngine = async (): Promise<void> => {
+    return this.carService.stopEngine(this.car.id);
+  };
+
+  private showDriveMode = async (): Promise<boolean> => {
+    return this.carService.switchEngineMode(this.car.id);
+  };
+
   private onStartEngineBtnClick = async (): Promise<number> => {
     return this.carService.startEngine(this.car.id);
   };
@@ -55,7 +63,9 @@ class CarContainer {
       this.handleInput,
       this.onEditBtnClick,
       this.onDeleteBtnClick,
-      this.onStartEngineBtnClick
+      this.onStartEngineBtnClick,
+      this.showDriveMode,
+      this.stopCarEngine
     ).render();
   }
 }

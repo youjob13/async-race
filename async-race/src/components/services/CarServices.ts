@@ -4,8 +4,10 @@ import { carState } from '../state/carState';
 export interface ICarServices {
   setEditMode: (id: number) => void;
   startEngine: (id: number) => Promise<number>;
+  stopEngine: (id: number) => Promise<void>;
   updateCarParams: (id: number, name: string, color: string) => Promise<void>;
   deleteCar: (id: number) => Promise<void>;
+  switchEngineMode: (id: number) => Promise<boolean>;
 }
 
 class CarServices implements ICarServices {
@@ -14,9 +16,15 @@ class CarServices implements ICarServices {
     return distance / velocity;
   }
 
-  startEngine = async (id: number): Promise<number> => {
-    console.log(this);
+  switchEngineMode = async (id: number): Promise<boolean> => {
+    return apiEngine.switchEngineMode(id, 'drive');
+  };
 
+  stopEngine = async (id: number): Promise<void> => {
+    const result = await apiEngine.toggleEngine(id, 'stopped');
+  };
+
+  startEngine = async (id: number): Promise<number> => {
     const result = await apiEngine.toggleEngine(id, 'started');
     const carSpeed = this.calcCarSpeed(result);
     console.log(id);
@@ -67,8 +75,6 @@ class CarServices implements ICarServices {
   };
 
   deleteCar = async (id: number): Promise<void> => {
-    console.log(id);
-
     await apiCars.deleteCar(id);
     carState.cars = carState.cars.filter((car) => car.id !== id);
   };

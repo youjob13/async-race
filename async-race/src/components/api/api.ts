@@ -24,9 +24,30 @@ export const apiEngine = {
 
       const response = await fetch(`${url}`);
       const res = await response.json();
-      console.log(res);
 
       return res;
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+
+  async switchEngineMode(id: number, status = 'drive'): Promise<boolean> {
+    try {
+      const url = new URL(`${this.baseURL}`);
+      url.searchParams.append('id', `${id}`);
+      url.searchParams.append('status', `${status}`);
+
+      const response = await fetch(`${url}`);
+      if (response.status === 200) {
+        const res = await response.json();
+        return res;
+      }
+      if (response.status === 500) {
+        console.log('erroras');
+        console.log(response);
+        return false;
+      }
+      throw new Error(response.statusText);
     } catch (error) {
       throw new Error(error);
     }
