@@ -1,29 +1,25 @@
-import './styles.scss';
-import { IGarageService } from './components/services/GarageService';
+import { Store } from 'redux';
 import { IRouter } from './components/shared/interfaces/router-model';
-import { IObserver } from './components/shared/Observer';
+import { ICarServices } from './components/services/CarServices';
+import { getAllCarsTC } from './components/store';
+import './styles.scss';
 import Router from './components/shared/Router';
 import HeaderContainer from './components/Header/HeaderContainer';
-import { ICarServices } from './components/services/CarServices';
 
 class App {
   private router: IRouter;
 
   constructor(
     private rootElem: HTMLElement,
-    private garageService: IGarageService,
-    private newCarObserver: IObserver,
-    private carService: ICarServices
+    private carService: ICarServices,
+    private store: Store
   ) {
-    this.router = new Router(
-      this.garageService,
-      this.newCarObserver,
-      this.carService
-    );
+    this.router = new Router(this.carService, this.store);
   }
 
   init(): void {
-    this.newCarObserver.subscribe(this.render.bind(this));
+    this.store.subscribe(() => this.render());
+    this.store.dispatch(<any>getAllCarsTC());
     // this.render();
     this.eventListeners();
   }

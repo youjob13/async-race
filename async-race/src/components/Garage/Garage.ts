@@ -1,35 +1,73 @@
 import './garage.scss';
-import { IPropsToBaseControl } from '../shared/interfaces/api-models';
+import { ICarForm } from '../shared/interfaces/api-models';
 import { IPage } from '../shared/interfaces/page-model';
-import { ICarItemState } from '../state/carState';
 import BaseControl from '../shared/BaseControl/BaseControl';
 import Button from '../shared/Button/Button';
 import Input from '../shared/Input/Input';
-import CarContainer from '../Car/CarContainer';
-import { IObserver } from '../shared/Observer';
 import { ICarServices } from '../services/CarServices';
+import {
+  generateNewCarTC,
+  generateRandomCarsTC,
+  toggleGaragePageAC,
+} from '../store';
+import Car from '../Car/Car';
+import { ICarItemState } from '../shared/interfaces/carState-model';
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
-  constructor(
-    propsToBaseControl: IPropsToBaseControl,
-    private cars: ICarItemState[],
-    private currentPage: number,
-    private handleInput: (type: string, value: string) => void,
-    private onGenerateCarBtnClick: () => void,
-    private onNextPageBtnClick: () => void,
-    private onPrevPageBtnClick: () => void,
-    private onGenerateRandomCarsBtnClick: () => void,
-    private carService: ICarServices,
-    private newCarObserver: IObserver
-  ) {
-    super(propsToBaseControl);
+  private generateCarForm: ICarForm;
+
+  cars: ICarItemState[];
+
+  currentPage: number;
+
+  constructor(private carService: ICarServices, private store: any) {
+    super({ tagName: 'main', classes: ['garage'] });
+    this.cars = [];
+    this.currentPage = 1;
+    this.generateCarForm = {
+      name: 'Default Car',
+      color: '#000',
+    };
   }
+
+  private onPrevPageBtnClick = (): void => {
+    this.store.dispatch(toggleGaragePageAC(false));
+  };
+
+  private onNextPageBtnClick = (): void => {
+    this.store.dispatch(toggleGaragePageAC(true));
+  };
+
+  private onGenerateRandomCarsBtnClick = (): void => {
+    this.store.dispatch(generateRandomCarsTC());
+  };
+
+  private onGenerateCarBtnClick = (): void => {
+    this.store.dispatch(
+      generateNewCarTC({
+        name: this.generateCarForm.name,
+        color: this.generateCarForm.color,
+      })
+    );
+  };
+
+  private handleInput = (type: string, value: string): void => {
+    this.generateCarForm[type] = value;
+  };
 
   startRace = (): void => {};
 
   returnCarToDefaultPosition = (): void => {};
 
   render(): HTMLElement {
+    const { cars, currentGaragePage } = this.store.getState();
+    this.cars = cars;
+    this.currentPage = currentGaragePage;
+
+    const carsNumber = this.cars.length;
+    const carsOnPage = 7;
+    const pagesNumber = Math.ceil(carsNumber / carsOnPage);
+
     const garageHeader = new BaseControl({
       tagName: 'header',
       classes: ['garage__header'],
@@ -151,10 +189,6 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       classes: ['garage__pages'],
     });
 
-    const carsNumber = this.cars.length;
-    const carsOnPage = 7;
-    const pagesNumber = Math.ceil(carsNumber / carsOnPage);
-
     const leftArrow = new Button(
       {
         tagName: 'button',
@@ -184,12 +218,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
         (this.currentPage - 1) * carsOnPage <= index &&
         index < carsOnPage * this.currentPage
       ) {
-        const carItem = new CarContainer(
-          { tagName: 'div', classes: ['garage__car', 'car'] },
-          car,
-          this.carService,
-          this.newCarObserver
-        ).render();
+        const carItem = new Car(car, this.store, this.carService).render();
         garageContent.node.append(carItem);
       }
     });

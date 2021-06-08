@@ -1,4 +1,4 @@
-import { ICarItemState } from '../state/carState';
+import { ICarItemState } from '../shared/interfaces/carState-model';
 
 type Data = { name: string; color: string };
 
@@ -43,8 +43,6 @@ export const apiEngine = {
         return res;
       }
       if (response.status === 500) {
-        console.log('erroras');
-        console.log(response);
         return false;
       }
       throw new Error(response.statusText);

@@ -5,12 +5,12 @@ interface IWinnersContainer {
 }
 
 class WinnersContainer implements IWinnersContainer {
-  render(): HTMLElement {
+  render = (): HTMLElement => {
     return new Winners({
       tagName: 'main',
       classes: ['winners'],
     }).render();
-  }
+  };
 }
 
 export default WinnersContainer;

@@ -1,16 +1,22 @@
 import './car.scss';
-import {
-  IBaseControl,
-  IPropsToBaseControl,
-} from '../shared/interfaces/api-models';
-import { ICarItemState } from '../state/carState';
+import { IBaseControl, ICarForm } from '../shared/interfaces/api-models';
 import BaseControl from '../shared/BaseControl/BaseControl';
 import Button from '../shared/Button/Button';
 import Input from '../shared/Input/Input';
+import {
+  deleteCarTC,
+  setEditModeAC,
+  startCarEngineTC,
+  updateCarParamsTC,
+} from '../store';
+import { ICarServices } from '../services/CarServices';
+import { ICarItemState } from '../shared/interfaces/carState-model';
 
 // export interface ICar {}
 
 class Car extends BaseControl<HTMLElement> {
+  private updateValueCarForm: ICarForm;
+
   private carImgWrapper: IBaseControl<HTMLElement>;
 
   private road: IBaseControl<HTMLElement>;
@@ -22,17 +28,11 @@ class Car extends BaseControl<HTMLElement> {
   private requestAnimId: number;
 
   constructor(
-    propsToBaseControl: IPropsToBaseControl,
     private car: ICarItemState,
-    private onConfirmEditBtnClick: () => void,
-    private handleInput: (type: string, value: string) => void,
-    private onEditBtnClick: () => void,
-    private onDeleteBtnClick: () => void,
-    private startEngine: () => Promise<number>,
-    private showDriveMode: () => Promise<boolean>,
-    private stopCarEngine: () => Promise<void>
+    private store: any,
+    private carService: ICarServices
   ) {
-    super(propsToBaseControl);
+    super({ tagName: 'div', classes: ['garage__car', 'car'] });
     this.road = new BaseControl({
       tagName: 'div',
       classes: ['car__road'],
@@ -57,8 +57,51 @@ class Car extends BaseControl<HTMLElement> {
       },
       this.onStopEngineBtnClick
     );
+    this.updateValueCarForm = {
+      name: '',
+      color: '',
+    };
     this.requestAnimId = 0;
   }
+
+  private onDeleteBtnClick = (): void => {
+    this.store.dispatch(deleteCarTC(this.car.id));
+  };
+
+  private handleInput = (type: string, value: string): void => {
+    this.updateValueCarForm[type] = value;
+  };
+
+  private onConfirmEditBtnClick = (): void => {
+    const newCarParams = {
+      name:
+        this.updateValueCarForm.name !== ''
+          ? this.updateValueCarForm.name
+          : this.car.name,
+      color:
+        this.updateValueCarForm.color !== ''
+          ? this.updateValueCarForm.color
+          : this.car.color,
+    };
+    this.store.dispatch(updateCarParamsTC(this.car.id, newCarParams));
+  };
+
+  private stopCarEngine = async (): Promise<void> => {
+    return this.carService.stopEngine(this.car.id);
+  };
+
+  private showDriveMode = async (): Promise<boolean> => {
+    return this.carService.switchEngineMode(this.car.id);
+  };
+
+  private onStartEngineBtnClick = (): void => {
+    this.store.dispatch(startCarEngineTC(this.car.id));
+    // return this.carService.startEngine(this.car.id);
+  };
+
+  private onEditBtnClick = (): void => {
+    this.store.dispatch(setEditModeAC(this.car.id));
+  };
 
   onStopEngineBtnClick = async (): Promise<void> => {
     await this.stopCarEngine();
@@ -66,10 +109,11 @@ class Car extends BaseControl<HTMLElement> {
     this.startEngineBtn.node.removeAttribute('disabled');
   };
 
-  onStartEngineBtnClick = async (): Promise<void> => {
+  startEngine = async (): Promise<void> => {
     this.startEngineBtn.node.setAttribute('disabled', 'disabled');
 
-    const time = await this.startEngine();
+    // const time = await this.startEngine();
+    const time = 10000;
     let driveMode = true;
     let counter = 0;
     const startTime = Date.now();
@@ -106,6 +150,10 @@ class Car extends BaseControl<HTMLElement> {
   };
 
   render(): HTMLElement {
+    if (this.car.drivingMode === 'started') {
+      this.startEngine();
+    }
+
     const buttonsWrapper = new BaseControl({
       tagName: 'div',
       classes: ['car__buttons'],

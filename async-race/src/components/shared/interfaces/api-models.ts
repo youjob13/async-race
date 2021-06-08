@@ -12,3 +12,7 @@ export interface IPropsToBaseControl {
 export interface IAttr {
   [key: string]: string | number;
 }
+
+export interface ICarForm {
+  [key: string]: string;
+}
