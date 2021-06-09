@@ -3,18 +3,18 @@ import { IRouter } from './components/shared/interfaces/router-model';
 import './styles.scss';
 import Router from './components/shared/Router';
 import HeaderContainer from './components/Header/HeaderContainer';
-import { getAllCarsTC } from './store/carReducer';
+import { getAllCarsTC } from './store/carSlice';
 
 class App {
   private router: IRouter;
 
-  constructor(private rootElem: HTMLElement, private store: Store) {
+  constructor(private rootElem: HTMLElement, private store: any) {
     this.router = new Router(this.store);
   }
 
   init(): void {
     this.store.subscribe(() => this.render());
-    this.store.dispatch(<any>getAllCarsTC());
+    this.store.dispatch(getAllCarsTC());
     // this.render();
     this.eventListeners();
   }

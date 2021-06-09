@@ -7,10 +7,10 @@ import Input from '../shared/Input/Input';
 import { ICarItemState } from '../shared/interfaces/carState-model';
 import {
   deleteCarTC,
-  setEditModeAC,
+  setEditMode,
   startCarEngineTC,
   updateCarParamsTC,
-} from '../../store/carReducer';
+} from '../../store/carSlice';
 
 // export interface ICar {}
 
@@ -100,7 +100,7 @@ class Car extends BaseControl<HTMLElement> {
   };
 
   private onEditBtnClick = (): void => {
-    this.store.dispatch(setEditModeAC(this.car.id));
+    this.store.dispatch(setEditMode(this.car.id));
   };
 
   onStopEngineBtnClick = async (): Promise<void> => {
