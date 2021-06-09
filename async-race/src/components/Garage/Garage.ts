@@ -4,14 +4,13 @@ import { IPage } from '../shared/interfaces/page-model';
 import BaseControl from '../shared/BaseControl/BaseControl';
 import Button from '../shared/Button/Button';
 import Input from '../shared/Input/Input';
-import { ICarServices } from '../services/CarServices';
+import Car from '../Car/Car';
+import { ICarItemState } from '../shared/interfaces/carState-model';
 import {
   generateNewCarTC,
   generateRandomCarsTC,
   toggleGaragePageAC,
-} from '../store';
-import Car from '../Car/Car';
-import { ICarItemState } from '../shared/interfaces/carState-model';
+} from '../../store/carReducer';
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
   private generateCarForm: ICarForm;
@@ -20,7 +19,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
 
   currentPage: number;
 
-  constructor(private carService: ICarServices, private store: any) {
+  constructor(private store: any) {
     super({ tagName: 'main', classes: ['garage'] });
     this.cars = [];
     this.currentPage = 1;
@@ -218,7 +217,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
         (this.currentPage - 1) * carsOnPage <= index &&
         index < carsOnPage * this.currentPage
       ) {
-        const carItem = new Car(car, this.store, this.carService).render();
+        const carItem = new Car(car, this.store).render();
         garageContent.node.append(carItem);
       }
     });

@@ -7,7 +7,7 @@ interface IApi {
   getAllCars: () => Promise<ICarItemState[]>;
   createCar: (data: Data) => Promise<ICarItemState>;
   deleteCar: (id: number) => Promise<void>;
-  updateCar: (id: number, data: Data) => Promise<ICarItemState>;
+  updateCar: (data: ICarItemState) => Promise<ICarItemState>;
 }
 
 export const apiEngine = {
@@ -94,9 +94,9 @@ const apiCars: IApi = {
     }
   },
 
-  async updateCar(id: number, data: Data): Promise<ICarItemState> {
+  async updateCar(data: ICarItemState): Promise<ICarItemState> {
     try {
-      const url = new URL(`${this.baseURL}/${id}`);
+      const url = new URL(`${this.baseURL}/${data.id}`);
       const response = await fetch(`${url}`, {
         method: 'PUT',
         headers: {

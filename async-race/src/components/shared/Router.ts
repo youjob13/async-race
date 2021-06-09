@@ -6,18 +6,18 @@ import Garage from '../Garage/Garage';
 class Router implements IRouter {
   private routes: IRoute[];
 
-  constructor(private carService: any, private store: any) {
+  constructor(private store: any) {
     this.routes = [
       {
         path: '',
         component: (): IPage => {
-          return new Garage(this.carService, this.store);
+          return new Garage(this.store);
         },
       },
       {
         path: 'garage',
         component: (): IPage => {
-          return new Garage(this.carService, this.store);
+          return new Garage(this.store);
         },
       },
       {

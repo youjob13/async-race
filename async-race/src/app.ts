@@ -1,20 +1,15 @@
 import { Store } from 'redux';
 import { IRouter } from './components/shared/interfaces/router-model';
-import { ICarServices } from './components/services/CarServices';
-import { getAllCarsTC } from './components/store';
 import './styles.scss';
 import Router from './components/shared/Router';
 import HeaderContainer from './components/Header/HeaderContainer';
+import { getAllCarsTC } from './store/carReducer';
 
 class App {
   private router: IRouter;
 
-  constructor(
-    private rootElem: HTMLElement,
-    private carService: ICarServices,
-    private store: Store
-  ) {
-    this.router = new Router(this.carService, this.store);
+  constructor(private rootElem: HTMLElement, private store: Store) {
+    this.router = new Router(this.store);
   }
 
   init(): void {

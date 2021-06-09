@@ -9,6 +9,7 @@ export interface ICarItemState {
   color: string;
   isEdit?: boolean;
   drivingMode?: string;
+  time?: number;
 }
 
 export interface ICarState {

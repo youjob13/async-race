@@ -1,11 +1,8 @@
 import './normalize.css';
 import App from './app';
-import CarServices, { ICarServices } from './components/services/CarServices';
-import { store } from './components/store';
-
-const carService: ICarServices = new CarServices();
+import store from './store/store';
 
 const rootElem: HTMLElement | null = document.getElementById('app');
 if (!rootElem) throw new Error('Root elem is not defined');
-const app = new App(rootElem, carService, store);
+const app = new App(rootElem, store);
 app.init();
