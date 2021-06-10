@@ -9,8 +9,8 @@ import { ICarItemState } from '../shared/interfaces/carState-model';
 import {
   generateNewCarTC,
   generateRandomCarsTC,
-  toggleGaragePage,
-} from '../../store/carSlice';
+  toggleGaragePageAC,
+} from '../../store/carReducer';
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
   private generateCarForm: ICarForm;
@@ -30,11 +30,11 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
   }
 
   private onPrevPageBtnClick = (): void => {
-    this.store.dispatch(toggleGaragePage(false));
+    this.store.dispatch(toggleGaragePageAC(false));
   };
 
   private onNextPageBtnClick = (): void => {
-    this.store.dispatch(toggleGaragePage(true));
+    this.store.dispatch(toggleGaragePageAC(true));
   };
 
   private onGenerateRandomCarsBtnClick = (): void => {
@@ -59,11 +59,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
   returnCarToDefaultPosition = (): void => {};
 
   render(): HTMLElement {
-    console.log(this.store.getState());
-
-    const { cars, currentGaragePage } = this.store.getState().carReducer;
-    console.log(currentGaragePage);
-
+    const { cars, currentGaragePage } = this.store.getState();
     this.cars = cars;
     this.currentPage = currentGaragePage;
 
@@ -216,17 +212,15 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     if (this.currentPage === pagesNumber)
       rightArrow.node.setAttribute('disabled', 'disabled');
 
-    if (this.cars.length) {
-      this.cars.forEach((car, index) => {
-        if (
-          (this.currentPage - 1) * carsOnPage <= index &&
-          index < carsOnPage * this.currentPage
-        ) {
-          const carItem = new Car(car, this.store).render();
-          garageContent.node.append(carItem);
-        }
-      });
-    }
+    this.cars.forEach((car, index) => {
+      if (
+        (this.currentPage - 1) * carsOnPage <= index &&
+        index < carsOnPage * this.currentPage
+      ) {
+        const carItem = new Car(car, this.store).render();
+        garageContent.node.append(carItem);
+      }
+    });
 
     arrowsPagesWrapper.node.append(leftArrow.node, rightArrow.node);
     this.node.append(

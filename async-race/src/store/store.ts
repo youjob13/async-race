@@ -1,8 +1,6 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import carSlice from './carSlice';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { carReducer } from './carReducer';
 
-const rootReducer = combineReducers({ carReducer: carSlice });
-
-const store = configureStore({ reducer: rootReducer });
-
+const store = createStore(carReducer, applyMiddleware(thunk));
 export default store;
