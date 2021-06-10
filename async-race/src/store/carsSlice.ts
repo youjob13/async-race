@@ -3,26 +3,55 @@ import apiCars, { apiEngine } from '../components/api/api';
 import {
   carNameRandomGenerator,
   colorRandomGenerator,
-} from '../components/shared/functions/valueRandomGenerator';
-import {
-  ICarItemState,
-  ICarState,
-} from '../components/shared/interfaces/carState-model';
+} from '../shared/functions/valueRandomGenerator';
+import { ICarItemState, ICarState } from '../shared/interfaces/carState-model';
 
-const carSlice = createSlice({
+type CarParams = { name: string; color: string };
+
+const carsSlice = createSlice({
   name: 'carSlice',
   initialState: {
     cars: [{ id: 1, name: 'asd', color: '#fff' }],
     currentGaragePage: 1,
-  },
+  } as ICarState,
   reducers: {
-    setAllCars: (state, action) => {
+    checkEngineStatus: (state: ICarState, action) => {
+      return {
+        cars: state.cars.map((car) => {
+          if (car.id === action.payload) {
+            return {
+              ...car,
+              drivingMode: 'breaking',
+            };
+          }
+          return car;
+        }),
+        currentGaragePage: state.currentGaragePage,
+      };
+    },
+    toggleCarEngine: (state: ICarState, action) => {
+      const { timeToFinish, id, status } = action.payload;
+      return {
+        cars: state.cars.map((car) => {
+          if (car.id === id) {
+            return {
+              ...car,
+              timeToFinish,
+              drivingMode: status,
+            };
+          }
+          return car;
+        }),
+        currentGaragePage: state.currentGaragePage,
+      };
+    },
+    setAllCars: (state: ICarState, action) => {
       return {
         cars: [...action.payload],
         currentGaragePage: state.currentGaragePage,
       };
     },
-    toggleGaragePage: (state, action) => {
+    toggleGaragePage: (state: ICarState, action) => {
       return {
         cars: state.cars,
         currentGaragePage: action.payload
@@ -30,19 +59,19 @@ const carSlice = createSlice({
           : state.currentGaragePage - 1,
       };
     },
-    generateRandomCars: (state, action) => {
+    generateRandomCars: (state: ICarState, action) => {
       return {
         cars: [...state.cars, ...action.payload],
         currentGaragePage: state.currentGaragePage,
       };
     },
-    deleteCar: (state, action) => {
+    deleteCar: (state: ICarState, action) => {
       return {
         cars: state.cars.filter((car) => car.id !== action.payload),
         currentGaragePage: state.currentGaragePage,
       };
     },
-    setEditMode: (state, action) => {
+    setEditMode: (state: ICarState, action) => {
       return {
         cars: state.cars.map((car) => {
           if (car.id === action.payload) {
@@ -53,7 +82,7 @@ const carSlice = createSlice({
         currentGaragePage: state.currentGaragePage,
       };
     },
-    updateCarParams: (state, action) => {
+    updateCarParams: (state: ICarState, action) => {
       const { id, name, color } = action.payload;
       return {
         cars: state.cars.map((car) => {
@@ -70,7 +99,7 @@ const carSlice = createSlice({
         currentGaragePage: state.currentGaragePage,
       };
     },
-    generateNewCar: (state, action) => {
+    generateNewCar: (state: ICarState, action) => {
       return {
         cars: [...state.cars, action.payload],
         currentGaragePage: state.currentGaragePage,
@@ -78,11 +107,12 @@ const carSlice = createSlice({
     },
   },
 });
-type CarParams = { name: string; color: string };
 
-export default carSlice.reducer;
+export default carsSlice.reducer;
 
 export const {
+  toggleCarEngine,
+  checkEngineStatus,
   setAllCars,
   toggleGaragePage,
   generateRandomCars,
@@ -90,7 +120,7 @@ export const {
   setEditMode,
   updateCarParams,
   generateNewCar,
-} = carSlice.actions;
+} = carsSlice.actions;
 
 export const getAllCarsTC =
   (): ThunkAction<void, ICarState, unknown, AnyAction> =>
@@ -140,14 +170,38 @@ export const generateRandomCarsTC =
   };
 
 export const startCarEngineTC =
-  (id: number): ThunkAction<void, ICarState, unknown, AnyAction> =>
+  (
+    id: number,
+    status: string
+  ): ThunkAction<void, ICarState, unknown, AnyAction> =>
   async (dispatch): Promise<void> => {
     const calcCarSpeed = (velocity: number, distance: number): number => {
       return distance / velocity;
     };
 
-    const { velocity, distance } = await apiEngine.toggleEngine(id, 'started');
-    const result = { time: calcCarSpeed(velocity, distance), id };
+    const { velocity, distance } = await apiEngine.toggleEngine(id, status);
+    const result = {
+      timeToFinish: calcCarSpeed(velocity, distance),
+      id,
+      status,
+    };
 
-    // dispatch(startCarEngineAC(result));
+    dispatch(toggleCarEngine(result));
+
+    const engineStatus = await apiEngine.switchEngineMode(id, 'drive');
+    console.log('engineStatus', engineStatus);
+    if (!engineStatus) dispatch(checkEngineStatus(id));
+  };
+
+export const stopCarEngineTC =
+  (
+    id: number,
+    status: string
+  ): ThunkAction<void, ICarState, unknown, AnyAction> =>
+  async (dispatch): Promise<void> => {
+    const { velocity, distance } = await apiEngine.toggleEngine(id, status);
+    const result = { timeToFinish: 0, id, status };
+    // console.log(result);
+
+    dispatch(toggleCarEngine(result));
   };

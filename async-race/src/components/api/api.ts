@@ -1,4 +1,4 @@
-import { ICarItemState } from '../shared/interfaces/carState-model';
+import { ICarItemState } from '../../shared/interfaces/carState-model';
 
 type Data = { name: string; color: string };
 
@@ -31,11 +31,12 @@ export const apiEngine = {
     }
   },
 
-  async switchEngineMode(id: number, status = 'drive'): Promise<boolean> {
+  async switchEngineMode(id: number, status: string): Promise<boolean> {
     try {
       const url = new URL(`${this.baseURL}`);
       url.searchParams.append('id', `${id}`);
       url.searchParams.append('status', `${status}`);
+      console.log(status);
 
       const response = await fetch(`${url}`);
       if (response.status === 200) {

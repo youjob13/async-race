@@ -1,21 +1,25 @@
 import './garage.scss';
-import { ICarForm } from '../shared/interfaces/api-models';
-import { IPage } from '../shared/interfaces/page-model';
-import BaseControl from '../shared/BaseControl/BaseControl';
-import Button from '../shared/Button/Button';
-import Input from '../shared/Input/Input';
-import Car from '../Car/Car';
-import { ICarItemState } from '../shared/interfaces/carState-model';
+import { ICarForm } from '../../shared/interfaces/api-models';
+import { IPage } from '../../shared/interfaces/page-model';
+import { ICarItemState } from '../../shared/interfaces/carState-model';
 import {
   generateNewCarTC,
   generateRandomCarsTC,
   toggleGaragePage,
-} from '../../store/carSlice';
+} from '../../store/carsSlice';
+import {
+  getCarsSelector,
+  getCurrentGaragePageSelector,
+} from '../../store/carsSelectors';
+import BaseControl from '../../shared/BaseControl/BaseControl';
+import Button from '../../shared/Button/Button';
+import Input from '../../shared/Input/Input';
+import Car from '../Car/Car';
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
   private generateCarForm: ICarForm;
 
-  cars: ICarItemState[];
+  private cars: ICarItemState[];
 
   currentPage: number;
 
@@ -27,6 +31,24 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       name: 'Default Car',
       color: '#000',
     };
+
+    this.store.subscribe(() => {
+      const newCars = getCarsSelector(this.store.getState().carReducer);
+      if (newCars.length !== this.cars.length) {
+        this.cars = [...newCars];
+        this.render();
+      }
+
+      const newPage = getCurrentGaragePageSelector(
+        this.store.getState().carReducer
+      );
+      if (newPage !== this.currentPage) {
+        this.currentPage = newPage;
+        this.render();
+      }
+    });
+
+    this.render();
   }
 
   private onPrevPageBtnClick = (): void => {
@@ -58,11 +80,10 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
 
   returnCarToDefaultPosition = (): void => {};
 
-  render(): HTMLElement {
-    console.log(this.store.getState());
+  render(): void {
+    this.node.innerHTML = '';
 
     const { cars, currentGaragePage } = this.store.getState().carReducer;
-    console.log(currentGaragePage);
 
     this.cars = cars;
     this.currentPage = currentGaragePage;
@@ -222,8 +243,8 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
           (this.currentPage - 1) * carsOnPage <= index &&
           index < carsOnPage * this.currentPage
         ) {
-          const carItem = new Car(car, this.store).render();
-          garageContent.node.append(carItem);
+          const carItem = new Car(car, this.store);
+          garageContent.node.append(carItem.node);
         }
       });
     }
@@ -234,7 +255,6 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       garageContent.node,
       arrowsPagesWrapper.node
     );
-    return this.node;
   }
 }
 

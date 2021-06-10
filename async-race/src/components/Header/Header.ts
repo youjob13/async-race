@@ -1,14 +1,16 @@
 import './header.scss';
-import { IPropsToBaseControl } from '../shared/interfaces/api-models';
-import BaseControl from '../shared/BaseControl/BaseControl';
-import Button from '../shared/Button/Button';
+import { IPropsToBaseControl } from '../../shared/interfaces/api-models';
+import BaseControl from '../../shared/BaseControl/BaseControl';
+import Button from '../../shared/Button/Button';
 
 class Header extends BaseControl<HTMLElement> {
   constructor(
     propsToBaseControl: IPropsToBaseControl,
-    private changePage: (path: string) => void
+    private changePage: (path: string) => void,
+    private hash: string
   ) {
     super(propsToBaseControl);
+    this.render();
   }
 
   private handleClick = (e: Event): void => {
@@ -17,7 +19,9 @@ class Header extends BaseControl<HTMLElement> {
     this.changePage(target.getAttribute('href') || '');
   };
 
-  render(hash: string): HTMLElement {
+  render(): void {
+    this.node.innerHTML = '';
+
     const buttonsWrapper = new BaseControl({
       tagName: 'div',
       classes: ['header__buttons-wrapper'],
@@ -43,7 +47,7 @@ class Header extends BaseControl<HTMLElement> {
       this.handleClick
     );
 
-    switch (hash) {
+    switch (this.hash) {
       case 'garage': {
         buttonToGaragePage.node.classList.add('active');
         break;
@@ -66,7 +70,6 @@ class Header extends BaseControl<HTMLElement> {
       buttonToGaragePage.node
     );
     this.node.append(buttonsWrapper.node);
-    return this.node;
   }
 }
 

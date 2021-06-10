@@ -1,24 +1,19 @@
-import { apiEngine } from '../api/api';
+import { getCarSelector } from '../../store/carsSelectors';
 import './car.scss';
-import { IBaseControl, ICarForm } from '../shared/interfaces/api-models';
-import BaseControl from '../shared/BaseControl/BaseControl';
-import Button from '../shared/Button/Button';
-import Input from '../shared/Input/Input';
-import { ICarItemState } from '../shared/interfaces/carState-model';
+import { IBaseControl, ICarForm } from '../../shared/interfaces/api-models';
+import BaseControl from '../../shared/BaseControl/BaseControl';
+import Button from '../../shared/Button/Button';
+import Input from '../../shared/Input/Input';
+import { ICarItemState } from '../../shared/interfaces/carState-model';
 import {
   deleteCarTC,
   setEditMode,
   startCarEngineTC,
+  stopCarEngineTC,
   updateCarParamsTC,
-} from '../../store/carSlice';
-
-// export interface ICar {}
-
-type DrivingParams = { velocity: number; distance: number };
+} from '../../store/carsSlice';
 
 class Car extends BaseControl<HTMLElement> {
-  private updateValueCarForm: ICarForm;
-
   private carImgWrapper: IBaseControl<HTMLElement>;
 
   private road: IBaseControl<HTMLElement>;
@@ -27,9 +22,11 @@ class Car extends BaseControl<HTMLElement> {
 
   private stopEngineBtn: Button;
 
+  private updateValueCarForm: ICarForm;
+
   private requestAnimId: number;
 
-  private drivingMode: string;
+  private status: string;
 
   constructor(private car: ICarItemState, private store: any) {
     super({ tagName: 'div', classes: ['garage__car', 'car'] });
@@ -62,7 +59,34 @@ class Car extends BaseControl<HTMLElement> {
       color: '',
     };
     this.requestAnimId = 0;
-    this.drivingMode = 'stopped';
+    this.status = 'stop';
+
+    this.store.subscribe(() => {
+      const updatedCar = getCarSelector(
+        this.store.getState().carReducer,
+        this.car.id
+      );
+      console.log(updatedCar?.id, updatedCar?.drivingMode);
+      if (this.status !== 'drive' && updatedCar?.drivingMode === 'started') {
+        this.status = 'drive';
+        this.car = { ...updatedCar };
+        if (this.car.timeToFinish) {
+          this.startEngine();
+        }
+      } else if (updatedCar?.drivingMode === 'breaking') {
+        this.status = 'breaking';
+        this.car = { ...updatedCar };
+      } else if (
+        updatedCar &&
+        JSON.stringify(updatedCar) !== JSON.stringify(this.car)
+      ) {
+        this.car = { ...updatedCar };
+        this.resetCarPosition(); // TODO: rewrite
+        this.render();
+      }
+    });
+
+    this.render();
   }
 
   private onDeleteBtnClick = (): void => {
@@ -88,77 +112,73 @@ class Car extends BaseControl<HTMLElement> {
     this.store.dispatch(updateCarParamsTC(newCarParams));
   };
 
-  private showDriveMode = async (): Promise<boolean> => {
-    return apiEngine.switchEngineMode(this.car.id);
-  };
-
-  private onStartEngineBtnClick = async (): Promise<void> => {
-    // this.store.dispatch(startCarEngineTC(this.car.id));
-    const res = await apiEngine.toggleEngine(this.car.id, 'started');
-    this.startEngine(res);
-    // return this.carService.startEngine(this.car.id);
+  private onStartEngineBtnClick = (): void => {
+    this.startEngineBtn.node.setAttribute('disabled', 'disabled');
+    this.store.dispatch(startCarEngineTC(this.car.id, 'started'));
   };
 
   private onEditBtnClick = (): void => {
     this.store.dispatch(setEditMode(this.car.id));
   };
 
-  onStopEngineBtnClick = async (): Promise<void> => {
-    await apiEngine.toggleEngine(this.car.id, 'stopped');
-    this.drivingMode = 'stopped';
-    this.resetCarPosition(); // TODO call twice
+  private onStopEngineBtnClick = (): void => {
+    this.store.dispatch(stopCarEngineTC(this.car.id, 'stopped'));
+    this.status = 'stop';
   };
 
-  resetCarPosition = (): void => {
+  private resetCarPosition = (): void => {
     this.carImgWrapper.node.style.transform = `translateX(0)`;
     this.startEngineBtn.node.removeAttribute('disabled');
   };
 
-  startEngine = async (res: DrivingParams): Promise<void> => {
-    this.startEngineBtn.node.setAttribute('disabled', 'disabled');
-    this.drivingMode = 'started';
+  private startEngine = (): void => {
+    const timeToFinish = this.car.timeToFinish || 0;
 
-    const { velocity, distance } = res;
-    const time = distance / velocity;
-
-    let driveMode = true;
-    const speed = (this.road.node.getBoundingClientRect().width / time) * 1000;
+    const speed =
+      (this.road.node.getBoundingClientRect().width / timeToFinish) * 1000;
 
     const roadLength =
       this.road.node.getBoundingClientRect().width -
       this.carImgWrapper.node.getBoundingClientRect().width;
 
-    const starTime = performance.now();
+    const startTime = performance.now();
 
-    const animate = () => {
-      if (!driveMode) {
-        window.cancelAnimationFrame(this.requestAnimId);
-        return;
-      }
-
-      if (this.drivingMode === 'stopped') {
-        this.resetCarPosition();
-        window.cancelAnimationFrame(this.requestAnimId);
-        return;
-      }
-
-      const carSpeed = ((performance.now() - starTime) / 1000) * speed;
-
-      this.carImgWrapper.node.style.transform = `translateX(${carSpeed}px)`;
-
-      if (carSpeed < roadLength && this.drivingMode === 'started') {
-        window.requestAnimationFrame(animate);
-      } else {
-        window.cancelAnimationFrame(this.requestAnimId);
-      }
-    };
-
-    this.requestAnimId = window.requestAnimationFrame(animate);
-
-    driveMode = await this.showDriveMode();
+    this.requestAnimId = window.requestAnimationFrame(
+      this.animateCarMove.bind(this, startTime, roadLength, speed)
+    );
   };
 
-  render(): HTMLElement {
+  private animateCarMove = (
+    startTime: number,
+    roadLength: number,
+    speed: number
+  ) => {
+    if (this.car.drivingMode === 'breaking') {
+      window.cancelAnimationFrame(this.requestAnimId);
+      return;
+    }
+    if (this.car.drivingMode === 'stopped') {
+      this.resetCarPosition();
+      window.cancelAnimationFrame(this.requestAnimId);
+      return;
+    }
+
+    const carPosition = ((performance.now() - startTime) / 1000) * speed;
+
+    this.carImgWrapper.node.style.transform = `translateX(${carPosition}px)`;
+
+    if (carPosition < roadLength && this.car.drivingMode === 'started') {
+      window.requestAnimationFrame(
+        this.animateCarMove.bind(this, startTime, roadLength, speed)
+      );
+    } else {
+      window.cancelAnimationFrame(this.requestAnimId);
+    }
+  };
+
+  render(): void {
+    this.node.innerHTML = '';
+
     const buttonsWrapper = new BaseControl({
       tagName: 'div',
       classes: ['car__buttons'],
@@ -232,11 +252,6 @@ class Car extends BaseControl<HTMLElement> {
       );
     }
 
-    // const carImgWrapper = new BaseControl({
-    //   tagName: 'div',
-    //   classes: ['car__img-wrapper'],
-    // });
-
     const carImg = `<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
         width="80px" height="100%" viewBox="0 0 1280.000000 720.000000"
         preserveAspectRatio="xMidYMid meet">
@@ -295,7 +310,6 @@ class Car extends BaseControl<HTMLElement> {
     carContent.node.append(textContent.node, buttonsWrapper.node);
 
     this.node.append(carContent.node, this.road.node);
-    return this.node;
   }
 }
 

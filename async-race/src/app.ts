@@ -1,9 +1,8 @@
-import { Store } from 'redux';
-import { IRouter } from './components/shared/interfaces/router-model';
+import { IRouter } from './shared/interfaces/router-model';
 import './styles.scss';
-import Router from './components/shared/Router';
-import HeaderContainer from './components/Header/HeaderContainer';
-import { getAllCarsTC } from './store/carSlice';
+import Router from './shared/Router';
+import { getAllCarsTC } from './store/carsSlice';
+import Header from './components/Header/Header';
 
 class App {
   private router: IRouter;
@@ -13,7 +12,10 @@ class App {
   }
 
   init(): void {
-    this.store.subscribe(() => this.render());
+    const unsubscribe = this.store.subscribe(() => {
+      this.render();
+      unsubscribe();
+    });
     this.store.dispatch(getAllCarsTC());
     // this.render();
     this.eventListeners();
@@ -22,10 +24,15 @@ class App {
   private render(): void {
     this.rootElem.innerHTML = '<h1 class="h1-title">Async Race</h1>';
     this.rootElem.append(
-      new HeaderContainer(this.router.changePath).render(this.router.getHash())
+      new Header(
+        { tagName: 'header', classes: ['header'] },
+        this.router.changePath,
+        this.router.getHash()
+      ).node
     );
+
     const currentPage = this.router.routeToPage();
-    this.rootElem.append(currentPage.render());
+    this.rootElem.append(currentPage);
   }
 
   private eventListeners(): void {

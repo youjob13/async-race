@@ -1,7 +1,6 @@
-import { IPage } from './interfaces/page-model';
 import { IRoute, IRouter } from './interfaces/router-model';
-import WinnersContainer from '../Winners/WinnersContainer';
-import Garage from '../Garage/Garage';
+import Garage from '../components/Garage/Garage';
+import Winners from '../components/Winners/Winners';
 
 class Router implements IRouter {
   private routes: IRoute[];
@@ -10,20 +9,23 @@ class Router implements IRouter {
     this.routes = [
       {
         path: '',
-        component: (): IPage => {
-          return new Garage(this.store);
+        component: (): HTMLElement => {
+          return new Garage(this.store).node;
         },
       },
       {
         path: 'garage',
-        component: (): IPage => {
-          return new Garage(this.store);
+        component: (): HTMLElement => {
+          return new Garage(this.store).node;
         },
       },
       {
         path: 'winners',
-        component: (): IPage => {
-          return new WinnersContainer();
+        component: (): HTMLElement => {
+          return new Winners({
+            tagName: 'main',
+            classes: ['winners'],
+          }).node;
         },
       },
     ];
@@ -35,9 +37,9 @@ class Router implements IRouter {
 
   getHash = (): string => window.location.hash.slice(1);
 
-  routeToPage(): IPage | '404 error' {
+  routeToPage(): HTMLElement | '404 error' {
     const currentHash = this.getHash();
-    let currentPage: IPage | '404 error' = '404 error';
+    let currentPage: HTMLElement | '404 error' = '404 error'; // TODO: realise 404 page
 
     this.routes.forEach((route) => {
       if (route.path === currentHash) {
