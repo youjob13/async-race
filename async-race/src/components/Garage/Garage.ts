@@ -5,6 +5,8 @@ import { ICarItemState } from '../../shared/interfaces/carState-model';
 import {
   generateNewCarTC,
   generateRandomCarsTC,
+  resetCarPositionAndStopEngine,
+  startRaceTC,
   toggleGaragePage,
 } from '../../store/carsSlice';
 import {
@@ -15,6 +17,8 @@ import BaseControl from '../../shared/BaseControl/BaseControl';
 import Button from '../../shared/Button/Button';
 import Input from '../../shared/Input/Input';
 import Car from '../Car/Car';
+
+export const COUNT_CARS_ON_PAGE = 7;
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
   private generateCarForm: ICarForm;
@@ -76,20 +80,23 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     this.generateCarForm[type] = value;
   };
 
-  startRace = (): void => {};
+  startRace = (): void => {
+    this.store.dispatch(startRaceTC());
+  };
 
-  returnCarToDefaultPosition = (): void => {};
+  returnCarToDefaultPosition = (): void => {
+    this.store.dispatch(resetCarPositionAndStopEngine());
+  };
 
   render(): void {
     this.node.innerHTML = '';
 
     const { cars, currentGaragePage } = this.store.getState().carReducer;
-
     this.cars = cars;
     this.currentPage = currentGaragePage;
 
     const carsNumber = this.cars.length;
-    const carsOnPage = 7;
+    const carsOnPage = COUNT_CARS_ON_PAGE;
     const pagesNumber = Math.ceil(carsNumber / carsOnPage);
 
     const garageHeader = new BaseControl({

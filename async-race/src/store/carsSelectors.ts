@@ -1,4 +1,5 @@
 // import { createSelector } from 'reselect';
+import { createSelector } from '@reduxjs/toolkit';
 import { ICarItemState, ICarState } from '../shared/interfaces/carState-model';
 
 export const getCarsSelector = (state: ICarState): ICarItemState[] =>
@@ -8,6 +9,12 @@ export const getCarsSelector = (state: ICarState): ICarItemState[] =>
 
 export const getCurrentGaragePageSelector = (state: ICarState): number =>
   state.currentGaragePage;
+
+export const getCarStateSelector = createSelector(
+  getCarsSelector,
+  getCurrentGaragePageSelector,
+  (cars, currentGaragePage) => ({ cars, currentGaragePage })
+);
 
 export const getCarSelector = (
   state: ICarState,

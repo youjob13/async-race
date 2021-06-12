@@ -12,12 +12,8 @@ class App {
   }
 
   init(): void {
-    const unsubscribe = this.store.subscribe(() => {
-      this.render();
-      unsubscribe();
-    });
     this.store.dispatch(getAllCarsTC());
-    // this.render();
+    this.render();
     this.eventListeners();
   }
 

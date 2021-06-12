@@ -1,10 +1,16 @@
 import { AnyAction, createSlice, ThunkAction } from '@reduxjs/toolkit';
 import apiCars, { apiEngine } from '../components/api/api';
+// import { COUNT_CARS_ON_PAGE } from '../components/Garage/Garage';
 import {
   carNameRandomGenerator,
   colorRandomGenerator,
 } from '../shared/functions/valueRandomGenerator';
 import { ICarItemState, ICarState } from '../shared/interfaces/carState-model';
+import { getCarStateSelector } from './carsSelectors';
+
+const calcCarSpeed = (velocity: number, distance: number): number => {
+  return distance / velocity;
+};
 
 type CarParams = { name: string; color: string };
 
@@ -15,6 +21,41 @@ const carsSlice = createSlice({
     currentGaragePage: 1,
   } as ICarState,
   reducers: {
+    startRace: (state: ICarState, action) => {
+      return {
+        cars: state.cars.map((car, index) => {
+          if (
+            (state.currentGaragePage - 1) * 7 <= index &&
+            index < 7 * state.currentGaragePage
+          ) {
+            return {
+              id: car.id,
+              color: car.color,
+              name: car.name,
+              isEdit: car.isEdit,
+              drivingMode: 'started',
+              timeToFinish: action.payload[index + state.currentGaragePage], // TODO: car id
+            };
+          }
+          return car;
+        }),
+        currentGaragePage: state.currentGaragePage,
+      };
+    },
+    resetCarPositionAndStopEngine: (state: ICarState) => {
+      return {
+        cars: state.cars.map((car) => {
+          return {
+            id: car.id,
+            isEdit: car.isEdit,
+            drivingMode: 'stopped',
+            name: car.name,
+            color: car.color,
+          };
+        }),
+        currentGaragePage: state.currentGaragePage,
+      };
+    },
     checkEngineStatus: (state: ICarState, action) => {
       return {
         cars: state.cars.map((car) => {
@@ -111,6 +152,8 @@ const carsSlice = createSlice({
 export default carsSlice.reducer;
 
 export const {
+  startRace,
+  resetCarPositionAndStopEngine,
   toggleCarEngine,
   checkEngineStatus,
   setAllCars,
@@ -153,20 +196,63 @@ export const deleteCarTC =
 export const generateRandomCarsTC =
   (): ThunkAction<void, ICarState, unknown, AnyAction> =>
   async (dispatch): Promise<void> => {
-    const newCars: {
-      name: string;
-      color: string;
-    }[] = [];
+    const newGeneratedCars: { name: string; color: string }[] = [];
+    // const carss = []
 
-    for (let i = 0; i < 5; i++) {
-      newCars.push({
+    for (let i = 0; i < 1000; i++) {
+      // carss.push(apiCars.createCar);
+      newGeneratedCars.push({
         name: carNameRandomGenerator(),
         color: colorRandomGenerator(),
       });
     }
 
-    const cars = newCars.map((item) => apiCars.createCar(item));
-    dispatch(generateRandomCars(await Promise.all(cars)));
+    const cars = newGeneratedCars.map(async (car) =>
+      fetch('http://127.0.0.1:3000/garage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        body: JSON.stringify(car),
+      })
+    );
+
+    Promise.all(cars)
+      .then((responses) => Promise.all(responses.map((r) => r.json())))
+      .then((responses) => {
+        console.log(responses);
+        dispatch(generateRandomCars(responses));
+      });
+    console.log(cars);
+
+    // const cars = newCars.map((item) => apiCars.createCar(item));
+    // dispatch(generateRandomCars(cars));
+  };
+
+export const startRaceTC =
+  (): ThunkAction<void, ICarState, unknown, AnyAction> =>
+  async (dispatch, state: any): Promise<void> => {
+    const { cars, currentGaragePage } = getCarStateSelector(state().carReducer);
+    let carsOnCurrentPage = [];
+
+    carsOnCurrentPage = cars.map((car, index) => {
+      if (
+        (currentGaragePage - 1) * 7 <= index &&
+        index < 7 * currentGaragePage
+      ) {
+        return apiEngine.toggleEngine(car.id, 'started');
+      }
+    });
+
+    Promise.all(carsOnCurrentPage).then((responses) => {
+      const an = responses.map((response) => {
+        const { velocity, distance } = response || { velocity: 0, distance: 0 };
+        return calcCarSpeed(velocity, distance);
+      });
+      console.log(an);
+
+      dispatch(startRace(an));
+    });
   };
 
 export const startCarEngineTC =
@@ -175,10 +261,6 @@ export const startCarEngineTC =
     status: string
   ): ThunkAction<void, ICarState, unknown, AnyAction> =>
   async (dispatch): Promise<void> => {
-    const calcCarSpeed = (velocity: number, distance: number): number => {
-      return distance / velocity;
-    };
-
     const { velocity, distance } = await apiEngine.toggleEngine(id, status);
     const result = {
       timeToFinish: calcCarSpeed(velocity, distance),

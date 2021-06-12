@@ -36,7 +36,6 @@ export const apiEngine = {
       const url = new URL(`${this.baseURL}`);
       url.searchParams.append('id', `${id}`);
       url.searchParams.append('status', `${status}`);
-      console.log(status);
 
       const response = await fetch(`${url}`);
       if (response.status === 200) {
@@ -77,8 +76,9 @@ const apiCars: IApi = {
         },
         body: JSON.stringify(data),
       });
-      const res = await response.json();
-      return res;
+
+      const res = /* await */ response.json();
+      return await res;
     } catch (error) {
       throw new Error(error);
     }

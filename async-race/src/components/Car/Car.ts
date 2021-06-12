@@ -26,8 +26,6 @@ class Car extends BaseControl<HTMLElement> {
 
   private requestAnimId: number;
 
-  private status: string;
-
   constructor(private car: ICarItemState, private store: any) {
     super({ tagName: 'div', classes: ['garage__car', 'car'] });
     this.road = new BaseControl({
@@ -59,30 +57,26 @@ class Car extends BaseControl<HTMLElement> {
       color: '',
     };
     this.requestAnimId = 0;
-    this.status = 'stop';
 
     this.store.subscribe(() => {
       const updatedCar = getCarSelector(
         this.store.getState().carReducer,
         this.car.id
       );
-      console.log(updatedCar?.id, updatedCar?.drivingMode);
-      if (this.status !== 'drive' && updatedCar?.drivingMode === 'started') {
-        this.status = 'drive';
-        this.car = { ...updatedCar };
-        if (this.car.timeToFinish) {
-          this.startEngine();
+
+      if (JSON.stringify(updatedCar) !== JSON.stringify(this.car)) {
+        if (updatedCar?.drivingMode === 'started') {
+          this.car = { ...updatedCar };
+          if (this.car.timeToFinish) {
+            this.startEngine();
+          }
+        } else if (updatedCar?.drivingMode === 'breaking') {
+          this.car = { ...updatedCar };
+        } else if (updatedCar) {
+          this.car = { ...updatedCar };
+          this.resetCarPosition(); // TODO: rewrite
+          this.render();
         }
-      } else if (updatedCar?.drivingMode === 'breaking') {
-        this.status = 'breaking';
-        this.car = { ...updatedCar };
-      } else if (
-        updatedCar &&
-        JSON.stringify(updatedCar) !== JSON.stringify(this.car)
-      ) {
-        this.car = { ...updatedCar };
-        this.resetCarPosition(); // TODO: rewrite
-        this.render();
       }
     });
 
@@ -123,7 +117,6 @@ class Car extends BaseControl<HTMLElement> {
 
   private onStopEngineBtnClick = (): void => {
     this.store.dispatch(stopCarEngineTC(this.car.id, 'stopped'));
-    this.status = 'stop';
   };
 
   private resetCarPosition = (): void => {
