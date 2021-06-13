@@ -1,18 +1,16 @@
-import { IRouter } from './shared/interfaces/router-model';
 import './styles.scss';
+import { IRouter } from './shared/interfaces/router-model';
 import Router from './shared/Router';
-import { getAllCarsTC } from './store/carsSlice';
 import Header from './components/Header/Header';
 
 class App {
   private router: IRouter;
 
-  constructor(private rootElem: HTMLElement, private store: any) {
+  constructor(private rootElem: HTMLElement, private store: unknown) {
     this.router = new Router(this.store);
   }
 
   init(): void {
-    this.store.dispatch(getAllCarsTC());
     this.render();
     this.eventListeners();
   }

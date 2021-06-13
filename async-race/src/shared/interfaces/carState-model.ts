@@ -1,4 +1,4 @@
-export interface ICarItemState {
+export interface ICar {
   id: number;
   name: string;
   color: string;
@@ -7,7 +7,8 @@ export interface ICarItemState {
   timeToFinish?: number;
 }
 
-export interface ICarState {
-  cars: ICarItemState[];
+export interface ICarsState {
+  cars: ICar[];
   currentGaragePage: number;
+  carsNumber: number;
 }

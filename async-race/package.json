@@ -45,6 +45,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.0",
     "redux": "^4.1.0",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "reselect": "^4.0.0"
   }
 }

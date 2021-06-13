@@ -4,7 +4,7 @@ import { IBaseControl, ICarForm } from '../../shared/interfaces/api-models';
 import BaseControl from '../../shared/BaseControl/BaseControl';
 import Button from '../../shared/Button/Button';
 import Input from '../../shared/Input/Input';
-import { ICarItemState } from '../../shared/interfaces/carState-model';
+import { ICar } from '../../shared/interfaces/carState-model';
 import {
   deleteCarTC,
   setEditMode,
@@ -26,7 +26,7 @@ class Car extends BaseControl<HTMLElement> {
 
   private requestAnimId: number;
 
-  constructor(private car: ICarItemState, private store: any) {
+  constructor(private car: ICar, private store: any) {
     super({ tagName: 'div', classes: ['garage__car', 'car'] });
     this.road = new BaseControl({
       tagName: 'div',
@@ -64,16 +64,19 @@ class Car extends BaseControl<HTMLElement> {
         this.car.id
       );
 
+      if (!updatedCar) return;
+
       if (JSON.stringify(updatedCar) !== JSON.stringify(this.car)) {
-        if (updatedCar?.drivingMode === 'started') {
-          this.car = { ...updatedCar };
+        this.car = { ...updatedCar };
+
+        if (updatedCar.drivingMode === 'started') {
+          // this.car = { ...updatedCar };
           if (this.car.timeToFinish) {
             this.startEngine();
           }
-        } else if (updatedCar?.drivingMode === 'breaking') {
-          this.car = { ...updatedCar };
+        } else if (updatedCar.drivingMode === 'breaking') {
+          // this.car = { ...updatedCar };
         } else if (updatedCar) {
-          this.car = { ...updatedCar };
           this.resetCarPosition(); // TODO: rewrite
           this.render();
         }
@@ -125,14 +128,14 @@ class Car extends BaseControl<HTMLElement> {
   };
 
   private startEngine = (): void => {
+    this.stopEngineBtn.node.removeAttribute('disabled');
     const timeToFinish = this.car.timeToFinish || 0;
-
-    const speed =
-      (this.road.node.getBoundingClientRect().width / timeToFinish) * 1000;
 
     const roadLength =
       this.road.node.getBoundingClientRect().width -
       this.carImgWrapper.node.getBoundingClientRect().width;
+
+    const speed = (roadLength / timeToFinish) * 1000;
 
     const startTime = performance.now();
 
@@ -155,6 +158,7 @@ class Car extends BaseControl<HTMLElement> {
       window.cancelAnimationFrame(this.requestAnimId);
       return;
     }
+    console.log(this.car.drivingMode);
 
     const carPosition = ((performance.now() - startTime) / 1000) * speed;
 
@@ -191,6 +195,7 @@ class Car extends BaseControl<HTMLElement> {
         tagName: 'div',
         classes: ['car__update-params-wrapper'],
       });
+
       const inputName = new Input(
         {
           tagName: 'input',
@@ -217,6 +222,7 @@ class Car extends BaseControl<HTMLElement> {
         },
         this.onConfirmEditBtnClick
       );
+
       updateCarParamsWrapper.node.append(
         inputName.node,
         inputColor.node,

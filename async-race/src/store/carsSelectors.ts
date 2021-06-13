@@ -1,31 +1,33 @@
-// import { createSelector } from 'reselect';
-import { createSelector } from '@reduxjs/toolkit';
-import { ICarItemState, ICarState } from '../shared/interfaces/carState-model';
+import { createSelector } from 'reselect';
+import { ICarsState, ICar } from '../shared/interfaces/carState-model';
 
-export const getCarsSelector = (state: ICarState): ICarItemState[] =>
-  state.cars;
+export const getCarsSelector = (state: ICarsState): ICar[] => state.cars;
 
-// export const getCarsSelector = createSelector(getCars, (cars) => cars);
-
-export const getCurrentGaragePageSelector = (state: ICarState): number =>
+export const getCurrentGaragePageSelector = (state: ICarsState): number =>
   state.currentGaragePage;
+
+export const getCarsNumberSelector = (state: ICarsState): number =>
+  state.carsNumber;
 
 export const getCarStateSelector = createSelector(
   getCarsSelector,
   getCurrentGaragePageSelector,
-  (cars, currentGaragePage) => ({ cars, currentGaragePage })
+  (cars, currentGaragePage) => ({
+    newCars: cars,
+    newCurrentGaragePage: currentGaragePage,
+  })
 );
 
 export const getCarSelector = (
-  state: ICarState,
+  state: ICarsState,
   id: number
-): ICarItemState | undefined => {
+): ICar | undefined => {
   return state.cars.find((car) => car.id === id); // TODO: rewrite without undefined
 };
 
 export const startEngine = (
-  state: ICarState,
+  state: ICarsState,
   id: number
-): ICarItemState | undefined => {
+): ICar | undefined => {
   return state.cars.find((car) => car.id === id); // TODO: rewrite without undefined
 };

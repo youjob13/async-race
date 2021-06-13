@@ -5,7 +5,7 @@ import Winners from '../components/Winners/Winners';
 class Router implements IRouter {
   private routes: IRoute[];
 
-  constructor(private store: any) {
+  constructor(private store: unknown) {
     this.routes = [
       {
         path: '',

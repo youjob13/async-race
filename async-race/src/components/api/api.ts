@@ -1,13 +1,16 @@
-import { ICarItemState } from '../../shared/interfaces/carState-model';
+import { ICar } from '../../shared/interfaces/carState-model';
 
 type Data = { name: string; color: string };
 
 interface IApi {
   baseURL: string;
-  getAllCars: () => Promise<ICarItemState[]>;
-  createCar: (data: Data) => Promise<ICarItemState>;
+  getAllCars: (
+    page?: number,
+    limit?: number
+  ) => Promise<{ res: ICar[]; totalCarsNumber: number | null }>;
+  createCar: (data: Data) => Promise<ICar>;
   deleteCar: (id: number) => Promise<void>;
-  updateCar: (data: ICarItemState) => Promise<ICarItemState>;
+  updateCar: (data: ICar) => Promise<ICar>;
 }
 
 export const apiEngine = {
@@ -38,13 +41,15 @@ export const apiEngine = {
       url.searchParams.append('status', `${status}`);
 
       const response = await fetch(`${url}`);
-      if (response.status === 200) {
+
+      if (response.status === 200 || response.status === 500) {
         const res = await response.json();
         return res;
       }
-      if (response.status === 500) {
-        return false;
-      }
+      console.log(response);
+      // if (response.status === 500) {
+      //   return false;
+      // }
       throw new Error(response.statusText);
     } catch (error) {
       throw new Error(error);
@@ -55,18 +60,26 @@ export const apiEngine = {
 const apiCars: IApi = {
   baseURL: 'http://127.0.0.1:3000/garage',
 
-  async getAllCars(): Promise<ICarItemState[]> {
+  async getAllCars(
+    page?: number,
+    limit?: number
+  ): Promise<{ res: ICar[]; totalCarsNumber: number | null }> {
     try {
       const url = new URL(this.baseURL);
+      url.searchParams.append('_page', `${page}`);
+      url.searchParams.append('_limit', `${limit}`);
       const response = await fetch(`${url}`);
       const res = await response.json();
-      return res;
+      return {
+        res,
+        totalCarsNumber: Number(response.headers.get('X-Total-Count')),
+      };
     } catch (error) {
       throw new Error(error);
     }
   },
 
-  async createCar(data: Data): Promise<ICarItemState> {
+  async createCar(data: Data): Promise<ICar> {
     try {
       const url = new URL(this.baseURL);
       const response = await fetch(`${url}`, {
@@ -76,9 +89,9 @@ const apiCars: IApi = {
         },
         body: JSON.stringify(data),
       });
-
-      const res = /* await */ response.json();
-      return await res;
+      // return response;
+      const res = await response.json();
+      return res;
     } catch (error) {
       throw new Error(error);
     }
@@ -95,7 +108,7 @@ const apiCars: IApi = {
     }
   },
 
-  async updateCar(data: ICarItemState): Promise<ICarItemState> {
+  async updateCar(data: ICar): Promise<ICar> {
     try {
       const url = new URL(`${this.baseURL}/${data.id}`);
       const response = await fetch(`${url}`, {
