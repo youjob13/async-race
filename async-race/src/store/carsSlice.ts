@@ -1,12 +1,12 @@
 import { AnyAction, createSlice, ThunkAction } from '@reduxjs/toolkit';
-import apiCars, { apiEngine } from '../components/api/api';
+import { apiCars, apiEngine, apiWinner } from '../shared/api/api';
 import {
   carNameRandomGenerator,
   colorRandomGenerator,
 } from '../shared/helperFunctions/valueRandomGenerator';
 import { ICar, ICarsState } from '../shared/interfaces/carState-model';
-import { getCarStateSelector } from './carsSelectors';
 import calcCarSpeed from '../shared/helperFunctions/calculateSpeed';
+import { getCurrentWinner } from './carsSelectors';
 
 export const COUNT_CARS_ON_PAGE = 7;
 
@@ -18,32 +18,51 @@ const carsSlice = createSlice({
     cars: [],
     currentGaragePage: 1,
     carsNumber: 0,
+    currentWinner: null,
   } as ICarsState,
   reducers: {
-    startRace: (state: ICarsState, action) => {
+    updateWinnersWinCount: (state: ICarsState, action) => {
+      const { id, wins } = action.payload;
       return {
-        cars: state.cars.map((car, index) => {
-          if (
-            (state.currentGaragePage - 1) * COUNT_CARS_ON_PAGE <= index &&
-            index < COUNT_CARS_ON_PAGE * state.currentGaragePage
-          ) {
+        ...state,
+        cars: state.cars.map((car) => {
+          if (car.id === id) {
             return {
-              id: car.id,
-              color: car.color,
-              name: car.name,
-              isEdit: car.isEdit,
-              drivingMode: 'started',
-              timeToFinish: action.payload[index + state.currentGaragePage], // TODO: car id
+              ...car,
+              wins,
             };
           }
           return car;
         }),
-        currentGaragePage: state.currentGaragePage,
-        carsNumber: state.carsNumber,
+      };
+    },
+    resetCarsPositionAndNullifyCurrentWinner: (state: ICarsState) => {
+      return {
+        ...state,
+        currentWinner: null,
+      };
+    },
+    setCurrentRaceWinner: (state: ICarsState, action) => {
+      return {
+        ...state,
+        currentWinner: action.payload,
+      };
+    },
+    startRace: (state: ICarsState, action) => {
+      return {
+        ...state,
+        cars: state.cars.map((car, index) => {
+          return {
+            ...car,
+            drivingMode: 'started',
+            timeToFinish: action.payload[index],
+          };
+        }),
       };
     },
     resetCarPositionAndStopEngine: (state: ICarsState) => {
       return {
+        ...state,
         cars: state.cars.map((car) => {
           return {
             id: car.id,
@@ -53,12 +72,11 @@ const carsSlice = createSlice({
             color: car.color,
           };
         }),
-        currentGaragePage: state.currentGaragePage,
-        carsNumber: state.carsNumber,
       };
     },
     setEngineStatusIsBroken: (state: ICarsState, action) => {
       return {
+        ...state,
         cars: state.cars.map((car) => {
           if (car.id === action.payload) {
             return {
@@ -68,16 +86,14 @@ const carsSlice = createSlice({
           }
           return car;
         }),
-        currentGaragePage: state.currentGaragePage,
-        carsNumber: state.carsNumber,
       };
     },
     toggleCarEngine: (state: ICarsState, action) => {
       const { timeToFinish, id, status } = action.payload;
       return {
+        ...state,
         cars: state.cars.map((car) => {
           if (car.id === id) {
-            console.log(status);
             return {
               ...car,
               timeToFinish,
@@ -86,8 +102,6 @@ const carsSlice = createSlice({
           }
           return car;
         }),
-        currentGaragePage: state.currentGaragePage,
-        carsNumber: state.carsNumber,
       };
     },
     setAllCars: (state: ICarsState, action) => {
@@ -97,12 +111,13 @@ const carsSlice = createSlice({
         cars: [...res],
         currentGaragePage,
         carsNumber: totalCarsNumber,
+        currentWinner: state.currentWinner,
       };
     },
     generateRandomCars: (state: ICarsState, action) => {
       return {
+        ...state,
         cars: [...state.cars, ...action.payload],
-        currentGaragePage: state.currentGaragePage,
         carsNumber: state.carsNumber + 100,
       };
     },
@@ -122,19 +137,19 @@ const carsSlice = createSlice({
     // },
     setEditMode: (state: ICarsState, action) => {
       return {
+        ...state,
         cars: state.cars.map((car) => {
           if (car.id === action.payload) {
             return { ...car, isEdit: true };
           }
           return car;
         }),
-        currentGaragePage: state.currentGaragePage,
-        carsNumber: state.carsNumber,
       };
     },
     updateCarParams: (state: ICarsState, action) => {
       const { id, name, color } = action.payload;
       return {
+        ...state,
         cars: state.cars.map((car) => {
           if (car.id === id) {
             return {
@@ -146,14 +161,12 @@ const carsSlice = createSlice({
           }
           return car;
         }),
-        currentGaragePage: state.currentGaragePage,
-        carsNumber: state.carsNumber,
       };
     },
     generateNewCar: (state: ICarsState, action) => {
       return {
+        ...state,
         cars: [...state.cars, action.payload],
-        currentGaragePage: state.currentGaragePage,
         carsNumber: state.carsNumber + 1,
       };
     },
@@ -163,7 +176,10 @@ const carsSlice = createSlice({
 export default carsSlice.reducer;
 
 export const {
-  // startRace,
+  updateWinnersWinCount,
+  resetCarsPositionAndNullifyCurrentWinner,
+  setCurrentRaceWinner,
+  startRace,
   resetCarPositionAndStopEngine,
   toggleCarEngine,
   setEngineStatusIsBroken,
@@ -270,13 +286,6 @@ export const generateRandomCarsTC =
     // });
   };
 
-export const startRaceTC =
-  (): ThunkAction<void, ICarsState, unknown, AnyAction> =>
-  async (dispatch, state: any): Promise<void> => {
-    const { newCars } = getCarStateSelector(state().carReducer);
-    newCars.forEach((newCar) => apiEngine.toggleEngine(newCar.id, 'started'));
-  };
-
 export const startCarEngineTC =
   (
     id: number,
@@ -292,10 +301,90 @@ export const startCarEngineTC =
       })
     );
 
-    const engineStatus = await apiEngine.switchEngineMode(id, 'drive');
-    console.log('engineStatus', engineStatus);
+    const isNotBroken = await apiEngine.switchEngineMode(id, 'drive');
+    console.log('isNotBroken', isNotBroken);
 
-    if (!engineStatus) dispatch(setEngineStatusIsBroken(id));
+    if (!isNotBroken) dispatch(setEngineStatusIsBroken(id));
+  };
+
+export const updateWinnerTC =
+  (
+    carName: string,
+    data: {
+      id: number;
+      wins: number;
+      time: number;
+    }
+  ): ThunkAction<void, ICarsState, unknown, AnyAction> =>
+  async (dispatch): Promise<void> => {
+    // const { id, wins, time, name } = data;
+    const response = await apiWinner.updateWinner({
+      ...data,
+      wins: data.wins + 1,
+    });
+    dispatch(updateWinnersWinCount({ id: response.id, wins: response.wins }));
+    console.log(response);
+    dispatch(setCurrentRaceWinner(carName));
+  };
+
+export const createWinnerTC =
+  (
+    carName: string,
+    winnerParams: {
+      id: number;
+      wins: number;
+      time: number;
+    }
+  ): ThunkAction<void, ICarsState, unknown, AnyAction> =>
+  async (dispatch): Promise<void> => {
+    // const { name, id, wins, time } = winnerParams;
+    const response = await apiWinner.createWinner(winnerParams);
+    console.log(response);
+    dispatch(updateWinnerTC(carName, response));
+  };
+
+export const startRaceTC =
+  (): ThunkAction<void, ICarsState, unknown, AnyAction> =>
+  async (dispatch, state: any): Promise<void> => {
+    const { cars } = state().carReducer;
+    const requestsToSetStartedEngineMode: Promise<Response>[] = [];
+    cars.forEach((car: ICar) => {
+      const url = new URL('http://127.0.0.1:3000/engine');
+      url.searchParams.append('id', `${car.id}`);
+      url.searchParams.append('status', `${'started'}`);
+      requestsToSetStartedEngineMode.push(fetch(`${url}`));
+    });
+
+    Promise.all(requestsToSetStartedEngineMode).then((responses) => {
+      const responsesJSON = responses.map((response) => response.json());
+
+      Promise.all(responsesJSON).then((result) => {
+        const calculatedResult = result.map((resItem) =>
+          calcCarSpeed(resItem.velocity, resItem.distance)
+        );
+        dispatch(startRace(calculatedResult));
+      });
+
+      cars.forEach(async (car: ICar) => {
+        const isNotBroken = await apiEngine.switchEngineMode(car.id, 'drive');
+        const currentWinner = getCurrentWinner(state().carReducer);
+        console.log('isNotBroken', isNotBroken);
+        if (!currentWinner && isNotBroken) {
+          const winner = await apiWinner.getWinner(car.id);
+          console.log(winner);
+          if (!winner)
+            dispatch(
+              createWinnerTC(
+                car.name,
+                { id: car.id, wins: car.wins || 0, time: 10 } /* car.time */
+              )
+            );
+          else dispatch(updateWinnerTC(car.name, winner /* car.time */));
+        }
+
+        if (!isNotBroken) dispatch(setEngineStatusIsBroken(car.id));
+      });
+    });
   };
 
 export const stopCarEngineTC =
@@ -307,4 +396,16 @@ export const stopCarEngineTC =
     const { velocity, distance } = await apiEngine.toggleEngine(id, status);
     const result = { timeToFinish: 0, id, status };
     dispatch(toggleCarEngine(result));
+  };
+
+export const resetCarsPositionTC =
+  (): ThunkAction<void, ICarsState, unknown, AnyAction> =>
+  async (dispatch, state: any): Promise<void> => {
+    const { cars } = state().carReducer;
+
+    dispatch(resetCarsPositionAndNullifyCurrentWinner());
+
+    cars.forEach((car: ICar) => {
+      dispatch(stopCarEngineTC(car.id, 'stopped'));
+    });
   };

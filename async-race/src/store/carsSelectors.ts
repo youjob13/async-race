@@ -18,6 +18,9 @@ export const getCarStateSelector = createSelector(
   })
 );
 
+export const getCurrentWinner = (state: ICarsState): string | null =>
+  state.currentWinner;
+
 export const getCarSelector = (
   state: ICarsState,
   id: number

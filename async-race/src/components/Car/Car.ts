@@ -67,8 +67,12 @@ class Car extends BaseControl<HTMLElement> {
       if (!updatedCar) return;
 
       if (JSON.stringify(updatedCar) !== JSON.stringify(this.car)) {
-        this.car = { ...updatedCar };
+        if (updatedCar.wins !== this.car.wins) {
+          this.car = { ...updatedCar };
+          return;
+        } // TODO: rewrite
 
+        this.car = { ...updatedCar };
         if (updatedCar.drivingMode === 'started') {
           // this.car = { ...updatedCar };
           if (this.car.timeToFinish) {
@@ -158,7 +162,6 @@ class Car extends BaseControl<HTMLElement> {
       window.cancelAnimationFrame(this.requestAnimId);
       return;
     }
-    console.log(this.car.drivingMode);
 
     const carPosition = ((performance.now() - startTime) / 1000) * speed;
 

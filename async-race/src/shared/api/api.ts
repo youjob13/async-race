@@ -1,4 +1,4 @@
-import { ICar } from '../../shared/interfaces/carState-model';
+import { ICar } from '../interfaces/carState-model';
 
 type Data = { name: string; color: string };
 
@@ -12,6 +12,71 @@ interface IApi {
   deleteCar: (id: number) => Promise<void>;
   updateCar: (data: ICar) => Promise<ICar>;
 }
+
+export const apiWinner = {
+  baseURL: 'http://127.0.0.1:3000/winners',
+
+  async createWinner(data: {
+    id: number;
+    wins: number;
+    time: number;
+  }): Promise<{ id: number; wins: number; time: number }> {
+    try {
+      const url = new URL(`${this.baseURL}`);
+
+      const response = await fetch(`${url}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      return await response.json();
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+
+  async updateWinner(data: {
+    id: number;
+    wins: number;
+    time: number;
+  }): Promise<{ id: number; wins: number; time: number }> {
+    try {
+      const url = new URL(`${this.baseURL}/${data.id}`);
+      // url.searchParams.append('id', id.toString());
+      const response = await fetch(`${url}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ wins: data.wins, time: data.time }),
+      });
+      return await response.json();
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+
+  async getWinner(
+    id: number
+  ): Promise<{ id: number; wins: number; time: number } | undefined> {
+    try {
+      const url = new URL(`${this.baseURL}/${id}`);
+      const response = await fetch(`${url}`);
+      if (response.status === 404) {
+        throw new Error(response.statusText);
+      }
+      return await response.json();
+    } catch (error) {
+      if (error.toString() === 'Error: Not Found') {
+        return undefined;
+      }
+      console.log(error);
+      throw new Error(error);
+    }
+  },
+};
 
 export const apiEngine = {
   baseURL: 'http://127.0.0.1:3000/engine',
@@ -42,22 +107,21 @@ export const apiEngine = {
 
       const response = await fetch(`${url}`);
 
-      if (response.status === 200 || response.status === 500) {
-        const res = await response.json();
-        return res;
+      if (response.status === 500) {
+        throw new Error('Engine is broken');
       }
-      console.log(response);
-      // if (response.status === 500) {
-      //   return false;
-      // }
-      throw new Error(response.statusText);
+
+      return await response.json();
     } catch (error) {
+      if (error.toString() === 'Error: Engine is broken') {
+        return false;
+      }
       throw new Error(error);
     }
   },
 };
 
-const apiCars: IApi = {
+export const apiCars: IApi = {
   baseURL: 'http://127.0.0.1:3000/garage',
 
   async getAllCars(
@@ -125,4 +189,3 @@ const apiCars: IApi = {
     }
   },
 };
-export default apiCars;

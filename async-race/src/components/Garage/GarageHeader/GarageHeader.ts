@@ -4,11 +4,17 @@ import Button from '../../../shared/Button/Button';
 import {
   generateNewCarTC,
   generateRandomCarsTC,
+  resetCarsPositionTC,
+  startRaceTC,
 } from '../../../store/carsSlice';
 import { ICarForm } from '../../../shared/interfaces/api-models';
 
 class GarageHeader extends BaseControl<HTMLElement> {
   private readonly generateCarForm: ICarForm;
+
+  private startRaceBtn: Button;
+
+  private resetBtn: Button;
 
   constructor(
     private store: any,
@@ -19,6 +25,23 @@ class GarageHeader extends BaseControl<HTMLElement> {
       tagName: 'header',
       classes: ['garage__header'],
     });
+    this.startRaceBtn = new Button(
+      {
+        tagName: 'button',
+        classes: ['garage__button', 'button'],
+        text: 'Start Race',
+      },
+      this.startRace
+    );
+    this.resetBtn = new Button(
+      {
+        tagName: 'button',
+        classes: ['garage__button', 'button'],
+        attributes: { disabled: 'disabled' },
+        text: 'Reset',
+      },
+      this.resetCarsParamsAndReturnToDefaultPosition
+    );
     this.generateCarForm = {
       name: 'Default Car',
       color: '#000',
@@ -43,9 +66,17 @@ class GarageHeader extends BaseControl<HTMLElement> {
     this.generateCarForm[type] = value;
   };
 
-  private startRace = (): void => {};
+  private startRace = (): void => {
+    this.startRaceBtn.node.setAttribute('disabled', 'disabled');
+    this.store.dispatch(startRaceTC());
+    this.resetBtn.node.removeAttribute('disabled');
+  };
 
-  private resetCarsParamsAndReturnToDefaultPosition = (): void => {};
+  private resetCarsParamsAndReturnToDefaultPosition = (): void => {
+    this.startRaceBtn.node.removeAttribute('disabled');
+    this.resetBtn.node.setAttribute('disabled', 'disabled');
+    this.store.dispatch(resetCarsPositionTC());
+  };
 
   private render(): void {
     const garageGenerateWrapper = new BaseControl({
@@ -111,25 +142,7 @@ class GarageHeader extends BaseControl<HTMLElement> {
       classes: ['garage__buttons-wrapper'],
     });
 
-    const startRaceBtn = new Button(
-      {
-        tagName: 'button',
-        classes: ['garage__button', 'button'],
-        text: 'Start Race',
-      },
-      this.startRace
-    );
-
-    const resetBtn = new Button(
-      {
-        tagName: 'button',
-        classes: ['garage__button', 'button'],
-        text: 'Reset',
-      },
-      this.resetCarsParamsAndReturnToDefaultPosition
-    );
-
-    buttonsWrapper.node.append(startRaceBtn.node, resetBtn.node);
+    buttonsWrapper.node.append(this.startRaceBtn.node, this.resetBtn.node);
 
     const carsNumberOutput = new BaseControl({
       tagName: 'output',

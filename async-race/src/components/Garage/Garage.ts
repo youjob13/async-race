@@ -3,6 +3,7 @@ import {
   getCarStateSelector,
   getCarsSelector,
   getCurrentGaragePageSelector,
+  getCurrentWinner,
 } from '../../store/carsSelectors';
 import './garage.scss';
 import { IPage } from '../../shared/interfaces/page-model';
@@ -21,6 +22,8 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
 
   private carsNumber: number;
 
+  private currentWinner: string | null;
+
   constructor(private store: any) {
     super({ tagName: 'main', classes: ['garage'] });
     this.cars = getCarsSelector(this.store.getState().carReducer);
@@ -28,6 +31,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       this.store.getState().carReducer
     );
     this.carsNumber = 0;
+    this.currentWinner = getCurrentWinner(this.store.getState().carReducer);
 
     this.store.subscribe(() => {
       const { newCars, newCurrentGaragePage } = getCarStateSelector(
@@ -37,6 +41,12 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       const newCarsNumber = getCarsNumberSelector(
         this.store.getState().carReducer
       );
+
+      this.currentWinner = getCurrentWinner(this.store.getState().carReducer);
+
+      if (this.currentWinner) {
+        console.log(this.currentWinner);
+      }
 
       if (this.carsNumber !== newCarsNumber) {
         this.cars = [...newCars]; // TODO: twice

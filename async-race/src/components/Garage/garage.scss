@@ -24,13 +24,14 @@
     padding: 4px 25px;
     border-radius: 6px;
     background-color: #fff;
-    cursor: pointer;
     transition: 0.2s;
-    &:hover {
+    &:hover:not([disabled=disabled]) {
       background-color: turquoise;
+      cursor: pointer;
     }
     &:active {
       background-color: rgb(25, 151, 139);
+      cursor: pointer;
     }
   }
   &__inner {
