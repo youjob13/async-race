@@ -7,6 +7,7 @@ import {
 import { ICar, ICarsState } from '../shared/interfaces/carState-model';
 import calcCarSpeed from '../shared/helperFunctions/calculateSpeed';
 import { getCurrentWinner } from './carsSelectors';
+import Timer from '../shared/Timer';
 
 export const COUNT_CARS_ON_PAGE = 7;
 
@@ -355,6 +356,8 @@ export const startRaceTC =
       requestsToSetStartedEngineMode.push(fetch(`${url}`));
     });
 
+    const timerRace = new Timer();
+
     Promise.all(requestsToSetStartedEngineMode).then((responses) => {
       const responsesJSON = responses.map((response) => response.json());
 
@@ -363,6 +366,7 @@ export const startRaceTC =
           calcCarSpeed(resItem.velocity, resItem.distance)
         );
         dispatch(startRace(calculatedResult));
+        timerRace.startTimer();
       });
 
       cars.forEach(async (car: ICar) => {
@@ -372,14 +376,17 @@ export const startRaceTC =
         if (!currentWinner && isNotBroken) {
           const winner = await apiWinner.getWinner(car.id);
           console.log(winner);
-          if (!winner)
+          if (!winner) {
+            timerRace.stopTimer();
+            const winnerTime = timerRace.getTime();
             dispatch(
-              createWinnerTC(
-                car.name,
-                { id: car.id, wins: car.wins || 0, time: 10 } /* car.time */
-              )
+              createWinnerTC(car.name, {
+                id: car.id,
+                wins: car.wins || 0,
+                time: winnerTime,
+              })
             );
-          else dispatch(updateWinnerTC(car.name, winner /* car.time */));
+          } else dispatch(updateWinnerTC(car.name, winner));
         }
 
         if (!isNotBroken) dispatch(setEngineStatusIsBroken(car.id));
