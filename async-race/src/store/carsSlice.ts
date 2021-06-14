@@ -1,4 +1,10 @@
-import { AnyAction, createSlice, ThunkAction } from '@reduxjs/toolkit';
+import {
+  AnyAction,
+  createSlice,
+  StateFromReducersMapObject,
+  ThunkAction,
+} from '@reduxjs/toolkit';
+import { RootState } from '@reduxjs/toolkit/dist/query/core/apiState';
 import { apiCars, apiEngine, apiWinner } from '../shared/api/api';
 import {
   carNameRandomGenerator,
@@ -6,7 +12,7 @@ import {
 } from '../shared/helperFunctions/valueRandomGenerator';
 import { ICar, ICarsState } from '../shared/interfaces/carState-model';
 import calcCarSpeed from '../shared/helperFunctions/calculateSpeed';
-import { getCurrentWinnerAndRaceStatus } from './carsSelectors';
+import { getCurrentWinnerSelector } from './carsSelectors';
 import Timer from '../shared/Timer';
 import { ITimer } from '../shared/interfaces/ITimer';
 import {
@@ -83,7 +89,7 @@ const carsSlice = createSlice({
         }),
       };
     },
-    toggleCarEngine: (state: ICarsState, action) => {
+    toggleCarEngineMode: (state: ICarsState, action) => {
       const { timeToFinish, id, status } = action.payload;
       return {
         ...state,
@@ -99,7 +105,7 @@ const carsSlice = createSlice({
         }),
       };
     },
-    generateRandomCars: (state: ICarsState, action) => {
+    generateOneHundredRandomCars: (state: ICarsState, action) => {
       return {
         ...state,
         cars: [...state.cars, ...action.payload],
@@ -131,6 +137,7 @@ const carsSlice = createSlice({
         cars: state.cars.map((car) => {
           if (car.id === id) {
             return {
+              ...car,
               id,
               name,
               color,
@@ -149,11 +156,11 @@ const carsSlice = createSlice({
       };
     },
     setAllCars: (state: ICarsState, action) => {
-      const { res, totalCarsNumber, currentGaragePage } = action.payload;
+      const { cars, totalCarsNumber, currentGaragePage } = action.payload;
 
       return {
         ...state,
-        cars: [...res],
+        cars: [...cars],
         currentGaragePage,
         carsNumber: totalCarsNumber,
       };
@@ -168,10 +175,10 @@ export const {
   updateWinnersWinCount,
   setCurrentRaceWinner,
   startRace,
-  toggleCarEngine,
+  toggleCarEngineMode,
   setEngineStatusIsBroken,
   setAllCars,
-  generateRandomCars,
+  generateOneHundredRandomCars,
   setEditCarMode,
   updateCarParams,
   // toggleGaragePage,
@@ -184,17 +191,17 @@ export const getAllCarsTC =
     limit?: number
   ): ThunkAction<void, ICarsState, unknown, AnyAction> =>
   async (dispatch): Promise<void> => {
-    const { res, totalCarsNumber } = await apiCars.getAllCars(
+    const { cars, totalCarsNumber } = await apiCars.getAllCars(
       currentGaragePage,
       limit
     );
-    dispatch(setAllCars({ res, totalCarsNumber, currentGaragePage }));
+    dispatch(setAllCars({ cars, totalCarsNumber, currentGaragePage }));
   };
 
 export const toggleGaragePageTC =
   (isIncrement: boolean): ThunkAction<void, ICarsState, unknown, AnyAction> =>
-  async (dispatch, state: any): Promise<void> => {
-    let { currentGaragePage } = state().carReducer;
+  async (dispatch, getState: any): Promise<void> => {
+    let { currentGaragePage } = getState().carReducer;
     currentGaragePage = isIncrement
       ? currentGaragePage + 1
       : currentGaragePage - 1;
@@ -203,17 +210,19 @@ export const toggleGaragePageTC =
   };
 
 export const generateNewCarTC =
-  (data: CreateCarRequest): ThunkAction<void, ICarsState, unknown, AnyAction> =>
+  (
+    carParams: CreateCarRequest
+  ): ThunkAction<void, ICarsState, unknown, AnyAction> =>
   async (dispatch): Promise<void> => {
-    const res = await apiCars.createCar(data);
-    dispatch(generateNewCar(res));
+    const newCar = await apiCars.createCar(carParams);
+    dispatch(generateNewCar(newCar));
   };
 
 export const updateCarParamsTC =
-  (data: ICar): ThunkAction<void, ICarsState, unknown, AnyAction> =>
+  (newCarParams: ICar): ThunkAction<void, ICarsState, unknown, AnyAction> =>
   async (dispatch): Promise<void> => {
-    const res = await apiCars.updateCar(data);
-    dispatch(updateCarParams(res));
+    const updatedCar = await apiCars.updateCar(newCarParams);
+    dispatch(updateCarParams(updatedCar));
   };
 
 export const deleteCarTC =
@@ -224,10 +233,10 @@ export const deleteCarTC =
     dispatch(getAllCarsTC(currentGaragePage, COUNT_CARS_ON_PAGE));
   };
 
-export const generateRandomCarsTC =
+export const generateOneHundredRandomCarsTC =
   (): ThunkAction<void, ICarsState, unknown, AnyAction> =>
   async (dispatch): Promise<void> => {
-    const requests = [];
+    const requests: Promise<Response>[] = [];
     for (let i = 0; i < 1000; i++) {
       const randomGeneratedCar = {
         name: carNameRandomGenerator(),
@@ -248,41 +257,20 @@ export const generateRandomCarsTC =
       const responsesJSON = responses.map((response) => response.json());
 
       Promise.all(responsesJSON).then((result: ICar[]) =>
-        dispatch(generateRandomCars(result))
+        dispatch(generateOneHundredRandomCars(result))
       );
     });
-  };
-
-export const startCarEngineTC =
-  (
-    id: number,
-    status: string
-  ): ThunkAction<void, ICarsState, unknown, AnyAction> =>
-  async (dispatch, state: any): Promise<void> => {
-    const { velocity, distance } = await apiEngine.toggleEngine(id, status);
-    dispatch(
-      toggleCarEngine({
-        timeToFinish: calcCarSpeed(velocity, distance),
-        id,
-        status,
-      })
-    );
-
-    const isNotBrokenEngine = await apiEngine.switchEngineMode(id, 'drive');
-    console.log('isNotBrokenEngine', isNotBrokenEngine);
-
-    if (!isNotBrokenEngine) dispatch(setEngineStatusIsBroken(id));
   };
 
 export const updateWinnerTC =
   (
     carName: string,
-    data: WinnerRequest
+    winnerParams: WinnerRequest
   ): ThunkAction<void, ICarsState, unknown, AnyAction> =>
   async (dispatch): Promise<void> => {
-    const newWinsCount = data.wins + 1;
+    const newWinsCount = winnerParams.wins + 1;
     const response = await apiWinner.updateWinner({
-      ...data,
+      ...winnerParams,
       wins: newWinsCount,
     });
     dispatch(
@@ -291,21 +279,16 @@ export const updateWinnerTC =
         newWinsCount,
       })
     );
-    dispatch(setCurrentRaceWinner({ carName, time: data.time }));
+    dispatch(setCurrentRaceWinner({ carName, time: winnerParams.time }));
   };
 
 export const createWinnerTC =
   (
     carName: string,
-    winnerParams: {
-      id: number;
-      wins: number;
-      time: number;
-    }
+    winnerParams: WinnerRequest
   ): ThunkAction<void, ICarsState, unknown, AnyAction> =>
   async (dispatch): Promise<void> => {
     const response = await apiWinner.createWinner(winnerParams);
-    console.log(response);
     dispatch(updateWinnerTC(carName, response));
   };
 
@@ -318,20 +301,18 @@ export const checkEngineStatusTC =
         car.id,
         'drive'
       );
-      const currentWinner = getCurrentWinnerAndRaceStatus(state().carReducer);
-      console.log('isNotBrokenEngine', isNotBrokenEngine);
+      const currentWinner = getCurrentWinnerSelector(state().carReducer);
+
       if (!currentWinner && isNotBrokenEngine) {
-        console.log('currentWinner', currentWinner);
         const winner = await apiWinner.getWinner(car.id);
         console.log(winner);
         if (!winner) {
           timerRace.stopTimer();
-          const winnerTime = timerRace.getTime();
           dispatch(
             createWinnerTC(car.name, {
               id: car.id,
               wins: car.wins || 0,
-              time: winnerTime,
+              time: timerRace.getTime(),
             })
           );
         } else dispatch(updateWinnerTC(car.name, winner));
@@ -341,11 +322,41 @@ export const checkEngineStatusTC =
     });
   };
 
+export const stopCarEngineTC =
+  (
+    id: number,
+    status: string
+  ): ThunkAction<void, ICarsState, unknown, AnyAction> =>
+  async (dispatch): Promise<void> => {
+    await apiEngine.toggleEngine(id, status);
+    const result = { timeToFinish: 0, id, status };
+    dispatch(toggleCarEngineMode(result));
+  };
+
+export const startCarEngineTC =
+  (id: number): ThunkAction<void, ICarsState, unknown, AnyAction> =>
+  async (dispatch, state: any): Promise<void> => {
+    const { velocity, distance } = await apiEngine.toggleEngine(id, 'started');
+    dispatch(
+      toggleCarEngineMode({
+        timeToFinish: calcCarSpeed(velocity, distance),
+        id,
+        status: 'started',
+      })
+    );
+
+    const isNotBrokenEngine = await apiEngine.switchEngineMode(id, 'drive');
+    console.log('isNotBrokenEngine', isNotBrokenEngine);
+
+    if (!isNotBrokenEngine) dispatch(setEngineStatusIsBroken(id));
+  };
+
 export const startRaceTC =
   (): ThunkAction<void, ICarsState, unknown, AnyAction> =>
   async (dispatch, state: any): Promise<void> => {
     const { cars } = state().carReducer;
     const requestsToSetStartedEngineCarMode: Promise<Response>[] = [];
+
     cars.forEach((car: ICar) => {
       const url = new URL('http://127.0.0.1:3000/engine');
       url.searchParams.append('id', `${car.id}`);
@@ -365,22 +376,12 @@ export const startRaceTC =
         dispatch(startRace(calculatedResult));
         timerRace.startTimer();
       });
+
       dispatch(checkEngineStatusTC(timerRace));
     });
   };
 
-export const stopCarEngineTC =
-  (
-    id: number,
-    status: string
-  ): ThunkAction<void, ICarsState, unknown, AnyAction> =>
-  async (dispatch): Promise<void> => {
-    const { velocity, distance } = await apiEngine.toggleEngine(id, status);
-    const result = { timeToFinish: 0, id, status };
-    dispatch(toggleCarEngine(result));
-  };
-
-export const resetCarsPositionTC =
+export const resetCarsPositionAndNullifyCurrentWinnerTC =
   (): ThunkAction<void, ICarsState, unknown, AnyAction> =>
   async (dispatch, state: any): Promise<void> => {
     const { cars } = state().carReducer;

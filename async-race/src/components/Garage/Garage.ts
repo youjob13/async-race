@@ -1,24 +1,22 @@
 import {
   getCarsNumberSelector,
-  getCarStateSelector,
+  getCarsStateSelector,
   getCarsSelector,
   getCurrentGaragePageSelector,
-  getCurrentWinnerAndRaceStatus,
+  getCurrentWinnerSelector,
 } from '../../store/carsSelectors';
 import './garage.scss';
 import { IPage } from '../../shared/interfaces/page-model';
-import { ICar, ICurrentWinner } from '../../shared/interfaces/carState-model';
-import {
-  getAllCarsTC,
-  COUNT_CARS_ON_PAGE,
-  nullifyCurrentWinner,
-} from '../../store/carsSlice';
+import { ICar, ICarsState } from '../../shared/interfaces/carState-model';
+import { getAllCarsTC, COUNT_CARS_ON_PAGE } from '../../store/carsSlice';
 
 import BaseControl from '../../shared/BaseControl/BaseControl';
 import GarageHeader from './GarageHeader/GarageHeader';
 import GarageFooter from './GarageFooter/GarageFooter';
 import GarageContent from './GarageContent/GarageContent';
 import WinnerPopup from '../Popup/WinnerPopup';
+import { Store } from 'redux';
+import { AnyAction, ThunkAction, ThunkDispatch } from '@reduxjs/toolkit';
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
   private cars: ICar[];
@@ -29,7 +27,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
 
   private winnerPopup: BaseControl<HTMLElement> | null;
 
-  constructor(private store: any) {
+  constructor(private store: Store) {
     super({ tagName: 'main', classes: ['garage'] });
     this.cars = getCarsSelector(this.store.getState().carReducer);
     this.currentPage = getCurrentGaragePageSelector(
@@ -47,7 +45,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     });
 
     this.store.subscribe(() => {
-      const { newCars, newCurrentGaragePage } = getCarStateSelector(
+      const { newCars, newCurrentGaragePage } = getCarsStateSelector(
         this.store.getState().carReducer
       );
 
@@ -55,7 +53,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
         this.store.getState().carReducer
       );
 
-      const currentWinner = getCurrentWinnerAndRaceStatus(
+      const currentWinner = getCurrentWinnerSelector(
         this.store.getState().carReducer
       );
 
@@ -78,7 +76,9 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       }
     });
 
-    this.store.dispatch(getAllCarsTC(this.currentPage, COUNT_CARS_ON_PAGE));
+    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+      getAllCarsTC(this.currentPage, COUNT_CARS_ON_PAGE)
+    );
 
     this.render();
   }

@@ -1,10 +1,12 @@
+import { Store } from 'redux';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { getCarSelector } from '../../store/carsSelectors';
 import './car.scss';
 import { IBaseControl, ICarForm } from '../../shared/interfaces/api-models';
 import BaseControl from '../../shared/BaseControl/BaseControl';
 import Button from '../../shared/Button/Button';
 import Input from '../../shared/Input/Input';
-import { ICar } from '../../shared/interfaces/carState-model';
+import { ICar, ICarsState } from '../../shared/interfaces/carState-model';
 import {
   deleteCarTC,
   setEditCarMode,
@@ -26,7 +28,7 @@ class Car extends BaseControl<HTMLElement> {
 
   private requestAnimId: number;
 
-  constructor(private car: ICar, private store: any) {
+  constructor(private car: ICar, private store: Store) {
     super({ tagName: 'div', classes: ['garage__car', 'car'] });
     this.road = new BaseControl({
       tagName: 'div',
@@ -91,7 +93,9 @@ class Car extends BaseControl<HTMLElement> {
   }
 
   private onDeleteBtnClick = (): void => {
-    this.store.dispatch(deleteCarTC(this.car.id));
+    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+      deleteCarTC(this.car.id)
+    );
   };
 
   private handleInput = (type: string, value: string): void => {
@@ -110,12 +114,16 @@ class Car extends BaseControl<HTMLElement> {
           ? this.updateValueCarForm.color
           : this.car.color,
     };
-    this.store.dispatch(updateCarParamsTC(newCarParams));
+    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+      updateCarParamsTC(newCarParams)
+    );
   };
 
   private onStartEngineBtnClick = (): void => {
     this.startEngineBtn.node.setAttribute('disabled', 'disabled');
-    this.store.dispatch(startCarEngineTC(this.car.id, 'started'));
+    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+      startCarEngineTC(this.car.id)
+    );
   };
 
   private onEditBtnClick = (): void => {
@@ -123,7 +131,9 @@ class Car extends BaseControl<HTMLElement> {
   };
 
   private onStopEngineBtnClick = (): void => {
-    this.store.dispatch(stopCarEngineTC(this.car.id, 'stopped'));
+    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+      stopCarEngineTC(this.car.id, 'stopped')
+    );
   };
 
   private resetCarPosition = (): void => {

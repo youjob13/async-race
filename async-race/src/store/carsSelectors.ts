@@ -13,7 +13,7 @@ export const getCurrentGaragePageSelector = (state: ICarsState): number =>
 export const getCarsNumberSelector = (state: ICarsState): number =>
   state.carsNumber;
 
-export const getCarStateSelector = createSelector(
+export const getCarsStateSelector = createSelector(
   getCarsSelector,
   getCurrentGaragePageSelector,
   (cars, currentGaragePage) => ({
@@ -22,7 +22,7 @@ export const getCarStateSelector = createSelector(
   })
 );
 
-export const getCurrentWinnerAndRaceStatus = (
+export const getCurrentWinnerSelector = (
   state: ICarsState
 ): ICurrentWinner | null => state.currentWinner;
 

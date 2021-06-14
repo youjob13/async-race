@@ -1,3 +1,4 @@
+import { Store } from 'redux';
 import { IRoute, IRouter } from './interfaces/router-model';
 import Garage from '../components/Garage/Garage';
 import Winners from '../components/Winners/Winners';
@@ -5,7 +6,7 @@ import Winners from '../components/Winners/Winners';
 class Router implements IRouter {
   private routes: IRoute[];
 
-  constructor(private store: unknown) {
+  constructor(private store: Store) {
     this.routes = [
       {
         path: '',

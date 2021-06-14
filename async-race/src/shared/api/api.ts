@@ -5,6 +5,7 @@ import {
   ICarsAPIRequest,
   IEngineAPIRequest,
   IWinnerAPIRequest,
+  GetAllCars,
 } from '../interfaces/requests-to-API-models';
 
 export const apiWinner: IWinnerAPIRequest = {
@@ -82,9 +83,7 @@ export const apiEngine: IEngineAPIRequest = {
       url.searchParams.append('status', `${status}`);
 
       const response = await fetch(`${url}`);
-      const res = await response.json();
-
-      return res;
+      return await response.json();
     } catch (error) {
       throw new Error(error);
     }
@@ -115,18 +114,15 @@ export const apiEngine: IEngineAPIRequest = {
 export const apiCars: ICarsAPIRequest = {
   baseURL: 'http://127.0.0.1:3000/garage',
 
-  async getAllCars(
-    page?: number,
-    limit?: number
-  ): Promise<{ res: ICar[]; totalCarsNumber: number | null }> {
+  async getAllCars(page?: number, limit?: number): Promise<GetAllCars> {
     try {
       const url = new URL(this.baseURL);
       url.searchParams.append('_page', `${page}`);
       url.searchParams.append('_limit', `${limit}`);
       const response = await fetch(`${url}`);
-      const res = await response.json();
+      const cars = await response.json();
       return {
-        res,
+        cars,
         totalCarsNumber: Number(response.headers.get('X-Total-Count')),
       };
     } catch (error) {

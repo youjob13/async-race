@@ -4,15 +4,14 @@ export type WinnerRequest = { id: number; wins: number; time: number };
 
 export type CreateCarRequest = { name: string; color: string };
 
+export type GetAllCars = { cars: ICar[]; totalCarsNumber: number | null };
+
 export interface IAPIRequest {
   baseURL: string;
 }
 
 export interface ICarsAPIRequest extends IAPIRequest {
-  getAllCars: (
-    page?: number,
-    limit?: number
-  ) => Promise<{ res: ICar[]; totalCarsNumber: number | null }>;
+  getAllCars: (page?: number, limit?: number) => Promise<GetAllCars>;
   createCar: (data: CreateCarRequest) => Promise<ICar>;
   deleteCar: (id: number) => Promise<void>;
   updateCar: (data: ICar) => Promise<ICar>;

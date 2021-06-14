@@ -1,4 +1,5 @@
 import './styles.scss';
+import { Store } from 'redux';
 import { IRouter } from './shared/interfaces/router-model';
 import Router from './shared/Router';
 import Header from './components/Header/Header';
@@ -6,7 +7,7 @@ import Header from './components/Header/Header';
 class App {
   private router: IRouter;
 
-  constructor(private rootElem: HTMLElement, private store: unknown) {
+  constructor(private rootElem: HTMLElement, private store: Store) {
     this.router = new Router(this.store);
   }
 
