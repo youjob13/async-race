@@ -1,19 +1,13 @@
 import { ICar } from '../interfaces/carState-model';
+import {
+  CreateCarRequest,
+  WinnerRequest,
+  ICarsAPIRequest,
+  IEngineAPIRequest,
+  IWinnerAPIRequest,
+} from '../interfaces/requests-to-API-models';
 
-type Data = { name: string; color: string };
-
-interface IApi {
-  baseURL: string;
-  getAllCars: (
-    page?: number,
-    limit?: number
-  ) => Promise<{ res: ICar[]; totalCarsNumber: number | null }>;
-  createCar: (data: Data) => Promise<ICar>;
-  deleteCar: (id: number) => Promise<void>;
-  updateCar: (data: ICar) => Promise<ICar>;
-}
-
-export const apiWinner = {
+export const apiWinner: IWinnerAPIRequest = {
   baseURL: 'http://127.0.0.1:3000/winners',
 
   async createWinner(data: {
@@ -44,7 +38,6 @@ export const apiWinner = {
   }): Promise<{ id: number; wins: number; time: number }> {
     try {
       const url = new URL(`${this.baseURL}/${data.id}`);
-      // url.searchParams.append('id', id.toString());
       const response = await fetch(`${url}`, {
         method: 'PUT',
         headers: {
@@ -58,9 +51,7 @@ export const apiWinner = {
     }
   },
 
-  async getWinner(
-    id: number
-  ): Promise<{ id: number; wins: number; time: number } | undefined> {
+  async getWinner(id: number): Promise<WinnerRequest | undefined> {
     try {
       const url = new URL(`${this.baseURL}/${id}`);
       const response = await fetch(`${url}`);
@@ -78,7 +69,7 @@ export const apiWinner = {
   },
 };
 
-export const apiEngine = {
+export const apiEngine: IEngineAPIRequest = {
   baseURL: 'http://127.0.0.1:3000/engine',
 
   async toggleEngine(
@@ -121,7 +112,7 @@ export const apiEngine = {
   },
 };
 
-export const apiCars: IApi = {
+export const apiCars: ICarsAPIRequest = {
   baseURL: 'http://127.0.0.1:3000/garage',
 
   async getAllCars(
@@ -143,7 +134,7 @@ export const apiCars: IApi = {
     }
   },
 
-  async createCar(data: Data): Promise<ICar> {
+  async createCar(data: CreateCarRequest): Promise<ICar> {
     try {
       const url = new URL(this.baseURL);
       const response = await fetch(`${url}`, {

@@ -1,4 +1,6 @@
-class Timer {
+import { ITimer } from './interfaces/ITimer';
+
+class Timer implements ITimer {
   private counter: number;
 
   private timerId: number;

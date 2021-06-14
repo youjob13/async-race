@@ -1,5 +1,9 @@
 import { createSelector } from 'reselect';
-import { ICarsState, ICar } from '../shared/interfaces/carState-model';
+import {
+  ICarsState,
+  ICar,
+  ICurrentWinner,
+} from '../shared/interfaces/carState-model';
 
 export const getCarsSelector = (state: ICarsState): ICar[] => state.cars;
 
@@ -18,17 +22,11 @@ export const getCarStateSelector = createSelector(
   })
 );
 
-export const getCurrentWinner = (state: ICarsState): string | null =>
-  state.currentWinner;
+export const getCurrentWinnerAndRaceStatus = (
+  state: ICarsState
+): ICurrentWinner | null => state.currentWinner;
 
 export const getCarSelector = (
-  state: ICarsState,
-  id: number
-): ICar | undefined => {
-  return state.cars.find((car) => car.id === id); // TODO: rewrite without undefined
-};
-
-export const startEngine = (
   state: ICarsState,
   id: number
 ): ICar | undefined => {

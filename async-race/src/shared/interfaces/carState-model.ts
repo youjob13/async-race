@@ -8,9 +8,14 @@ export interface ICar {
   wins?: number;
 }
 
+export interface ICurrentWinner {
+  carName: string;
+  time: number;
+}
+
 export interface ICarsState {
   cars: ICar[];
   currentGaragePage: number;
   carsNumber: number;
-  currentWinner: string | null;
+  currentWinner: ICurrentWinner | null;
 }

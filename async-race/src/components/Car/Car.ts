@@ -7,7 +7,7 @@ import Input from '../../shared/Input/Input';
 import { ICar } from '../../shared/interfaces/carState-model';
 import {
   deleteCarTC,
-  setEditMode,
+  setEditCarMode,
   startCarEngineTC,
   stopCarEngineTC,
   updateCarParamsTC,
@@ -119,7 +119,7 @@ class Car extends BaseControl<HTMLElement> {
   };
 
   private onEditBtnClick = (): void => {
-    this.store.dispatch(setEditMode(this.car.id));
+    this.store.dispatch(setEditCarMode(this.car.id));
   };
 
   private onStopEngineBtnClick = (): void => {
