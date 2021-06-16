@@ -5,7 +5,7 @@ import './car.scss';
 import {
   IBaseControl,
   ICarForm,
-  ICombineState,
+  ICombineCarsState,
   ThunkDispatchType,
 } from '../../../../shared/interfaces/api-models';
 import BaseControl from '../../../../shared/BaseControl/BaseControl';
@@ -124,14 +124,14 @@ class Car extends BaseControl<HTMLElement> {
           ? this.updateValueCarForm.color
           : this.car.color,
     };
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       updateCarParamsTC(newCarParams)
     );
   };
 
   private onStartEngineBtnClick = (): void => {
     this.startEngineBtn.node.setAttribute('disabled', 'disabled');
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       startCarEngineTC(this.car.id)
     );
   };
@@ -141,7 +141,7 @@ class Car extends BaseControl<HTMLElement> {
   };
 
   private onStopEngineBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       stopCarEngineTC(this.car.id, 'stopped')
     );
   };

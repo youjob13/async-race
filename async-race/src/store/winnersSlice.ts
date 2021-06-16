@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { IWinnersState } from '../shared/interfaces/winnersState-models';
 import {
-  ICombineState,
+  ICombineWinnersState,
   ThunkActionType,
 } from '../shared/interfaces/api-models';
 import { apiWinner } from '../shared/api/api';
@@ -12,8 +12,15 @@ const winnersSlice = createSlice({
     winners: [],
     currentWinnersPage: 1,
     winnersNumber: 0,
+    sortingOrder: 'ASC',
   } as IWinnersState,
   reducers: {
+    changeSortOrder: (state: IWinnersState, action) => {
+      return {
+        ...state,
+        sortingOrder: action.payload === 'ASC' ? 'DESC' : 'ASC',
+      };
+    },
     setAllWinners: (state: IWinnersState, action) => {
       const { winners, totalWinnersNumber, currentWinnersPage } =
         action.payload;
@@ -30,15 +37,15 @@ const winnersSlice = createSlice({
 
 export default winnersSlice.reducer;
 
-export const { setAllWinners } = winnersSlice.actions;
+export const { setAllWinners, changeSortOrder } = winnersSlice.actions;
 
 export const getAllWinnersTC =
   (
     currentGaragePage?: number,
     limit?: number,
-    sort?: 'id' | 'wins' | 'time', // TODO: enum,
-    order?: 'ASC' | 'DESC' // TODO: enum
-  ): ThunkActionType<ICombineState> =>
+    sort?: string | 'id' | 'wins' | 'time', // TODO: enum,
+    order?: string | 'DESC' | 'ASC' // TODO: enum
+  ): ThunkActionType<ICombineWinnersState> =>
   async (dispatch): Promise<void> => {
     const { winners, totalWinnersNumber } = await apiWinner.getWinners(
       currentGaragePage,
@@ -48,4 +55,14 @@ export const getAllWinnersTC =
     );
 
     dispatch(setAllWinners({ winners, totalWinnersNumber, currentGaragePage }));
+  };
+
+export const sortWinnersTableTC =
+  (
+    sortType: string // TODO: enum
+  ): ThunkActionType<ICombineWinnersState> =>
+  async (dispatch, getState): Promise<void> => {
+    const { currentWinnersPage, sortingOrder } = getState().winnersReducer;
+    dispatch(changeSortOrder(sortingOrder));
+    dispatch(getAllWinnersTC(currentWinnersPage, 10, sortType, sortingOrder)); // TODO: limit in global const
   };

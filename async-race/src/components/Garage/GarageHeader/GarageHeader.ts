@@ -10,7 +10,7 @@ import {
 } from '../../../store/carsSlice';
 import {
   ICarForm,
-  ICombineState,
+  ICombineCarsState,
   ThunkDispatchType,
 } from '../../../shared/interfaces/api-models';
 
@@ -55,13 +55,13 @@ class GarageHeader extends BaseControl<HTMLElement> {
   }
 
   private onGenerateRandomCarsBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       generateOneHundredRandomCarsTC()
     );
   };
 
   private onGenerateCarBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       generateNewCarTC({
         name: this.generateCarForm.name,
         color: this.generateCarForm.color,
@@ -76,13 +76,15 @@ class GarageHeader extends BaseControl<HTMLElement> {
   private startRace = (): void => {
     this.startRaceBtn.node.setAttribute('disabled', 'disabled');
     this.resetBtn.node.removeAttribute('disabled');
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(startRaceTC());
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
+      startRaceTC()
+    );
   };
 
   private resetCarsParamsAndReturnToDefaultPosition = (): void => {
     this.startRaceBtn.node.removeAttribute('disabled');
     this.resetBtn.node.setAttribute('disabled', 'disabled');
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       resetCarsPositionAndNullifyCurrentWinnerTC()
     );
   };

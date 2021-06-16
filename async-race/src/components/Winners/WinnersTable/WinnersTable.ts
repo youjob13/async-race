@@ -1,23 +1,64 @@
 import { Store } from 'redux';
+import { AnyAction, CombinedState, ThunkDispatch } from '@reduxjs/toolkit';
 import { IPropsToBaseControl } from '../../../shared/interfaces/api-models';
 import { IPage } from '../../../shared/interfaces/page-model';
 import BaseControl from '../../../shared/BaseControl/BaseControl';
-import { IWinner } from '../../../shared/interfaces/winnersState-models';
+import {
+  IWinner,
+  IWinnersState,
+} from '../../../shared/interfaces/winnersState-models';
 import Winner from './Winner/Winner';
+import { sortWinnersTableTC } from '../../../store/winnersSlice';
+import Button from '../../../shared/Button/Button';
+import { getWinnersSortOrderSelector } from '../../../store/winnersSelectors';
 
 class WinnersTable extends BaseControl<HTMLElement> implements IPage {
   private titles: string[];
 
+  private sortingOrder?: string;
+
   constructor(
     private propsToBaseControl: IPropsToBaseControl,
     private winners: IWinner[],
-    private store: Store
+    private store: Store,
+    private currentPage: number
   ) {
     super(propsToBaseControl);
     this.titles = ['Number', 'Car', 'Name', 'Wins', 'Best time'];
 
+    this.store.subscribe(() => {
+      const currentSortingOrder = getWinnersSortOrderSelector(
+        this.store.getState().winnersReducer
+      );
+
+      if (this.sortingOrder !== currentSortingOrder) {
+        this.sortingOrder = currentSortingOrder;
+        this.render();
+      }
+    });
+
     this.render();
   }
+
+  private sortByWinsNumber = (): void => {
+    (
+      this.store.dispatch as ThunkDispatch<
+        CombinedState<{ winnersReducer: IWinnersState }>,
+        unknown,
+        AnyAction
+      >
+    )(sortWinnersTableTC('wins'));
+  };
+
+  private sortByTime = (): void => {
+    (
+      this.store.dispatch as ThunkDispatch<
+        CombinedState<{ winnersReducer: IWinnersState }>,
+        unknown,
+        AnyAction
+      >
+    )(sortWinnersTableTC('time'));
+  };
 
   render(): void {
     this.node.innerHTML = '';
@@ -28,11 +69,33 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
     });
 
     this.titles.forEach((title) => {
-      const titleItem = new BaseControl({
-        tagName: 'th',
-        classes: ['winners__table_title'],
-        text: title,
-      });
+      let titleItem;
+      if (title === 'Best time') {
+        titleItem = new Button(
+          {
+            tagName: 'th',
+            classes: ['winners__table_title'],
+            text: title,
+          },
+          this.sortByTime
+        );
+      } else if (title === 'Wins') {
+        titleItem = new Button(
+          {
+            tagName: 'th',
+            classes: ['winners__table_title'],
+            text: title,
+          },
+          this.sortByWinsNumber
+        );
+      } else {
+        titleItem = new BaseControl({
+          tagName: 'th',
+          classes: ['winners__table_title'],
+          text: title,
+        });
+      }
+
       titlesWrapper.node.append(titleItem.node);
     });
 
@@ -50,7 +113,8 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
           },
           winner,
           index + 1,
-          this.store
+          this.store,
+          this.currentPage
         );
         winnersWrapper.node.append(winnerItem.node);
       });

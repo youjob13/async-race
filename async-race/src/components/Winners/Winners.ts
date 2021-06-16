@@ -4,7 +4,7 @@ import BaseControl from '../../shared/BaseControl/BaseControl';
 import WinnersTable from './WinnersTable/WinnersTable';
 import { IWinner } from '../../shared/interfaces/winnersState-models';
 import {
-  ICombineState,
+  ICombineWinnersState,
   ThunkDispatchType,
 } from '../../shared/interfaces/api-models';
 import { COUNT_CARS_ON_PAGE } from '../../shared/variables';
@@ -33,14 +33,14 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
         winnersNumber: newWinnersNumber,
       } = this.store.getState().winnersReducer;
 
-      if (this.winnersNumber !== newWinnersNumber) {
+      if (JSON.stringify(this.winners) !== JSON.stringify(newWinners)) {
         this.winnersNumber = newWinnersNumber;
         this.winners = [...newWinners];
         this.render();
       }
     });
 
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineWinnersState>)(
       getAllWinnersTC(this.currentPage, COUNT_CARS_ON_PAGE)
     );
 
@@ -68,7 +68,8 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
         classes: ['winners__table'],
       },
       this.winners,
-      this.store
+      this.store,
+      this.currentPage
     );
 
     this.node.append(numberWinners.node, currentPage.node, winnersTable.node);

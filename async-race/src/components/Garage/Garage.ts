@@ -17,7 +17,7 @@ import GarageFooter from './GarageFooter/GarageFooter';
 import GarageContent from './GarageContent/GarageContent';
 import WinnerPopup from '../Popup/WinnerPopup';
 import {
-  ICombineState,
+  ICombineCarsState,
   ThunkDispatchType,
 } from '../../shared/interfaces/api-models';
 import { COUNT_CARS_ON_PAGE } from '../../shared/variables';
@@ -78,7 +78,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       }
     });
 
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       getAllCarsTC(this.currentPage, COUNT_CARS_ON_PAGE)
     );
 

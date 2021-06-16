@@ -64,8 +64,8 @@ export const apiWinner: IWinnerAPIRequest = {
   async getWinners(
     page?: number,
     limit?: number,
-    sort?: 'id' | 'wins' | 'time',
-    order?: 'DESC' | 'ASC'
+    sort?: string | 'id' | 'wins' | 'time',
+    order?: string | 'DESC' | 'ASC' // TODO: enum
   ): Promise<{ winners: IWinner[]; totalWinnersNumber: number }> {
     try {
       const url = new URL(`${this.baseURL}`);

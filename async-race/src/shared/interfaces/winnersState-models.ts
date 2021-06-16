@@ -8,4 +8,5 @@ export interface IWinnersState {
   winners: IWinner[];
   currentWinnersPage: number;
   winnersNumber: number;
+  sortingOrder: string | 'DESC' | 'ASC';
 }

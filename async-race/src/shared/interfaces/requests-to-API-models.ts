@@ -37,7 +37,7 @@ export interface IWinnerAPIRequest extends IAPIRequest {
   getWinners: (
     page?: number,
     limit?: number,
-    sort?: 'id' | 'wins' | 'time', // TODO: enum
-    order?: 'ASC' | 'DESC' // TODO: enum
+    sort?: string | 'id' | 'wins' | 'time', // TODO: enum
+    order?: string | 'ASC' | 'DESC' // TODO: enum
   ) => Promise<{ winners: IWinner[]; totalWinnersNumber: number }>;
 }

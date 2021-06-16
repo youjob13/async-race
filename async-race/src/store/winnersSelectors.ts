@@ -11,3 +11,6 @@ export const getCurrentWinnersPageSelector = (state: IWinnersState): number =>
 
 export const getWinnersNumberSelector = (state: IWinnersState): number =>
   state.winnersNumber;
+
+export const getWinnersSortOrderSelector = (state: IWinnersState): string =>
+  state.sortingOrder;

@@ -3,7 +3,7 @@ import BaseControl from '../../../shared/BaseControl/BaseControl';
 import Button from '../../../shared/Button/Button';
 import { toggleGaragePageTC } from '../../../store/carsSlice';
 import {
-  ICombineState,
+  ICombineCarsState,
   ThunkDispatchType,
 } from '../../../shared/interfaces/api-models';
 import { COUNT_CARS_ON_PAGE } from '../../../shared/variables';
@@ -22,13 +22,13 @@ class GarageFooter extends BaseControl<HTMLElement> {
   }
 
   private onPrevPageBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       toggleGaragePageTC(false)
     );
   };
 
   private onNextPageBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       toggleGaragePageTC(true)
     );
   };

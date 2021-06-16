@@ -13,7 +13,8 @@ class Winner extends BaseControl<HTMLElement> {
     private propsToBaseControl: IPropsToBaseControl,
     private winner: IWinner,
     private carListNumber: number,
-    private store: Store // private carData: ICar
+    private store: Store, // private carData: ICar
+    private currentPage: number
   ) {
     super(propsToBaseControl);
     this.carData = getCarSelector(
