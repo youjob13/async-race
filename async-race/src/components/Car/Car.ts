@@ -1,8 +1,13 @@
 import { Store } from 'redux';
-import {AnyAction, CombinedState, ThunkDispatch} from '@reduxjs/toolkit';
+import { AnyAction, CombinedState, ThunkDispatch } from '@reduxjs/toolkit';
 import { getCarSelector } from '../../store/carsSelectors';
 import './car.scss';
-import {IBaseControl, ICarForm, ICombineState, ThunkDispatchType} from '../../shared/interfaces/api-models';
+import {
+  IBaseControl,
+  ICarForm,
+  ICombineState,
+  ThunkDispatchType,
+} from '../../shared/interfaces/api-models';
 import BaseControl from '../../shared/BaseControl/BaseControl';
 import Button from '../../shared/Button/Button';
 import Input from '../../shared/Input/Input';
@@ -93,9 +98,13 @@ class Car extends BaseControl<HTMLElement> {
   }
 
   private onDeleteBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatch<CombinedState<{carReducer: ICarsState}>, unknown, AnyAction>)(
-      deleteCarTC(this.car.id)
-    );
+    (
+      this.store.dispatch as ThunkDispatch<
+        CombinedState<{ carReducer: ICarsState }>,
+        unknown,
+        AnyAction
+      >
+    )(deleteCarTC(this.car.id));
   };
 
   private handleInput = (type: string, value: string): void => {

@@ -1,10 +1,4 @@
-import {
-  AnyAction, CombinedState,
-  createSlice, Reducer, ReducersMapObject,
-  StateFromReducersMapObject,
-  ThunkAction,
-} from '@reduxjs/toolkit';
-import { RootState } from '@reduxjs/toolkit/dist/query/core/apiState';
+import { createSlice } from '@reduxjs/toolkit';
 import { apiCars, apiEngine, apiWinner } from '../shared/api/api';
 import {
   carNameRandomGenerator,
@@ -19,7 +13,10 @@ import {
   CreateCarRequest,
   WinnerRequest,
 } from '../shared/interfaces/requests-to-API-models';
-import {ICombineState, ThunkActionType} from "../shared/interfaces/api-models";
+import {
+  ICombineState,
+  ThunkActionType,
+} from '../shared/interfaces/api-models';
 
 export const COUNT_CARS_ON_PAGE = 7;
 
@@ -203,7 +200,6 @@ export const toggleGaragePageTC =
   (isIncrement: boolean): ThunkActionType<ICombineState> =>
   async (dispatch, getState): Promise<void> => {
     let { currentGaragePage } = getState().carReducer;
-    console.log(getState())
     currentGaragePage = isIncrement
       ? currentGaragePage + 1
       : currentGaragePage - 1;
@@ -212,9 +208,7 @@ export const toggleGaragePageTC =
   };
 
 export const generateNewCarTC =
-  (
-    carParams: CreateCarRequest
-  ): ThunkActionType<ICombineState> =>
+  (carParams: CreateCarRequest): ThunkActionType<ICombineState> =>
   async (dispatch): Promise<void> => {
     const newCar = await apiCars.createCar(carParams);
     dispatch(generateNewCar(newCar));
@@ -307,7 +301,6 @@ export const checkEngineStatusTC =
 
       if (!currentWinner && isNotBrokenEngine) {
         const winner = await apiWinner.getWinner(car.id);
-        console.log(winner);
         if (!winner) {
           timerRace.stopTimer();
           dispatch(
@@ -325,10 +318,7 @@ export const checkEngineStatusTC =
   };
 
 export const stopCarEngineTC =
-  (
-    id: number,
-    status: string
-  ): ThunkActionType<ICombineState> =>
+  (id: number, status: string): ThunkActionType<ICombineState> =>
   async (dispatch): Promise<void> => {
     await apiEngine.toggleEngine(id, status);
     const result = { timeToFinish: 0, id, status };

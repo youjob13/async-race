@@ -1,5 +1,4 @@
 import { Store } from 'redux';
-import { AnyAction, ThunkAction, ThunkDispatch } from '@reduxjs/toolkit';
 import BaseControl from '../../../shared/BaseControl/BaseControl';
 import Input from '../../../shared/Input/Input';
 import Button from '../../../shared/Button/Button';
@@ -9,8 +8,11 @@ import {
   resetCarsPositionAndNullifyCurrentWinnerTC,
   startRaceTC,
 } from '../../../store/carsSlice';
-import {ICarForm, ICombineState, ThunkDispatchType} from '../../../shared/interfaces/api-models';
-import { ICarsState } from '../../../shared/interfaces/carState-model';
+import {
+  ICarForm,
+  ICombineState,
+  ThunkDispatchType,
+} from '../../../shared/interfaces/api-models';
 
 class GarageHeader extends BaseControl<HTMLElement> {
   private readonly generateCarForm: ICarForm;
@@ -74,9 +76,7 @@ class GarageHeader extends BaseControl<HTMLElement> {
   private startRace = (): void => {
     this.startRaceBtn.node.setAttribute('disabled', 'disabled');
     this.resetBtn.node.removeAttribute('disabled');
-    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
-      startRaceTC()
-    );
+    (this.store.dispatch as ThunkDispatchType<ICombineState>)(startRaceTC());
   };
 
   private resetCarsParamsAndReturnToDefaultPosition = (): void => {

@@ -5,7 +5,10 @@ import {
   COUNT_CARS_ON_PAGE,
   toggleGaragePageTC,
 } from '../../../store/carsSlice';
-import {ICombineState, ThunkDispatchType} from "../../../shared/interfaces/api-models";
+import {
+  ICombineState,
+  ThunkDispatchType,
+} from '../../../shared/interfaces/api-models';
 
 class GarageFooter extends BaseControl<HTMLElement> {
   constructor(

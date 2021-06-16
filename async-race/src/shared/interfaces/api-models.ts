@@ -1,11 +1,16 @@
-import {AnyAction, CombinedState, ThunkAction, ThunkDispatch} from "@reduxjs/toolkit";
-import {ICarsState} from "./carState-model";
+import {
+  AnyAction,
+  CombinedState,
+  ThunkAction,
+  ThunkDispatch,
+} from '@reduxjs/toolkit';
+import { ICarsState } from './carState-model';
 
-export type ICombineState = CombinedState<{carReducer: ICarsState}>
+export type ICombineState = CombinedState<{ carReducer: ICarsState }>;
 
-export type ThunkActionType<S> = ThunkAction<void, S, unknown, AnyAction>
+export type ThunkActionType<S> = ThunkAction<void, S, unknown, AnyAction>;
 
-export type ThunkDispatchType<S> = ThunkDispatch<S, unknown, AnyAction>
+export type ThunkDispatchType<S> = ThunkDispatch<S, unknown, AnyAction>;
 
 export interface IBaseControl<U> {
   readonly node: U;

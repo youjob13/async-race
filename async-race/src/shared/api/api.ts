@@ -64,7 +64,6 @@ export const apiWinner: IWinnerAPIRequest = {
       if (error.toString() === 'Error: Not Found') {
         return undefined;
       }
-      console.log(error);
       throw new Error(error);
     }
   },
