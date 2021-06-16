@@ -9,7 +9,7 @@ import {
 import './garage.scss';
 import { IPage } from '../../shared/interfaces/page-model';
 import { ICar } from '../../shared/interfaces/carState-model';
-import { getAllCarsTC, COUNT_CARS_ON_PAGE } from '../../store/carsSlice';
+import { getAllCarsTC } from '../../store/carsSlice';
 
 import BaseControl from '../../shared/BaseControl/BaseControl';
 import GarageHeader from './GarageHeader/GarageHeader';
@@ -20,6 +20,7 @@ import {
   ICombineState,
   ThunkDispatchType,
 } from '../../shared/interfaces/api-models';
+import { COUNT_CARS_ON_PAGE } from '../../shared/variables';
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
   private cars: ICar[];

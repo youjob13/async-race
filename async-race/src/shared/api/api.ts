@@ -7,15 +7,12 @@ import {
   IWinnerAPIRequest,
   GetAllCars,
 } from '../interfaces/requests-to-API-models';
+import { BASE_URL } from '../variables';
 
 export const apiWinner: IWinnerAPIRequest = {
-  baseURL: 'http://127.0.0.1:3000/winners',
+  baseURL: `${BASE_URL}/winners`,
 
-  async createWinner(data: {
-    id: number;
-    wins: number;
-    time: number;
-  }): Promise<{ id: number; wins: number; time: number }> {
+  async createWinner(data: WinnerRequest): Promise<WinnerRequest> {
     try {
       const url = new URL(`${this.baseURL}`);
 
@@ -32,11 +29,7 @@ export const apiWinner: IWinnerAPIRequest = {
     }
   },
 
-  async updateWinner(data: {
-    id: number;
-    wins: number;
-    time: number;
-  }): Promise<{ id: number; wins: number; time: number }> {
+  async updateWinner(data: WinnerRequest): Promise<WinnerRequest> {
     try {
       const url = new URL(`${this.baseURL}/${data.id}`);
       const response = await fetch(`${url}`, {
@@ -70,7 +63,7 @@ export const apiWinner: IWinnerAPIRequest = {
 };
 
 export const apiEngine: IEngineAPIRequest = {
-  baseURL: 'http://127.0.0.1:3000/engine',
+  baseURL: `${BASE_URL}/engine`,
 
   async toggleEngine(
     id: number,
@@ -111,7 +104,7 @@ export const apiEngine: IEngineAPIRequest = {
 };
 
 export const apiCars: ICarsAPIRequest = {
-  baseURL: 'http://127.0.0.1:3000/garage',
+  baseURL: `${BASE_URL}/garage`,
 
   async getAllCars(page?: number, limit?: number): Promise<GetAllCars> {
     try {

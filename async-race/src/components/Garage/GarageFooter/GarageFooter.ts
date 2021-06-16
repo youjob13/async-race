@@ -1,14 +1,12 @@
 import { Store } from 'redux';
 import BaseControl from '../../../shared/BaseControl/BaseControl';
 import Button from '../../../shared/Button/Button';
-import {
-  COUNT_CARS_ON_PAGE,
-  toggleGaragePageTC,
-} from '../../../store/carsSlice';
+import { toggleGaragePageTC } from '../../../store/carsSlice';
 import {
   ICombineState,
   ThunkDispatchType,
 } from '../../../shared/interfaces/api-models';
+import { COUNT_CARS_ON_PAGE } from '../../../shared/variables';
 
 class GarageFooter extends BaseControl<HTMLElement> {
   constructor(

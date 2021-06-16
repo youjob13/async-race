@@ -2,7 +2,7 @@ import { Store } from 'redux';
 import BaseControl from '../../../shared/BaseControl/BaseControl';
 import Car from '../../Car/Car';
 import { ICar } from '../../../shared/interfaces/carState-model';
-import { COUNT_CARS_ON_PAGE } from '../../../store/carsSlice';
+import { COUNT_CARS_ON_PAGE } from '../../../shared/variables';
 
 class GarageContent extends BaseControl<HTMLElement> {
   constructor(private store: Store, private cars: ICar[]) {

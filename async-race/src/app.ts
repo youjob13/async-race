@@ -1,5 +1,5 @@
-import './styles.scss';
 import { Store } from 'redux';
+import './styles.scss';
 import { IRouter } from './shared/interfaces/router-model';
 import Router from './shared/Router';
 import Header from './components/Header/Header';

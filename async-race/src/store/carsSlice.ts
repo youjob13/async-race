@@ -17,8 +17,13 @@ import {
   ICombineState,
   ThunkActionType,
 } from '../shared/interfaces/api-models';
-
-export const COUNT_CARS_ON_PAGE = 7;
+import {
+  BASE_URL,
+  COUNT_CARS_ON_PAGE,
+  GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_HEADERS,
+  GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_METHOD,
+  NUMBER_OF_RANDOMLY_GENERATED_CARS,
+} from '../shared/variables';
 
 const carsSlice = createSlice({
   name: 'carSlice',
@@ -107,7 +112,7 @@ const carsSlice = createSlice({
       return {
         ...state,
         cars: [...state.cars, ...action.payload],
-        carsNumber: state.carsNumber + 100,
+        carsNumber: state.carsNumber + NUMBER_OF_RANDOMLY_GENERATED_CARS,
       };
     },
     // toggleGaragePage: (state: ICar, action) => {
@@ -233,17 +238,15 @@ export const generateOneHundredRandomCarsTC =
   (): ThunkActionType<ICombineState> =>
   async (dispatch): Promise<void> => {
     const requests: Promise<Response>[] = [];
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < NUMBER_OF_RANDOMLY_GENERATED_CARS; i++) {
       const randomGeneratedCar = {
         name: carNameRandomGenerator(),
         color: colorRandomGenerator(),
       };
       requests.push(
-        fetch('http://127.0.0.1:3000/garage', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8',
-          },
+        fetch(`${BASE_URL}/garage`, {
+          method: GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_METHOD,
+          headers: GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_HEADERS,
           body: JSON.stringify(randomGeneratedCar),
         })
       );
@@ -350,7 +353,7 @@ export const startRaceTC =
     const requestsToSetStartedEngineCarMode: Promise<Response>[] = [];
 
     cars.forEach((car: ICar) => {
-      const url = new URL('http://127.0.0.1:3000/engine');
+      const url = new URL(`${BASE_URL}/engine`);
       url.searchParams.append('id', `${car.id}`);
       url.searchParams.append('status', `${'started'}`);
       requestsToSetStartedEngineCarMode.push(fetch(`${url}`));
