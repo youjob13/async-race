@@ -1,8 +1,8 @@
 import { Store } from 'redux';
-import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import {AnyAction, CombinedState, ThunkDispatch} from '@reduxjs/toolkit';
 import { getCarSelector } from '../../store/carsSelectors';
 import './car.scss';
-import { IBaseControl, ICarForm } from '../../shared/interfaces/api-models';
+import {IBaseControl, ICarForm, ICombineState, ThunkDispatchType} from '../../shared/interfaces/api-models';
 import BaseControl from '../../shared/BaseControl/BaseControl';
 import Button from '../../shared/Button/Button';
 import Input from '../../shared/Input/Input';
@@ -93,7 +93,7 @@ class Car extends BaseControl<HTMLElement> {
   }
 
   private onDeleteBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+    (this.store.dispatch as ThunkDispatch<CombinedState<{carReducer: ICarsState}>, unknown, AnyAction>)(
       deleteCarTC(this.car.id)
     );
   };
@@ -114,14 +114,14 @@ class Car extends BaseControl<HTMLElement> {
           ? this.updateValueCarForm.color
           : this.car.color,
     };
-    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
       updateCarParamsTC(newCarParams)
     );
   };
 
   private onStartEngineBtnClick = (): void => {
     this.startEngineBtn.node.setAttribute('disabled', 'disabled');
-    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
       startCarEngineTC(this.car.id)
     );
   };
@@ -131,7 +131,7 @@ class Car extends BaseControl<HTMLElement> {
   };
 
   private onStopEngineBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
       stopCarEngineTC(this.car.id, 'stopped')
     );
   };

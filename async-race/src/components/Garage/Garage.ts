@@ -16,7 +16,8 @@ import GarageFooter from './GarageFooter/GarageFooter';
 import GarageContent from './GarageContent/GarageContent';
 import WinnerPopup from '../Popup/WinnerPopup';
 import { Store } from 'redux';
-import { AnyAction, ThunkAction, ThunkDispatch } from '@reduxjs/toolkit';
+import {AnyAction, CombinedState, ThunkAction, ThunkDispatch} from '@reduxjs/toolkit';
+import {ICombineState, ThunkDispatchType} from "../../shared/interfaces/api-models";
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
   private cars: ICar[];
@@ -76,7 +77,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
       }
     });
 
-    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
       getAllCarsTC(this.currentPage, COUNT_CARS_ON_PAGE)
     );
 

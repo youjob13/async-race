@@ -1,12 +1,11 @@
 import { Store } from 'redux';
-import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import BaseControl from '../../../shared/BaseControl/BaseControl';
 import Button from '../../../shared/Button/Button';
 import {
   COUNT_CARS_ON_PAGE,
   toggleGaragePageTC,
 } from '../../../store/carsSlice';
-import { ICarsState } from '../../../shared/interfaces/carState-model';
+import {ICombineState, ThunkDispatchType} from "../../../shared/interfaces/api-models";
 
 class GarageFooter extends BaseControl<HTMLElement> {
   constructor(
@@ -22,13 +21,13 @@ class GarageFooter extends BaseControl<HTMLElement> {
   }
 
   private onPrevPageBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
       toggleGaragePageTC(false)
     );
   };
 
   private onNextPageBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatch<ICarsState, unknown, AnyAction>)(
+    (this.store.dispatch as ThunkDispatchType<ICombineState>)(
       toggleGaragePageTC(true)
     );
   };
