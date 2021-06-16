@@ -6,7 +6,7 @@ import {
 } from '../shared/helperFunctions/valueRandomGenerator';
 import { ICar, ICarsState } from '../shared/interfaces/carState-model';
 import calcCarSpeed from '../shared/helperFunctions/calculateSpeed';
-import { getCurrentWinnerSelector } from './carsSelectors';
+import { getCarsSelector, getCurrentWinnerSelector } from './carsSelectors';
 import Timer from '../shared/Timer';
 import { ITimer } from '../shared/interfaces/ITimer';
 import {
@@ -115,13 +115,6 @@ const carsSlice = createSlice({
         carsNumber: state.carsNumber + NUMBER_OF_RANDOMLY_GENERATED_CARS,
       };
     },
-    // toggleGaragePage: (state: ICar, action) => {
-    //   return {
-    //     cars: state.cars,
-    //     currentGaragePage: action.payload,
-    //     carsNumber: state.carsNumber,
-    //   };
-    // },
     setEditCarMode: (state: ICarsState, action) => {
       return {
         ...state,
@@ -184,7 +177,6 @@ export const {
   generateOneHundredRandomCars,
   setEditCarMode,
   updateCarParams,
-  // toggleGaragePage,
   generateNewCar,
 } = carsSlice.actions;
 
@@ -208,7 +200,6 @@ export const toggleGaragePageTC =
     currentGaragePage = isIncrement
       ? currentGaragePage + 1
       : currentGaragePage - 1;
-    // dispatch(toggleGaragePage(currentGaragePage));
     dispatch(getAllCarsTC(currentGaragePage, COUNT_CARS_ON_PAGE));
   };
 
@@ -231,7 +222,11 @@ export const deleteCarTC =
   async (dispatch, getState): Promise<void> => {
     const { currentGaragePage } = getState().carReducer;
     await apiCars.deleteCar(id);
-    dispatch(getAllCarsTC(currentGaragePage, COUNT_CARS_ON_PAGE));
+    await dispatch(getAllCarsTC(currentGaragePage, COUNT_CARS_ON_PAGE));
+
+    const { cars } = getState().carReducer;
+    if (!cars.length && currentGaragePage !== 1)
+      dispatch(toggleGaragePageTC(false));
   };
 
 export const generateOneHundredRandomCarsTC =
