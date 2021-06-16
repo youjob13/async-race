@@ -8,10 +8,7 @@ import { ICar, ICarsState } from '../shared/interfaces/carState-model';
 import calcCarSpeed from '../shared/helperFunctions/calculateSpeed';
 import Timer from '../shared/Timer';
 import { ITimer } from '../shared/interfaces/ITimer';
-import {
-  CreateCarRequest,
-  WinnerRequest,
-} from '../shared/interfaces/requests-to-API-models';
+import { CreateCarRequest } from '../shared/interfaces/requests-to-API-models';
 import {
   ICombineState,
   ThunkActionType,
@@ -23,6 +20,7 @@ import {
   GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_METHOD,
   NUMBER_OF_RANDOMLY_GENERATED_CARS,
 } from '../shared/variables';
+import { IWinner } from '../shared/interfaces/winnersState-models';
 
 const carsSlice = createSlice({
   name: 'carSlice',
@@ -258,7 +256,7 @@ export const generateOneHundredRandomCarsTC =
 export const updateWinnerTC =
   (
     carName: string,
-    winnerParams: WinnerRequest,
+    winnerParams: IWinner,
     currentRaceWinnerTime: number
   ): ThunkActionType<ICombineState> =>
   async (dispatch): Promise<void> => {
@@ -284,10 +282,7 @@ export const updateWinnerTC =
   };
 
 export const createWinnerTC =
-  (
-    carName: string,
-    winnerParams: WinnerRequest
-  ): ThunkActionType<ICombineState> =>
+  (carName: string, winnerParams: IWinner): ThunkActionType<ICombineState> =>
   async (dispatch): Promise<void> => {
     const newWinner = await apiWinner.createWinner(winnerParams);
     dispatch(updateWinnerTC(carName, newWinner, newWinner.time));

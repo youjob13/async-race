@@ -1,6 +1,5 @@
 import { ICar } from './carState-model';
-
-export type WinnerRequest = { id: number; wins: number; time: number };
+import { IWinner } from './winnersState-models';
 
 export type CreateCarRequest = { name: string; color: string };
 
@@ -25,8 +24,20 @@ export interface IEngineAPIRequest extends IAPIRequest {
   switchEngineMode: (id: number, status: string) => Promise<boolean>;
 }
 
+export enum Sort {
+  'id',
+  'wins',
+  'time',
+}
+
 export interface IWinnerAPIRequest extends IAPIRequest {
-  createWinner: (data: WinnerRequest) => Promise<WinnerRequest>;
-  getWinner: (id: number) => Promise<WinnerRequest | undefined>;
-  updateWinner: (data: WinnerRequest) => Promise<WinnerRequest>;
+  createWinner: (data: IWinner) => Promise<IWinner>;
+  getWinner: (id: number) => Promise<IWinner | undefined>;
+  updateWinner: (data: IWinner) => Promise<IWinner>;
+  getWinners: (
+    page?: number,
+    limit?: number,
+    sort?: 'id' | 'wins' | 'time', // TODO: enum
+    order?: 'ASC' | 'DESC' // TODO: enum
+  ) => Promise<{ winners: IWinner[]; totalWinnersNumber: number }>;
 }

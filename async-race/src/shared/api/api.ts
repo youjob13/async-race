@@ -1,18 +1,18 @@
 import { ICar } from '../interfaces/carState-model';
 import {
   CreateCarRequest,
-  WinnerRequest,
   ICarsAPIRequest,
   IEngineAPIRequest,
   IWinnerAPIRequest,
   GetAllCars,
 } from '../interfaces/requests-to-API-models';
 import { BASE_URL } from '../variables';
+import { IWinner } from '../interfaces/winnersState-models';
 
 export const apiWinner: IWinnerAPIRequest = {
   baseURL: `${BASE_URL}/winners`,
 
-  async createWinner(data: WinnerRequest): Promise<WinnerRequest> {
+  async createWinner(data: IWinner): Promise<IWinner> {
     try {
       const url = new URL(`${this.baseURL}`);
 
@@ -29,7 +29,7 @@ export const apiWinner: IWinnerAPIRequest = {
     }
   },
 
-  async updateWinner(data: WinnerRequest): Promise<WinnerRequest> {
+  async updateWinner(data: IWinner): Promise<IWinner> {
     try {
       const url = new URL(`${this.baseURL}/${data.id}`);
       const response = await fetch(`${url}`, {
@@ -45,7 +45,7 @@ export const apiWinner: IWinnerAPIRequest = {
     }
   },
 
-  async getWinner(id: number): Promise<WinnerRequest | undefined> {
+  async getWinner(id: number): Promise<IWinner | undefined> {
     try {
       const url = new URL(`${this.baseURL}/${id}`);
       const response = await fetch(`${url}`);
@@ -57,6 +57,31 @@ export const apiWinner: IWinnerAPIRequest = {
       if (error.toString() === 'Error: Not Found') {
         return undefined;
       }
+      throw new Error(error);
+    }
+  },
+
+  async getWinners(
+    page?: number,
+    limit?: number,
+    sort?: 'id' | 'wins' | 'time',
+    order?: 'DESC' | 'ASC'
+  ): Promise<{ winners: IWinner[]; totalWinnersNumber: number }> {
+    try {
+      const url = new URL(`${this.baseURL}`);
+      url.searchParams.append('_page', `${page}`);
+      url.searchParams.append('_limit', `${limit}`);
+      url.searchParams.append('_sort', `${sort}`);
+      url.searchParams.append('_order', `${order}`);
+
+      const response = await fetch(`${url}`);
+      const winners = await response.json();
+
+      return {
+        winners,
+        totalWinnersNumber: Number(response.headers.get('X-Total-Count')),
+      };
+    } catch (error) {
       throw new Error(error);
     }
   },

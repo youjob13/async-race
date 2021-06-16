@@ -23,10 +23,7 @@ class Router implements IRouter {
       {
         path: 'winners',
         component: (): HTMLElement => {
-          return new Winners({
-            tagName: 'main',
-            classes: ['winners'],
-          }).node;
+          return new Winners(this.store).node;
         },
       },
     ];
