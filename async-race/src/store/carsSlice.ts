@@ -6,7 +6,6 @@ import {
 } from '../shared/helperFunctions/valueRandomGenerator';
 import { ICar, ICarsState } from '../shared/interfaces/carState-model';
 import calcCarSpeed from '../shared/helperFunctions/calculateSpeed';
-import { getCarsSelector, getCurrentWinnerSelector } from './carsSelectors';
 import Timer from '../shared/Timer';
 import { ITimer } from '../shared/interfaces/ITimer';
 import {
@@ -259,21 +258,29 @@ export const generateOneHundredRandomCarsTC =
 export const updateWinnerTC =
   (
     carName: string,
-    winnerParams: WinnerRequest
+    winnerParams: WinnerRequest,
+    currentRaceWinnerTime: number
   ): ThunkActionType<ICombineState> =>
   async (dispatch): Promise<void> => {
     const newWinsCount = winnerParams.wins + 1;
+    const bestTime =
+      currentRaceWinnerTime < winnerParams.time
+        ? currentRaceWinnerTime
+        : winnerParams.time;
+
     const response = await apiWinner.updateWinner({
       ...winnerParams,
       wins: newWinsCount,
+      time: bestTime,
     });
+
     dispatch(
       updateWinnersWinCount({
         id: response.id,
         newWinsCount,
       })
     );
-    dispatch(setCurrentRaceWinner({ carName, time: winnerParams.time }));
+    dispatch(setCurrentRaceWinner({ carName, time: currentRaceWinnerTime }));
   };
 
 export const createWinnerTC =
@@ -282,33 +289,54 @@ export const createWinnerTC =
     winnerParams: WinnerRequest
   ): ThunkActionType<ICombineState> =>
   async (dispatch): Promise<void> => {
-    const response = await apiWinner.createWinner(winnerParams);
-    dispatch(updateWinnerTC(carName, response));
+    const newWinner = await apiWinner.createWinner(winnerParams);
+    dispatch(updateWinnerTC(carName, newWinner, newWinner.time));
   };
 
-export const checkEngineStatusTC =
+export const setCurrentRaceWinnerTC =
+  (
+    winnerCar: ICar,
+    currentRaceWinnerTime: number
+  ): ThunkActionType<ICombineState> =>
+  async (dispatch): Promise<void> => {
+    const { name, id, wins } = winnerCar;
+
+    const winner = await apiWinner.getWinner(id);
+
+    if (!winner) {
+      dispatch(
+        createWinnerTC(name, {
+          id,
+          wins: wins || 0,
+          time: currentRaceWinnerTime,
+        })
+      );
+    } else {
+      const newWinnerParams = {
+        ...winner,
+        time: currentRaceWinnerTime,
+      };
+      dispatch(updateWinnerTC(name, winner, currentRaceWinnerTime));
+    }
+  };
+
+export const checkCarsEngineStatusDuringRaceTC =
   (timerRace: ITimer): ThunkActionType<ICombineState> =>
   async (dispatch, getState): Promise<void> => {
     const { cars } = getState().carReducer;
+
     cars.forEach(async (car: ICar) => {
       const isNotBrokenEngine = await apiEngine.switchEngineMode(
         car.id,
         'drive'
       );
-      const currentWinner = getCurrentWinnerSelector(getState().carReducer);
+
+      const { currentWinner } = getState().carReducer;
 
       if (!currentWinner && isNotBrokenEngine) {
-        const winner = await apiWinner.getWinner(car.id);
-        if (!winner) {
-          timerRace.stopTimer();
-          dispatch(
-            createWinnerTC(car.name, {
-              id: car.id,
-              wins: car.wins || 0,
-              time: timerRace.getTime(),
-            })
-          );
-        } else dispatch(updateWinnerTC(car.name, winner));
+        timerRace.stopTimer();
+        const winnerTime = timerRace.getTime();
+        dispatch(setCurrentRaceWinnerTC(car, winnerTime));
       }
 
       if (!isNotBrokenEngine) dispatch(setEngineStatusIsBroken(car.id));
@@ -367,7 +395,7 @@ export const startRaceTC =
         timerRace.startTimer();
       });
 
-      dispatch(checkEngineStatusTC(timerRace));
+      dispatch(checkCarsEngineStatusDuringRaceTC(timerRace));
     });
   };
 
