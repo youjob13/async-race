@@ -5,6 +5,7 @@ import {
   ThunkActionType,
 } from '../shared/interfaces/api-models';
 import { apiWinner } from '../shared/api/api';
+import { COUNT_WINNERS_ON_PAGE } from '../shared/variables';
 
 const winnersSlice = createSlice({
   name: 'winnersSlice',
@@ -13,18 +14,21 @@ const winnersSlice = createSlice({
     currentWinnersPage: 1,
     winnersNumber: 0,
     sortingOrder: 'ASC',
+    sortingType: '',
   } as IWinnersState,
   reducers: {
     changeSortOrder: (state: IWinnersState, action) => {
+      const { sortingOrder, sortingType } = action.payload;
       return {
         ...state,
-        sortingOrder: action.payload === 'ASC' ? 'DESC' : 'ASC',
+        sortingOrder: sortingOrder === 'ASC' ? 'DESC' : 'ASC',
+        sortingType,
       };
     },
     setAllWinners: (state: IWinnersState, action) => {
       const { winners, totalWinnersNumber, currentWinnersPage } =
         action.payload;
-
+      console.log(totalWinnersNumber);
       return {
         ...state,
         winners: [...winners],
@@ -41,28 +45,29 @@ export const { setAllWinners, changeSortOrder } = winnersSlice.actions;
 
 export const getAllWinnersTC =
   (
-    currentGaragePage?: number,
-    limit?: number,
-    sort?: string | 'id' | 'wins' | 'time', // TODO: enum,
-    order?: string | 'DESC' | 'ASC' // TODO: enum
+    currentWinnersPage?: number,
+    limit?: number
   ): ThunkActionType<ICombineWinnersState> =>
-  async (dispatch): Promise<void> => {
+  async (dispatch, getState): Promise<void> => {
+    const { sortingOrder, sortingType } = getState().winnersReducer;
     const { winners, totalWinnersNumber } = await apiWinner.getWinners(
-      currentGaragePage,
+      currentWinnersPage,
       limit,
-      sort,
-      order
+      sortingType,
+      sortingOrder
     );
-
-    dispatch(setAllWinners({ winners, totalWinnersNumber, currentGaragePage }));
+    dispatch(
+      setAllWinners({ winners, totalWinnersNumber, currentWinnersPage })
+    );
   };
 
 export const sortWinnersTableTC =
   (
-    sortType: string // TODO: enum
+    sortingType: 'time' | 'wins' // TODO: enum
   ): ThunkActionType<ICombineWinnersState> =>
   async (dispatch, getState): Promise<void> => {
     const { currentWinnersPage, sortingOrder } = getState().winnersReducer;
-    dispatch(changeSortOrder(sortingOrder));
-    dispatch(getAllWinnersTC(currentWinnersPage, 10, sortType, sortingOrder)); // TODO: limit in global const
+
+    dispatch(changeSortOrder({ sortingOrder, sortingType }));
+    dispatch(getAllWinnersTC(currentWinnersPage, COUNT_WINNERS_ON_PAGE)); // TODO: limit in global const
   };

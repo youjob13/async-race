@@ -76,7 +76,7 @@ export const apiWinner: IWinnerAPIRequest = {
 
       const response = await fetch(`${url}`);
       const winners = await response.json();
-
+      console.log(response.headers.get('X-Total-Count'));
       return {
         winners,
         totalWinnersNumber: Number(response.headers.get('X-Total-Count')),

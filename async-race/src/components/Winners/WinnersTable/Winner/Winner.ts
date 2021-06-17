@@ -13,22 +13,21 @@ class Winner extends BaseControl<HTMLElement> {
     private propsToBaseControl: IPropsToBaseControl,
     private winner: IWinner,
     private carListNumber: number,
-    private store: Store, // private carData: ICar
-    private currentPage: number
+    private store: Store // private carData: ICar
   ) {
     super(propsToBaseControl);
     this.carData = getCarSelector(
       this.store.getState().carReducer,
       this.winner.id
     );
-    //
-    // this.store.subscribe(() => {
-    //   this.carData = getCarSelector(
-    //     this.store.getState().carReducer,
-    //     this.winner.id
-    //   );
-    //   this.render();
-    // });
+
+    this.store.subscribe(() => {
+      this.carData = getCarSelector(
+        this.store.getState().carReducer,
+        this.winner.id
+      );
+      this.render();
+    });
 
     this.render();
   }

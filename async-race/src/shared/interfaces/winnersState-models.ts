@@ -9,4 +9,5 @@ export interface IWinnersState {
   currentWinnersPage: number;
   winnersNumber: number;
   sortingOrder: string | 'DESC' | 'ASC';
+  sortingType: string;
 }

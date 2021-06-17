@@ -13,7 +13,7 @@ import { getAllWinnersTC } from '../../store/winnersSlice';
 class Winners extends BaseControl<HTMLElement> implements IPage {
   private winnersNumber: number;
 
-  private readonly currentPage: number;
+  private currentPage: number;
 
   private winners: IWinner[];
 
@@ -32,7 +32,10 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
         currentWinnersPage: newCurrentWinnersPage,
         winnersNumber: newWinnersNumber,
       } = this.store.getState().winnersReducer;
-
+      if (this.currentPage !== newCurrentWinnersPage) {
+        // this.currentPage = newCurrentWinnersPage;
+        // this.render();
+      }
       if (JSON.stringify(this.winners) !== JSON.stringify(newWinners)) {
         this.winnersNumber = newWinnersNumber;
         this.winners = [...newWinners];
@@ -53,7 +56,7 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
     const numberWinners = new BaseControl({
       tagName: 'p',
       classes: ['winners__number'],
-      text: `Winners: ${1}`,
+      text: `Winners: ${this.winnersNumber}`,
     });
 
     const currentPage = new BaseControl({
@@ -68,8 +71,7 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
         classes: ['winners__table'],
       },
       this.winners,
-      this.store,
-      this.currentPage
+      this.store
     );
 
     this.node.append(numberWinners.node, currentPage.node, winnersTable.node);

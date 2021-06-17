@@ -8,9 +8,9 @@ import {
   IWinnersState,
 } from '../../../shared/interfaces/winnersState-models';
 import Winner from './Winner/Winner';
-import { sortWinnersTableTC } from '../../../store/winnersSlice';
 import Button from '../../../shared/Button/Button';
 import { getWinnersSortOrderSelector } from '../../../store/winnersSelectors';
+import { sortWinnersTableTC } from '../../../store/winnersSlice';
 
 class WinnersTable extends BaseControl<HTMLElement> implements IPage {
   private titles: string[];
@@ -20,8 +20,7 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
   constructor(
     private propsToBaseControl: IPropsToBaseControl,
     private winners: IWinner[],
-    private store: Store,
-    private currentPage: number
+    private store: Store
   ) {
     super(propsToBaseControl);
     this.titles = ['Number', 'Car', 'Name', 'Wins', 'Best time'];
@@ -113,13 +112,12 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
           },
           winner,
           index + 1,
-          this.store,
-          this.currentPage
+          this.store
         );
         winnersWrapper.node.append(winnerItem.node);
       });
     } else {
-      winnersWrapper.node.textContent = 'Winners table is empty';
+      winnersWrapper.node.innerHTML = 'Winners table is empty';
     }
 
     this.node.append(titlesWrapper.node, winnersWrapper.node);
