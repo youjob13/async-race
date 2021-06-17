@@ -173,6 +173,18 @@ export const apiCars: ICarsAPIRequest = {
     }
   },
 
+  async getCar(id: number): Promise<ICar> {
+    try {
+      const url = new URL(`${this.baseURL}/${id}`);
+      const response = await fetch(`${url}`, {
+        method: 'GET',
+      });
+      return await response.json();
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+
   async updateCar(data: ICar): Promise<ICar> {
     try {
       const url = new URL(`${this.baseURL}/${data.id}`);

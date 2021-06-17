@@ -156,7 +156,7 @@ const carsSlice = createSlice({
       return {
         ...state,
         cars: [...cars],
-        currentGaragePage,
+        currentGaragePage: currentGaragePage || state.currentGaragePage,
         carsNumber: totalCarsNumber,
       };
     },

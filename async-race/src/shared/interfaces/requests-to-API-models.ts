@@ -14,6 +14,7 @@ export interface ICarsAPIRequest extends IAPIRequest {
   createCar: (data: CreateCarRequest) => Promise<ICar>;
   deleteCar: (id: number) => Promise<void>;
   updateCar: (data: ICar) => Promise<ICar>;
+  getCar: (id: number) => Promise<ICar>;
 }
 
 export interface IEngineAPIRequest extends IAPIRequest {

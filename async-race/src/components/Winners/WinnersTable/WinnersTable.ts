@@ -1,6 +1,7 @@
 import { Store } from 'redux';
 import { AnyAction, CombinedState, ThunkDispatch } from '@reduxjs/toolkit';
 import {
+  ICombineCarsState,
   ICombineWinnersState,
   IPropsToBaseControl,
   ThunkDispatchType,
@@ -15,20 +16,23 @@ import Winner from './Winner/Winner';
 import Button from '../../../shared/Button/Button';
 import {
   getCurrentWinnersPageSelector,
-  getWinnersSelector,
   getWinnersSortOrderSelector,
-  getWinnersSortTypeSelector,
 } from '../../../store/winnersSelectors';
 import {
   getAllWinnersTC,
   sortWinnersTableTC,
 } from '../../../store/winnersSlice';
-import { COUNT_CARS_ON_PAGE } from '../../../shared/variables';
+import { COUNT_WINNERS_ON_PAGE } from '../../../shared/variables';
+import { getAllCarsTC } from '../../../store/carsSlice';
+import { ICar } from '../../../shared/interfaces/carState-model';
+import { getCarsSelector } from '../../../store/carsSelectors';
 
 class WinnersTable extends BaseControl<HTMLElement> implements IPage {
   private titles: string[];
 
   private winners: IWinner[];
+
+  private cars: ICar[];
 
   private sortingOrder?: string;
 
@@ -44,19 +48,25 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
     this.titles = ['Number', 'Car', 'Name', 'Wins', 'Best time'];
     this.winners = [];
     this.currentPage = 1;
+    this.cars = [];
 
     this.store.subscribe(() => {
       const currentSortingOrder = getWinnersSortOrderSelector(
         this.store.getState().winnersReducer
       );
 
-      const currentSortingType = getWinnersSortTypeSelector(
-        this.store.getState().winnersReducer
-      );
+      this.cars = getCarsSelector(this.store.getState().carReducer); // TODO
 
-      const newWinners = getWinnersSelector(
-        this.store.getState().winnersReducer
-      );
+      const { currentSortingType, winners: newWinners } =
+        this.store.getState().winnersReducer;
+
+      // const currentSortingType = getWinnersSortTypeSelector(
+      //   this.store.getState().winnersReducer
+      // );
+
+      // const newWinners = getWinnersSelector(
+      //   this.store.getState().winnersReducer
+      // );
 
       this.currentPage = getCurrentWinnersPageSelector(
         this.store.getState().winnersReducer
@@ -70,8 +80,11 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
       }
     });
 
+    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
+      getAllCarsTC()
+    );
     (this.store.dispatch as ThunkDispatchType<ICombineWinnersState>)(
-      getAllWinnersTC(this.currentPage, COUNT_CARS_ON_PAGE)
+      getAllWinnersTC(this.currentPage, COUNT_WINNERS_ON_PAGE)
     );
 
     this.render();
@@ -144,7 +157,6 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
       tagName: 'tbody',
       classes: ['winners__table_winners-wrapper'],
     });
-
     if (this.winners.length) {
       this.winners.forEach((winner, index) => {
         const winnerItem = new Winner(

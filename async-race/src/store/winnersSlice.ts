@@ -1,11 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IWinnersState } from '../shared/interfaces/winnersState-models';
+import {
+  IWinner,
+  IWinnersState,
+} from '../shared/interfaces/winnersState-models';
 import {
   ICombineWinnersState,
   ThunkActionType,
 } from '../shared/interfaces/api-models';
 import { apiWinner } from '../shared/api/api';
-import { COUNT_WINNERS_ON_PAGE } from '../shared/variables';
+import { BASE_URL, COUNT_WINNERS_ON_PAGE } from '../shared/variables';
 
 const winnersSlice = createSlice({
   name: 'winnersSlice',
@@ -26,11 +29,10 @@ const winnersSlice = createSlice({
       };
     },
     setAllWinners: (state: IWinnersState, action) => {
-      const { winners, totalWinnersNumber, currentWinnersPage } =
-        action.payload;
+      const { res, totalWinnersNumber, currentWinnersPage } = action.payload;
       return {
         ...state,
-        winners: [...winners],
+        winners: [...res],
         currentWinnersPage,
         winnersNumber: totalWinnersNumber,
       };
@@ -41,6 +43,50 @@ const winnersSlice = createSlice({
 export default winnersSlice.reducer;
 
 export const { setAllWinners, changeSortOrder } = winnersSlice.actions;
+
+export const extendWinnersParamTC =
+  (
+    winners: IWinner[],
+    totalWinnersNumber: number,
+    currentWinnersPage?: number
+  ): ThunkActionType<ICombineWinnersState> =>
+  async (dispatch): Promise<void> => {
+    const additionalWinnersParamsRequest = [];
+
+    for (let i = 0; i < winners.length; i++) {
+      const url = new URL(`${BASE_URL}/garage/${winners[i].id}`);
+
+      additionalWinnersParamsRequest.push(
+        fetch(`${url}`, {
+          method: 'GET',
+        })
+      );
+    }
+
+    return Promise.all(additionalWinnersParamsRequest).then(
+      (additionalWinnersParams) => {
+        const additionalWinnersParamsJSON = additionalWinnersParams.map(
+          (winner) => winner.json()
+        );
+
+        Promise.all(additionalWinnersParamsJSON).then(
+          (additionalWinnersParamsRes) => {
+            const res = additionalWinnersParamsRes.map(
+              (winnerAdditionalParam, index) => {
+                return {
+                  ...winners[index],
+                  ...winnerAdditionalParam,
+                };
+              }
+            );
+            dispatch(
+              setAllWinners({ res, totalWinnersNumber, currentWinnersPage })
+            );
+          }
+        );
+      }
+    );
+  };
 
 export const getAllWinnersTC =
   (
@@ -55,9 +101,14 @@ export const getAllWinnersTC =
       sortingType,
       sortingOrder
     );
+
     dispatch(
-      setAllWinners({ winners, totalWinnersNumber, currentWinnersPage })
+      extendWinnersParamTC(winners, totalWinnersNumber, currentWinnersPage)
     );
+    // console.log(cars);
+    // dispatch(
+    //   setAllWinners({ winners, totalWinnersNumber, currentWinnersPage })
+    // );
   };
 
 export const sortWinnersTableTC =

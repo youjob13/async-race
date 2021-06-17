@@ -2,13 +2,9 @@ import { Store } from 'redux';
 import BaseControl from '../../../../shared/BaseControl/BaseControl';
 import { IPropsToBaseControl } from '../../../../shared/interfaces/api-models';
 import { IWinner } from '../../../../shared/interfaces/winnersState-models';
-import { ICar } from '../../../../shared/interfaces/carState-model';
-import { getCarSelector } from '../../../../store/carsSelectors';
 import getCarSVG from '../../../../shared/carSVG';
 
 class Winner extends BaseControl<HTMLElement> {
-  private carData: ICar | undefined;
-
   constructor(
     private propsToBaseControl: IPropsToBaseControl,
     private winner: IWinner,
@@ -16,25 +12,12 @@ class Winner extends BaseControl<HTMLElement> {
     private store: Store // private carData: ICar
   ) {
     super(propsToBaseControl);
-    this.carData = getCarSelector(
-      this.store.getState().carReducer,
-      this.winner.id
-    );
-
-    this.store.subscribe(() => {
-      this.carData = getCarSelector(
-        this.store.getState().carReducer,
-        this.winner.id
-      );
-      this.render();
-    });
 
     this.render();
   }
 
   private render(): void {
-    if (this.carData === undefined) return;
-    const { color, name } = this.carData;
+    const { color = '000', name } = this.winner;
 
     this.node.innerHTML = '';
 

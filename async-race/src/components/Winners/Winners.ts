@@ -48,7 +48,7 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
     const currentPage = new BaseControl({
       tagName: 'p',
       classes: ['winners__page-number'],
-      text: '#1',
+      text: '',
     });
 
     const winnersTable = new WinnersTable(
