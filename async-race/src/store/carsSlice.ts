@@ -6,8 +6,6 @@ import {
 } from '../shared/helperFunctions/valueRandomGenerator';
 import { ICar, ICarsState } from '../shared/interfaces/carState-model';
 import calcCarSpeed from '../shared/helperFunctions/calculateSpeed';
-import Timer from '../shared/Timer';
-import { ITimer } from '../shared/interfaces/ITimer';
 import { CreateCarRequest } from '../shared/interfaces/requests-to-API-models';
 import {
   ICombineCarsState,
