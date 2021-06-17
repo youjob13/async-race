@@ -18,11 +18,11 @@ const winnersSlice = createSlice({
   } as IWinnersState,
   reducers: {
     changeSortOrder: (state: IWinnersState, action) => {
-      const { sortingOrder, sortingType } = action.payload;
+      const { newSortingOrder, newSortingType } = action.payload;
       return {
         ...state,
-        sortingOrder: sortingOrder === 'ASC' ? 'DESC' : 'ASC',
-        sortingType,
+        sortingOrder: newSortingOrder,
+        sortingType: newSortingType || state.sortingType,
       };
     },
     setAllWinners: (state: IWinnersState, action) => {
@@ -62,11 +62,20 @@ export const getAllWinnersTC =
 
 export const sortWinnersTableTC =
   (
-    sortingType: 'time' | 'wins' // TODO: enum
+    newSortingType: string | 'time' | 'wins' // TODO: enum
   ): ThunkActionType<ICombineWinnersState> =>
   async (dispatch, getState): Promise<void> => {
-    const { currentWinnersPage, sortingOrder } = getState().winnersReducer;
+    const { currentWinnersPage, sortingOrder, sortingType } =
+      getState().winnersReducer;
+    let newSortingOrder;
 
-    dispatch(changeSortOrder({ sortingOrder, sortingType }));
-    dispatch(getAllWinnersTC(currentWinnersPage, COUNT_WINNERS_ON_PAGE)); // TODO: limit in global const
+    if (sortingType === newSortingType) {
+      newSortingOrder = sortingOrder === 'ASC' ? 'DESC' : 'ASC';
+      dispatch(changeSortOrder({ newSortingOrder, newSortingType }));
+    } else {
+      newSortingOrder = sortingOrder;
+      dispatch(changeSortOrder({ newSortingOrder, newSortingType }));
+    }
+
+    dispatch(getAllWinnersTC(currentWinnersPage, COUNT_WINNERS_ON_PAGE));
   };

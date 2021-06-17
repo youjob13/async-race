@@ -3,12 +3,7 @@ import { IPage } from '../../shared/interfaces/page-model';
 import BaseControl from '../../shared/BaseControl/BaseControl';
 import WinnersTable from './WinnersTable/WinnersTable';
 import { IWinner } from '../../shared/interfaces/winnersState-models';
-import {
-  ICombineWinnersState,
-  ThunkDispatchType,
-} from '../../shared/interfaces/api-models';
-import { COUNT_CARS_ON_PAGE } from '../../shared/variables';
-import { getAllWinnersTC } from '../../store/winnersSlice';
+import { getWinnersNumberSelector } from '../../store/winnersSelectors';
 
 class Winners extends BaseControl<HTMLElement> implements IPage {
   private winnersNumber: number;
@@ -27,25 +22,15 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
     this.currentPage = 1;
 
     this.store.subscribe(() => {
-      const {
-        winners: newWinners,
-        currentWinnersPage: newCurrentWinnersPage,
-        winnersNumber: newWinnersNumber,
-      } = this.store.getState().winnersReducer;
-      if (this.currentPage !== newCurrentWinnersPage) {
-        // this.currentPage = newCurrentWinnersPage;
-        // this.render();
-      }
-      if (JSON.stringify(this.winners) !== JSON.stringify(newWinners)) {
+      const newWinnersNumber = getWinnersNumberSelector(
+        this.store.getState().winnersReducer
+      );
+
+      if (newWinnersNumber !== this.winnersNumber) {
         this.winnersNumber = newWinnersNumber;
-        this.winners = [...newWinners];
         this.render();
       }
     });
-
-    (this.store.dispatch as ThunkDispatchType<ICombineWinnersState>)(
-      getAllWinnersTC(this.currentPage, COUNT_CARS_ON_PAGE)
-    );
 
     this.render();
   }
@@ -70,7 +55,6 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
         tagName: 'table',
         classes: ['winners__table'],
       },
-      this.winners,
       this.store
     );
 
