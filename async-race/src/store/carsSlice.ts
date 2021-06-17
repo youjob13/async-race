@@ -21,6 +21,7 @@ import {
   NUMBER_OF_RANDOMLY_GENERATED_CARS,
 } from '../shared/variables';
 import { IWinner } from '../shared/interfaces/winnersState-models';
+import roundValue from '../shared/helperFunctions/roundValue';
 
 const carsSlice = createSlice({
   name: 'carSlice',
@@ -319,7 +320,7 @@ export const setCurrentRaceWinnerTC =
   };
 
 export const checkCarsEngineStatusDuringRaceTC =
-  (timerRace: ITimer): ThunkActionType<ICombineCarsState> =>
+  (raceStart: number): ThunkActionType<ICombineCarsState> =>
   async (dispatch, getState): Promise<void> => {
     const { cars } = getState().carReducer;
 
@@ -332,8 +333,7 @@ export const checkCarsEngineStatusDuringRaceTC =
       const { currentWinner } = getState().carReducer;
 
       if (!currentWinner && isNotBrokenEngine) {
-        timerRace.stopTimer();
-        const winnerTime = timerRace.getTime();
+        const winnerTime = roundValue(performance.now() - raceStart);
         dispatch(setCurrentRaceWinnerTC(car, winnerTime));
       }
 
@@ -380,7 +380,7 @@ export const startRaceTC =
       requestsToSetStartedEngineCarMode.push(fetch(`${url}`));
     });
 
-    const timerRace = new Timer();
+    const raceStart = performance.now();
 
     Promise.all(requestsToSetStartedEngineCarMode).then((responses) => {
       const responsesJSON = responses.map((response) => response.json());
@@ -390,10 +390,9 @@ export const startRaceTC =
           calcCarSpeed(resItem.velocity, resItem.distance)
         );
         dispatch(startRace(calculatedResult));
-        timerRace.startTimer();
       });
 
-      dispatch(checkCarsEngineStatusDuringRaceTC(timerRace));
+      dispatch(checkCarsEngineStatusDuringRaceTC(raceStart));
     });
   };
 
