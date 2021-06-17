@@ -13,6 +13,9 @@ export const getCurrentGaragePageSelector = (state: ICarsState): number =>
 export const getCarsNumberSelector = (state: ICarsState): number =>
   state.carsNumber;
 
+export const getRaceStatusSelector = (state: ICarsState): boolean =>
+  state.isStartedRace;
+
 export const getCarsStateSelector = createSelector(
   getCarsSelector,
   getCurrentGaragePageSelector,

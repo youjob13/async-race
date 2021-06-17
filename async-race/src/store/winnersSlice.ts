@@ -28,7 +28,6 @@ const winnersSlice = createSlice({
     setAllWinners: (state: IWinnersState, action) => {
       const { winners, totalWinnersNumber, currentWinnersPage } =
         action.payload;
-      console.log(totalWinnersNumber);
       return {
         ...state,
         winners: [...winners],

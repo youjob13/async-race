@@ -13,6 +13,7 @@ import {
   ICombineCarsState,
   ThunkDispatchType,
 } from '../../../shared/interfaces/api-models';
+import { getRaceStatusSelector } from '../../../store/carsSelectors';
 
 class GarageHeader extends BaseControl<HTMLElement> {
   private readonly generateCarForm: ICarForm;
@@ -51,6 +52,18 @@ class GarageHeader extends BaseControl<HTMLElement> {
       name: 'Default Car',
       color: '#000',
     };
+
+    this.store.subscribe(() => {
+      const raceStatus = getRaceStatusSelector(
+        this.store.getState().carReducer
+      );
+
+      if (!raceStatus) {
+        this.resetBtn.node.removeAttribute('disabled');
+        this.render();
+      }
+    });
+
     this.render();
   }
 
@@ -75,7 +88,6 @@ class GarageHeader extends BaseControl<HTMLElement> {
 
   private startRace = (): void => {
     this.startRaceBtn.node.setAttribute('disabled', 'disabled');
-    this.resetBtn.node.removeAttribute('disabled');
     (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       startRaceTC()
     );
@@ -90,6 +102,8 @@ class GarageHeader extends BaseControl<HTMLElement> {
   };
 
   private render(): void {
+    this.node.innerHTML = '';
+
     const garageGenerateWrapper = new BaseControl({
       tagName: 'div',
       classes: ['garage__control'],

@@ -28,6 +28,7 @@ const carsSlice = createSlice({
     currentGaragePage: 1,
     carsNumber: 0,
     currentWinner: null,
+    isStartedRace: false,
   } as ICarsState,
   reducers: {
     startRace: (state: ICarsState, action) => {
@@ -58,16 +59,18 @@ const carsSlice = createSlice({
         }),
       };
     },
-    nullifyCurrentWinner: (state: ICarsState) => {
+    nullifyCurrentRace: (state: ICarsState) => {
       return {
         ...state,
         currentWinner: null,
+        isStartedRace: false,
       };
     },
     setCurrentRaceWinner: (state: ICarsState, action) => {
       const { carName, time } = action.payload;
       return {
         ...state,
+        isStartedRace: false,
         currentWinner: {
           carName,
           time,
@@ -163,7 +166,7 @@ const carsSlice = createSlice({
 export default carsSlice.reducer;
 
 export const {
-  nullifyCurrentWinner,
+  nullifyCurrentRace,
   updateWinnersWinCount,
   setCurrentRaceWinner,
   startRace,
@@ -309,10 +312,6 @@ export const setCurrentRaceWinnerTC =
         })
       );
     } else {
-      const newWinnerParams = {
-        ...winner,
-        time: currentRaceWinnerTime,
-      };
       dispatch(updateWinnerTC(name, winner, currentRaceWinnerTime));
     }
   };
@@ -321,7 +320,6 @@ export const checkCarsEngineStatusDuringRaceTC =
   (raceStart: number): ThunkActionType<ICombineCarsState> =>
   async (dispatch, getState): Promise<void> => {
     const { cars } = getState().carReducer;
-
     cars.forEach(async (car: ICar) => {
       const isNotBrokenEngine = await apiEngine.switchEngineMode(
         car.id,
@@ -329,8 +327,9 @@ export const checkCarsEngineStatusDuringRaceTC =
       );
 
       const { currentWinner } = getState().carReducer;
-
       if (!currentWinner && isNotBrokenEngine) {
+        const { isStartedRace } = getState().carReducer;
+        if (!isStartedRace) return;
         const winnerTime = roundValue(performance.now() - raceStart);
         dispatch(setCurrentRaceWinnerTC(car, winnerTime));
       }
@@ -360,7 +359,6 @@ export const startCarEngineTC =
     );
 
     const isNotBrokenEngine = await apiEngine.switchEngineMode(id, 'drive');
-    console.log('isNotBrokenEngine', isNotBrokenEngine);
 
     if (!isNotBrokenEngine) dispatch(setEngineStatusIsBroken(id));
   };
@@ -378,8 +376,6 @@ export const startRaceTC =
       requestsToSetStartedEngineCarMode.push(fetch(`${url}`));
     });
 
-    const raceStart = performance.now();
-
     Promise.all(requestsToSetStartedEngineCarMode).then((responses) => {
       const responsesJSON = responses.map((response) => response.json());
 
@@ -389,7 +385,7 @@ export const startRaceTC =
         );
         dispatch(startRace(calculatedResult));
       });
-
+      const raceStart = performance.now();
       dispatch(checkCarsEngineStatusDuringRaceTC(raceStart));
     });
   };
@@ -399,7 +395,7 @@ export const resetCarsPositionAndNullifyCurrentWinnerTC =
   async (dispatch, getState): Promise<void> => {
     const { cars } = getState().carReducer;
 
-    dispatch(nullifyCurrentWinner());
+    dispatch(nullifyCurrentRace());
 
     cars.forEach((car: ICar) => {
       dispatch(stopCarEngineTC(car.id, 'stopped'));

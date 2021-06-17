@@ -18,4 +18,5 @@ export interface ICarsState {
   currentGaragePage: number;
   carsNumber: number;
   currentWinner: ICurrentWinner | null;
+  isStartedRace: boolean;
 }

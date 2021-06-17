@@ -39,10 +39,10 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
     );
     this.carsNumber = 0;
     this.winnerPopup = null;
+
     this.node.addEventListener('click', (e: Event) => {
       const target = <HTMLElement>e.target;
       if (this.winnerPopup && !target.classList.contains('popup__content')) {
-        // this.store.dispatch(nullifyCurrentWinner());
         this.winnerPopup.node.remove(); // TODO: think
       }
     });

@@ -76,7 +76,6 @@ export const apiWinner: IWinnerAPIRequest = {
 
       const response = await fetch(`${url}`);
       const winners = await response.json();
-      console.log(response.headers.get('X-Total-Count'));
       return {
         winners,
         totalWinnersNumber: Number(response.headers.get('X-Total-Count')),
@@ -157,9 +156,7 @@ export const apiCars: ICarsAPIRequest = {
         },
         body: JSON.stringify(data),
       });
-      // return response;
-      const res = await response.json();
-      return res;
+      return await response.json();
     } catch (error) {
       throw new Error(error);
     }
@@ -186,8 +183,7 @@ export const apiCars: ICarsAPIRequest = {
         },
         body: JSON.stringify(data),
       });
-      const res = await response.json();
-      return res;
+      return await response.json();
     } catch (error) {
       throw new Error(error);
     }
