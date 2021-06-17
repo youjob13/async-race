@@ -1,3 +1,4 @@
+import './winners.scss';
 import { Store } from 'redux';
 import { IPage } from '../../shared/interfaces/page-model';
 import BaseControl from '../../shared/BaseControl/BaseControl';

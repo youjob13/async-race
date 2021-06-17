@@ -40,7 +40,7 @@ class Winner extends BaseControl<HTMLElement> {
 
     const winnerNumber = new BaseControl({
       tagName: 'td',
-      classes: ['winner__number'],
+      classes: ['cell', 'winner__number'],
       text: this.carListNumber.toString(),
     });
 
@@ -48,26 +48,26 @@ class Winner extends BaseControl<HTMLElement> {
 
     const winnerCarImgWrapper = new BaseControl({
       tagName: 'td',
-      classes: ['winner__car'],
+      classes: ['cell', 'winner__car'],
     });
 
     winnerCarImgWrapper.node.innerHTML = carImg;
 
     const winnerName = new BaseControl({
       tagName: 'td',
-      classes: ['winner__name'],
+      classes: ['cell', 'winner__name'],
       text: name,
     });
 
     const winnerWinsNumber = new BaseControl({
       tagName: 'td',
-      classes: ['winner__number'],
+      classes: ['cell', 'winner__number'],
       text: this.winner.wins.toString(),
     });
 
     const winnerTimeNumber = new BaseControl({
       tagName: 'td',
-      classes: ['winner__number'],
+      classes: ['cell', 'winner__number'],
       text: this.winner.time.toString(),
     });
 

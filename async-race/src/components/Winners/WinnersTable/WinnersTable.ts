@@ -111,7 +111,7 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
         titleItem = new Button(
           {
             tagName: 'th',
-            classes: ['winners__table_title'],
+            classes: ['winners__table_title', 'time'],
             text: `${title} ${
               (this.sortingType === 'time' && sortingOrder) || ''
             }`,
@@ -122,7 +122,7 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
         titleItem = new Button(
           {
             tagName: 'th',
-            classes: ['winners__table_title'],
+            classes: ['winners__table_title', 'wins'],
             text: `${title} ${
               (this.sortingType === 'wins' && sortingOrder) || ''
             }`,

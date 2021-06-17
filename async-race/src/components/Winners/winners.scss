@@ -1,0 +1,22 @@
+.winners__table {
+
+  .winner__car {
+    display: inline-block;
+  }
+
+  th {
+    padding: 0 20px;
+  }
+
+  .cell {
+    font-size: 20px;
+    font-weight: 500;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .time, .wins {
+    cursor: pointer;
+  }
+
+}
