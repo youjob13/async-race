@@ -66,11 +66,16 @@ const carsSlice = createSlice({
         isStartedRace: false,
       };
     },
+    finishRace: (state: ICarsState) => {
+      return {
+        ...state,
+        isStartedRace: false,
+      };
+    },
     setCurrentRaceWinner: (state: ICarsState, action) => {
       const { carName, time } = action.payload;
       return {
         ...state,
-        isStartedRace: false,
         currentWinner: {
           carName,
           time,
@@ -166,6 +171,7 @@ const carsSlice = createSlice({
 export default carsSlice.reducer;
 
 export const {
+  finishRace,
   nullifyCurrentRace,
   updateWinnersWinCount,
   setCurrentRaceWinner,
@@ -330,6 +336,7 @@ export const checkCarsEngineStatusDuringRaceTC =
       if (!currentWinner && isNotBrokenEngine) {
         const { isStartedRace } = getState().carReducer;
         if (!isStartedRace) return;
+        await dispatch(finishRace());
         const winnerTime = roundValue(performance.now() - raceStart);
         dispatch(setCurrentRaceWinnerTC(car, winnerTime));
       }
