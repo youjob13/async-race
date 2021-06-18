@@ -61,6 +61,8 @@ class GarageHeader extends BaseControl<HTMLElement> {
       if (!raceStatus) {
         this.resetBtn.node.removeAttribute('disabled');
         this.render();
+      } else {
+        this.resetBtn.node.setAttribute('disabled', 'disabled');
       }
     });
 
@@ -95,7 +97,7 @@ class GarageHeader extends BaseControl<HTMLElement> {
 
   private resetCarsParamsAndReturnToDefaultPosition = (): void => {
     this.startRaceBtn.node.removeAttribute('disabled');
-    this.resetBtn.node.setAttribute('disabled', 'disabled');
+    // this.resetBtn.node.setAttribute('disabled', 'disabled');
     (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
       resetCarsPositionAndNullifyCurrentWinnerTC()
     );

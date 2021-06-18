@@ -8,7 +8,12 @@ import {
   ThunkActionType,
 } from '../shared/interfaces/api-models';
 import { apiWinner } from '../shared/api/api';
-import { BASE_URL, COUNT_WINNERS_ON_PAGE } from '../shared/variables';
+import {
+  BASE_URL,
+  COUNT_CARS_ON_PAGE,
+  COUNT_WINNERS_ON_PAGE,
+} from '../shared/variables';
+import { getAllCarsTC } from './carsSlice';
 
 const winnersSlice = createSlice({
   name: 'winnersSlice',
@@ -105,10 +110,6 @@ export const getAllWinnersTC =
     dispatch(
       extendWinnersParamTC(winners, totalWinnersNumber, currentWinnersPage)
     );
-    // console.log(cars);
-    // dispatch(
-    //   setAllWinners({ winners, totalWinnersNumber, currentWinnersPage })
-    // );
   };
 
 export const sortWinnersTableTC =
@@ -128,5 +129,15 @@ export const sortWinnersTableTC =
       dispatch(changeSortOrder({ newSortingOrder, newSortingType }));
     }
 
+    dispatch(getAllWinnersTC(currentWinnersPage, COUNT_WINNERS_ON_PAGE));
+  };
+
+export const toggleWinnersPageTC =
+  (isIncrement: boolean): ThunkActionType<ICombineWinnersState> =>
+  async (dispatch, getState): Promise<void> => {
+    let { currentWinnersPage } = getState().winnersReducer;
+    currentWinnersPage = isIncrement
+      ? currentWinnersPage + 1
+      : currentWinnersPage - 1;
     dispatch(getAllWinnersTC(currentWinnersPage, COUNT_WINNERS_ON_PAGE));
   };

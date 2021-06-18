@@ -60,14 +60,6 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
       const { currentSortingType, winners: newWinners } =
         this.store.getState().winnersReducer;
 
-      // const currentSortingType = getWinnersSortTypeSelector(
-      //   this.store.getState().winnersReducer
-      // );
-
-      // const newWinners = getWinnersSelector(
-      //   this.store.getState().winnersReducer
-      // );
-
       this.currentPage = getCurrentWinnersPageSelector(
         this.store.getState().winnersReducer
       );
@@ -165,7 +157,7 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
             classes: ['winner'],
           },
           winner,
-          index + 1,
+          index + 1 + 10 * (this.currentPage - 1),
           this.store
         );
         winnersWrapper.node.append(winnerItem.node);
