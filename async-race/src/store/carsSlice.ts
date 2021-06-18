@@ -338,7 +338,6 @@ export const checkCarsEngineStatusDuringRaceTC =
         if (!isStartedRace) return;
         await dispatch(finishRace());
         const winnerTime = roundValue(performance.now() - raceStart);
-        console.log(currentWinner);
         dispatch(setCurrentRaceWinnerTC(car, winnerTime));
       }
 

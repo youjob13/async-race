@@ -5,7 +5,6 @@ import {
   getCarsSelector,
   getCurrentGaragePageSelector,
   getCurrentWinnerSelector,
-  getRaceStatusSelector,
 } from '../../store/carsSelectors';
 import './garage.scss';
 import { IPage } from '../../shared/interfaces/page-model';

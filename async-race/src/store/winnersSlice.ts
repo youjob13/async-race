@@ -8,12 +8,7 @@ import {
   ThunkActionType,
 } from '../shared/interfaces/api-models';
 import { apiWinner } from '../shared/api/api';
-import {
-  BASE_URL,
-  COUNT_CARS_ON_PAGE,
-  COUNT_WINNERS_ON_PAGE,
-} from '../shared/variables';
-import { getAllCarsTC } from './carsSlice';
+import { BASE_URL, COUNT_WINNERS_ON_PAGE } from '../shared/variables';
 
 const winnersSlice = createSlice({
   name: 'winnersSlice',
