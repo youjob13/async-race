@@ -24,15 +24,11 @@ import {
 } from '../../../store/winnersSlice';
 import { COUNT_WINNERS_ON_PAGE } from '../../../shared/variables';
 import { getAllCarsTC } from '../../../store/carsSlice';
-import { ICar } from '../../../shared/interfaces/carState-model';
-import { getCarsSelector } from '../../../store/carsSelectors';
 
 class WinnersTable extends BaseControl<HTMLElement> implements IPage {
   private titles: string[];
 
   private winners: IWinner[];
-
-  private cars: ICar[];
 
   private sortingOrder?: string;
 
@@ -48,14 +44,11 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
     this.titles = ['Number', 'Car', 'Name', 'Wins', 'Best time'];
     this.winners = [];
     this.currentPage = 1;
-    this.cars = [];
 
     this.store.subscribe(() => {
       const currentSortingOrder = getWinnersSortOrderSelector(
         this.store.getState().winnersReducer
       );
-
-      this.cars = getCarsSelector(this.store.getState().carReducer); // TODO
 
       const { currentSortingType, winners: newWinners } =
         this.store.getState().winnersReducer;
@@ -149,6 +142,7 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
       tagName: 'tbody',
       classes: ['winners__table_winners-wrapper'],
     });
+
     if (this.winners.length) {
       this.winners.forEach((winner, index) => {
         const winnerItem = new Winner(

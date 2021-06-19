@@ -20,6 +20,8 @@ import {
   updateCarParamsTC,
 } from '../../../../store/carsSlice';
 import getCarSVG from '../../../../shared/carSVG';
+import { deleteWinnerTC } from '../../../../store/winnersSlice';
+import { IWinnersState } from '../../../../shared/interfaces/winnersState-models';
 
 class Car extends BaseControl<HTMLElement> {
   private carImgWrapper: IBaseControl<HTMLElement>;
@@ -106,6 +108,13 @@ class Car extends BaseControl<HTMLElement> {
         AnyAction
       >
     )(deleteCarTC(this.car.id));
+    (
+      this.store.dispatch as ThunkDispatch<
+        CombinedState<{ winnersReducer: IWinnersState }>,
+        unknown,
+        AnyAction
+      >
+    )(deleteWinnerTC(this.car.id));
   };
 
   private handleInput = (type: string, value: string): void => {

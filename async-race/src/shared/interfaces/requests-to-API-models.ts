@@ -34,6 +34,7 @@ export enum Sort {
 export interface IWinnerAPIRequest extends IAPIRequest {
   createWinner: (data: IWinner) => Promise<IWinner>;
   getWinner: (id: number) => Promise<IWinner | undefined>;
+  deleteWinner: (id: number) => Promise<void>;
   updateWinner: (data: IWinner) => Promise<IWinner>;
   getWinners: (
     page?: number,

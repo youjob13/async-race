@@ -37,12 +37,19 @@ const winnersSlice = createSlice({
         winnersNumber: totalWinnersNumber,
       };
     },
+    deleteWinner: (state: IWinnersState, action) => {
+      return {
+        ...state,
+        winners: state.winners.filter((winner) => winner.id !== action.payload),
+      };
+    },
   },
 });
 
 export default winnersSlice.reducer;
 
-export const { setAllWinners, changeSortOrder } = winnersSlice.actions;
+export const { setAllWinners, deleteWinner, changeSortOrder } =
+  winnersSlice.actions;
 
 export const extendWinnersParamTC =
   (
@@ -63,7 +70,7 @@ export const extendWinnersParamTC =
       );
     }
 
-    return Promise.all(additionalWinnersParamsRequest).then(
+    Promise.all(additionalWinnersParamsRequest).then(
       (additionalWinnersParams) => {
         const additionalWinnersParamsJSON = additionalWinnersParams.map(
           (winner) => winner.json()
@@ -72,13 +79,12 @@ export const extendWinnersParamTC =
         Promise.all(additionalWinnersParamsJSON).then(
           (additionalWinnersParamsRes) => {
             const res = additionalWinnersParamsRes.map(
-              (winnerAdditionalParam, index) => {
-                return {
-                  ...winners[index],
-                  ...winnerAdditionalParam,
-                };
-              }
+              (winnerAdditionalParam, index) => ({
+                ...winners[index],
+                ...winnerAdditionalParam,
+              })
             );
+
             dispatch(
               setAllWinners({ res, totalWinnersNumber, currentWinnersPage })
             );
@@ -135,4 +141,11 @@ export const toggleWinnersPageTC =
       ? currentWinnersPage + 1
       : currentWinnersPage - 1;
     dispatch(getAllWinnersTC(currentWinnersPage, COUNT_WINNERS_ON_PAGE));
+  };
+
+export const deleteWinnerTC =
+  (id: number): ThunkActionType<ICombineWinnersState> =>
+  async (dispatch): Promise<void> => {
+    await apiWinner.deleteWinner(id);
+    dispatch(deleteWinner(id));
   };

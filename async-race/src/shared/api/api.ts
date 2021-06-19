@@ -45,6 +45,17 @@ export const apiWinner: IWinnerAPIRequest = {
     }
   },
 
+  async deleteWinner(id: number): Promise<void> {
+    try {
+      const url = new URL(`${this.baseURL}/${id}`);
+      await fetch(`${url}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+
   async getWinner(id: number): Promise<IWinner | undefined> {
     try {
       const url = new URL(`${this.baseURL}/${id}`);
