@@ -4,30 +4,7 @@ import Garage from '../components/Garage/Garage';
 import Winners from '../components/Winners/Winners';
 
 class Router implements IRouter {
-  private routes: IRoute[];
-
-  constructor(private store: Store) {
-    this.routes = [
-      {
-        path: '',
-        component: (): HTMLElement => {
-          return new Garage(this.store).node;
-        },
-      },
-      {
-        path: 'garage',
-        component: (): HTMLElement => {
-          return new Garage(this.store).node;
-        },
-      },
-      {
-        path: 'winners',
-        component: (): HTMLElement => {
-          return new Winners(this.store).node;
-        },
-      },
-    ];
-  }
+  constructor(private routes: IRoute[]) {}
 
   changePath = (path: string): void => {
     window.location.hash = path;
