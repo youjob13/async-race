@@ -11,7 +11,7 @@ import { IPage } from '../../shared/interfaces/page-model';
 import { ICar } from '../../shared/interfaces/carState-model';
 import { getAllCarsTC } from '../../store/carsSlice';
 
-import BaseControl from '../../shared/BaseControl/BaseControl';
+import BaseControl from '../../shared/templates/BaseControl/BaseControl';
 import GarageHeader from './GarageHeader/GarageHeader';
 import GarageFooter from './GarageFooter/GarageFooter';
 import GarageContent from './GarageContent/GarageContent';
@@ -20,7 +20,14 @@ import {
   ICombineCarsState,
   ThunkDispatchType,
 } from '../../shared/interfaces/api-models';
-import { COUNT_CARS_ON_PAGE } from '../../shared/variables';
+import {
+  COUNT_CARS_ON_PAGE,
+  EmptyString,
+  EventName,
+  GarageClasses,
+  Popup,
+  Tag,
+} from '../../shared/variables';
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
   private cars: ICar[];
@@ -31,24 +38,26 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
 
   private winnerPopup: BaseControl<HTMLElement> | null;
 
-  constructor(private store: Store) {
-    super({ tagName: 'main', classes: ['garage'] });
+  constructor(private readonly store: Store) {
+    super({ tagName: Tag.MAIN, classes: [GarageClasses.GARAGE] });
+    this.carsNumber = 0;
+    this.winnerPopup = null; // TODO: think and recast
     this.cars = getCarsSelector(this.store.getState().carReducer);
     this.currentPage = getCurrentGaragePageSelector(
       this.store.getState().carReducer
     );
-    this.carsNumber = 0;
-    this.winnerPopup = null;
 
-    this.node.addEventListener('click', (e: Event) => {
-      const target = <HTMLElement>e.target;
-      if (this.winnerPopup && !target.classList.contains('popup__content')) {
+    this.node.addEventListener(EventName.CLICK, (event: Event) => {
+      const target = <HTMLElement>event.target;
+
+      if (this.winnerPopup && !target.classList.contains(Popup.POPUP_CONTENT)) {
         this.winnerPopup.node.remove(); // TODO: think
       }
     });
 
+    // TODO: try to move out
     this.store.subscribe(() => {
-      const { newCars, newCurrentGaragePage } = getCarsStateSelector(
+      const { newCars, newGaragePage } = getCarsStateSelector(
         this.store.getState().carReducer
       );
 
@@ -56,12 +65,12 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
         this.store.getState().carReducer
       );
 
-      const currentWinner = getCurrentWinnerSelector(
+      const newWinner = getCurrentWinnerSelector(
         this.store.getState().carReducer
       );
 
-      if (currentWinner) {
-        this.winnerPopup = new WinnerPopup(currentWinner);
+      if (newWinner) {
+        this.winnerPopup = new WinnerPopup(newWinner);
         this.node.append(this.winnerPopup.node);
       }
 
@@ -71,9 +80,9 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
         this.render();
       }
 
-      if (newCurrentGaragePage !== this.currentPage) {
+      if (newGaragePage !== this.currentPage) {
         this.cars = [...newCars]; // TODO: twice
-        this.currentPage = newCurrentGaragePage;
+        this.currentPage = newGaragePage;
         this.render();
       }
     });
@@ -86,7 +95,7 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
   }
 
   render(): void {
-    this.node.innerHTML = '';
+    this.node.innerHTML = EmptyString;
 
     const garageHeader = new GarageHeader(
       this.store,

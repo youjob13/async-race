@@ -1,5 +1,5 @@
 import './winnerPopup.scss';
-import BaseControl from '../../shared/BaseControl/BaseControl';
+import BaseControl from '../../shared/templates/BaseControl/BaseControl';
 import { ICurrentWinner } from '../../shared/interfaces/carState-model';
 
 class WinnerPopup extends BaseControl<HTMLElement> {
@@ -20,6 +20,7 @@ class WinnerPopup extends BaseControl<HTMLElement> {
       classes: ['popup__content'],
       text: `${this.currentWinner.carName} race winner!  Time:[${this.currentWinner.time}]`,
     });
+
     popupWrapper.node.append(popupContent.node);
     this.node.append(popupWrapper.node);
   }

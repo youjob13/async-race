@@ -16,18 +16,18 @@ export const getCarsNumberSelector = (state: ICarsState): number =>
 export const getRaceStatusSelector = (state: ICarsState): boolean =>
   state.isStartedRace;
 
+export const getCurrentWinnerSelector = (
+  state: ICarsState
+): ICurrentWinner | null => state.currentWinner;
+
 export const getCarsStateSelector = createSelector(
   getCarsSelector,
   getCurrentGaragePageSelector,
   (cars, currentGaragePage) => ({
     newCars: cars,
-    newCurrentGaragePage: currentGaragePage,
+    newGaragePage: currentGaragePage,
   })
 );
-
-export const getCurrentWinnerSelector = (
-  state: ICarsState
-): ICurrentWinner | null => state.currentWinner;
 
 export const getCarSelector = (
   state: ICarsState,

@@ -1,10 +1,11 @@
-import { Store } from 'redux';
 import { IRoute, IRouter } from './interfaces/router-model';
-import Garage from '../components/Garage/Garage';
-import Winners from '../components/Winners/Winners';
 
 class Router implements IRouter {
-  constructor(private routes: IRoute[]) {}
+  private currentPage: HTMLElement | '404 error';
+
+  constructor(private routes: IRoute[]) {
+    this.currentPage = routes[0].component();
+  }
 
   changePath = (path: string): void => {
     window.location.hash = path;
@@ -12,17 +13,20 @@ class Router implements IRouter {
 
   getHash = (): string => window.location.hash.slice(1);
 
-  routeToPage(): HTMLElement | '404 error' {
+  routeToPage(): void {
     const currentHash = this.getHash();
-    let currentPage: HTMLElement | '404 error' = '404 error'; // TODO: realise 404 page
+    this.currentPage = '404 error'; // TODO: realise 404 page
 
     this.routes.forEach((route) => {
       if (route.path === currentHash) {
-        currentPage = route.component();
+        this.currentPage = route.component();
       }
     });
+  }
 
-    return currentPage;
+  getCurrentPage(): HTMLElement | '404 error' {
+    this.routeToPage();
+    return this.currentPage;
   }
 }
 

@@ -8,9 +8,9 @@ import {
   ICombineCarsState,
   ThunkDispatchType,
 } from '../../../../shared/interfaces/api-models';
-import BaseControl from '../../../../shared/BaseControl/BaseControl';
-import Button from '../../../../shared/Button/Button';
-import Input from '../../../../shared/Input/Input';
+import BaseControl from '../../../../shared/templates/BaseControl/BaseControl';
+import Button from '../../../../shared/templates/Button/Button';
+import Input from '../../../../shared/templates/Input/Input';
 import { ICar, ICarsState } from '../../../../shared/interfaces/carState-model';
 import {
   deleteCarTC,

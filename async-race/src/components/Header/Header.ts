@@ -1,73 +1,75 @@
 import './header.scss';
 import { IPropsToBaseControl } from '../../shared/interfaces/api-models';
-import BaseControl from '../../shared/BaseControl/BaseControl';
-import Button from '../../shared/Button/Button';
+import BaseControl from '../../shared/templates/BaseControl/BaseControl';
+import Button from '../../shared/templates/Button/Button';
+import {
+  Attribute,
+  ButtonClass,
+  EmptyString,
+  HeaderClasses,
+  Route,
+  Tag,
+} from '../../shared/variables';
+import { IRouter } from '../../shared/interfaces/router-model';
 
 class Header extends BaseControl<HTMLElement> {
   constructor(
     propsToBaseControl: IPropsToBaseControl,
-    private changePage: (path: string) => void,
-    private hash: string
+    private readonly router: IRouter
   ) {
     super(propsToBaseControl);
     this.render();
   }
 
-  private handleClick = (e: Event): void => {
-    e.preventDefault();
-    const target = <HTMLAnchorElement>e.target;
-    this.changePage(target.getAttribute('href') || '');
+  private onPageToggleClick = (event: Event): void => {
+    // TODO: ask Ivan (почему header должен знать)
+    event.preventDefault();
+    const target = <HTMLAnchorElement>event.target;
+    this.router.changePath(target.getAttribute(Attribute.HREF) || Route.ROOT);
   };
 
   render(): void {
-    this.node.innerHTML = '';
+    this.node.innerHTML = EmptyString;
+
+    const stylesGarageButton = // TODO: ask Ivan
+      this.router.getHash() === Route.GARAGE ||
+      this.router.getHash() === Route.ROOT
+        ? [HeaderClasses.BUTTON, HeaderClasses.BUTTON_ACTIVE, ButtonClass]
+        : [HeaderClasses.BUTTON, ButtonClass];
+
+    const stylesWinnersButton =
+      this.router.getHash() === Route.WINNERS
+        ? [HeaderClasses.BUTTON, HeaderClasses.BUTTON_ACTIVE, ButtonClass]
+        : [HeaderClasses.BUTTON, ButtonClass];
+
+    const headerButtons = [
+      new Button(
+        {
+          tagName: Tag.A,
+          classes: stylesWinnersButton,
+          text: 'Winners',
+          attributes: { href: 'winners' },
+        },
+        this.onPageToggleClick
+      ),
+      new Button(
+        {
+          tagName: Tag.A,
+          classes: stylesGarageButton,
+          text: 'Garage',
+          attributes: { href: 'garage' },
+        },
+        this.onPageToggleClick
+      ),
+    ]; // TODO: ask Ivan
 
     const buttonsWrapper = new BaseControl({
-      tagName: 'div',
-      classes: ['header__buttons-wrapper'],
+      tagName: Tag.DIV,
+      classes: [HeaderClasses.BUTTONS_WRAP],
     });
 
-    const buttonToWinnersPage = new Button(
-      {
-        tagName: 'a',
-        classes: ['header__button', 'button'],
-        text: 'Winners',
-        attributes: { href: 'winners' },
-      },
-      this.handleClick
-    );
-
-    const buttonToGaragePage = new Button(
-      {
-        tagName: 'a',
-        classes: ['header__button', 'button'],
-        text: 'Garage',
-        attributes: { href: 'garage' },
-      },
-      this.handleClick
-    );
-
-    switch (this.hash) {
-      case 'garage': {
-        buttonToGaragePage.node.classList.add('active');
-        break;
-      }
-      case '': {
-        buttonToGaragePage.node.classList.add('active');
-        break;
-      }
-      case 'winners': {
-        buttonToWinnersPage.node.classList.add('active');
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-
     buttonsWrapper.node.append(
-      buttonToWinnersPage.node,
-      buttonToGaragePage.node
+      ...headerButtons.map((headerButton) => headerButton.node)
     );
     this.node.append(buttonsWrapper.node);
   }

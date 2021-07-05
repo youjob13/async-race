@@ -1,14 +1,18 @@
 import { Store } from 'redux';
-import BaseControl from '../../../shared/BaseControl/BaseControl';
+import BaseControl from '../../../shared/templates/BaseControl/BaseControl';
 import Car from './Car/Car';
 import { ICar } from '../../../shared/interfaces/carState-model';
-import { COUNT_CARS_ON_PAGE } from '../../../shared/variables';
+import {
+  COUNT_CARS_ON_PAGE,
+  GarageClasses,
+  Tag,
+} from '../../../shared/variables';
 
 class GarageContent extends BaseControl<HTMLElement> {
   constructor(private store: Store, private cars: ICar[]) {
     super({
-      tagName: 'div',
-      classes: ['garage__inner'],
+      tagName: Tag.DIV,
+      classes: [GarageClasses.INNER],
     });
     this.render();
   }

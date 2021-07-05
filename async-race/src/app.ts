@@ -1,31 +1,35 @@
 import './styles.scss';
 import { IRouter } from './shared/interfaces/router-model';
 import Header from './components/Header/Header';
+import { HeaderClasses, Tag } from './shared/variables';
+import MainTitle from './shared/templates/MainTitle';
 
 class App {
-  constructor(private rootElem: HTMLElement, private router: IRouter) {}
+  constructor(
+    private readonly rootElem: HTMLElement,
+    private readonly router: IRouter
+  ) {}
 
-  init(): void {
+  initApp(): void {
     this.render();
-    this.eventListeners();
+    this.historyStateListener();
   }
 
   private render(): void {
-    this.rootElem.innerHTML = '<h1 class="h1-title">Async Race</h1>';
+    this.rootElem.innerHTML = MainTitle;
     this.rootElem.append(
       new Header(
-        { tagName: 'header', classes: ['header'] },
-        this.router.changePath,
-        this.router.getHash()
+        { tagName: Tag.HEADER, classes: [HeaderClasses.HEADER] },
+        this.router
       ).node
     );
 
-    const currentPage = this.router.routeToPage();
+    const currentPage = this.router.getCurrentPage(); // TODO: ask Ivan
     this.rootElem.append(currentPage);
   }
 
-  private eventListeners(): void {
-    window.onpopstate = () => this.render();
+  private historyStateListener(): void {
+    onpopstate = () => this.render();
   }
 }
 

@@ -1,32 +1,38 @@
 import './winners.scss';
 import { Store } from 'redux';
 import { IPage } from '../../shared/interfaces/page-model';
-import BaseControl from '../../shared/BaseControl/BaseControl';
+import BaseControl from '../../shared/templates/BaseControl/BaseControl';
 import WinnersTable from './WinnersTable/WinnersTable';
 import { IWinner } from '../../shared/interfaces/winnersState-models';
 import { getWinnersNumberSelector } from '../../store/winnersSelectors';
-import Button from '../../shared/Button/Button';
+import Button from '../../shared/templates/Button/Button';
 import { toggleWinnersPageTC } from '../../store/winnersSlice';
 import {
   ICombineWinnersState,
   ThunkDispatchType,
 } from '../../shared/interfaces/api-models';
+import {
+  EmptyString,
+  FIRST_PAGE,
+  Tag,
+  WinnersClasses,
+} from '../../shared/variables';
 
 class Winners extends BaseControl<HTMLElement> implements IPage {
+  private readonly currentPage: number;
+
+  private readonly winners: IWinner[];
+
   private winnersNumber: number;
 
-  private currentPage: number;
-
-  private winners: IWinner[];
-
-  constructor(private store: Store) {
+  constructor(private readonly store: Store) {
     super({
-      tagName: 'main',
-      classes: ['winners'],
+      tagName: Tag.MAIN,
+      classes: [WinnersClasses.WINNERS],
     });
     this.winnersNumber = 0;
     this.winners = [];
-    this.currentPage = 1;
+    this.currentPage = FIRST_PAGE;
 
     this.store.subscribe(() => {
       const newWinnersNumber = getWinnersNumberSelector(
@@ -42,63 +48,62 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
     this.render();
   }
 
-  private onPrevPageControlClick = () => {
+  private switchToPrevWinnersPage = () => {
     (this.store.dispatch as ThunkDispatchType<ICombineWinnersState>)(
       toggleWinnersPageTC(false)
     );
   };
 
-  private onNextPageControlClick = () => {
+  private switchToNextWinnersPage = () => {
     (this.store.dispatch as ThunkDispatchType<ICombineWinnersState>)(
       toggleWinnersPageTC(true)
     );
   };
 
   render(): void {
-    this.node.innerHTML = '';
+    this.node.innerHTML = EmptyString;
 
     const numberWinners = new BaseControl({
-      tagName: 'p',
-      classes: ['winners__number'],
+      tagName: Tag.P,
+      classes: [WinnersClasses.NUMBER],
       text: `Winners: ${this.winnersNumber}`,
     });
 
     const currentPage = new BaseControl({
-      tagName: 'p',
-      classes: ['winners__page-number'],
-      text: '',
+      tagName: Tag.P,
+      classes: [WinnersClasses.PAGE_NUMBER],
+      text: '', // TODO: current page
     });
 
-    const winnersTable = new WinnersTable(
-      {
-        tagName: 'table',
-        classes: ['winners__table'],
-      },
-      this.store
-    );
+    const winnersTable = new WinnersTable(this.store);
 
     const pagesControls = new BaseControl({
-      tagName: 'div',
-      classes: ['winners__pages-controls'],
+      tagName: Tag.DIV,
+      classes: [WinnersClasses.PAGES_CONTROLS],
     });
-    const prevBtn = new Button(
-      {
-        tagName: 'button',
-        classes: ['winners__page-control', 'prev-btn'],
-        text: 'Prev',
-      },
-      this.onPrevPageControlClick
-    );
-    const nextBtn = new Button(
-      {
-        tagName: 'button',
-        classes: ['winners__page-control', 'next-btn'],
-        text: 'Next',
-      },
-      this.onNextPageControlClick
-    );
 
-    pagesControls.node.append(prevBtn.node, nextBtn.node);
+    const winnersPageNavigationButtons = [
+      new Button(
+        {
+          tagName: Tag.BUTTON,
+          classes: [WinnersClasses.PAGE_CONTROL, WinnersClasses.PREV_BUTTON],
+          text: 'Prev',
+        },
+        this.switchToPrevWinnersPage
+      ),
+      new Button(
+        {
+          tagName: Tag.BUTTON,
+          classes: [WinnersClasses.PAGE_CONTROL, WinnersClasses.NEXT_BUTTON],
+          text: 'Next',
+        },
+        this.switchToNextWinnersPage
+      ),
+    ];
+
+    pagesControls.node.append(
+      ...winnersPageNavigationButtons.map((button) => button.node)
+    );
 
     this.node.append(
       numberWinners.node,

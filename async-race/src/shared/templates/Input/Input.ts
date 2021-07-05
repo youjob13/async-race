@@ -1,5 +1,5 @@
 import BaseControl from '../BaseControl/BaseControl';
-import { IAttr } from '../interfaces/api-models';
+import { IAttr } from '../../interfaces/api-models';
 
 class Input extends BaseControl<HTMLInputElement> {
   constructor(

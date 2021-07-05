@@ -8,7 +8,7 @@ import {
   ThunkActionType,
 } from '../shared/interfaces/api-models';
 import { apiWinner } from '../shared/api/api';
-import { BASE_URL, COUNT_WINNERS_ON_PAGE } from '../shared/variables';
+import { BASE_URL, LIMIT_WINNERS_ON_PAGE } from '../shared/variables';
 
 const winnersSlice = createSlice({
   name: 'winnersSlice',
@@ -130,7 +130,7 @@ export const sortWinnersTableTC =
       dispatch(changeSortOrder({ newSortingOrder, newSortingType }));
     }
 
-    dispatch(getAllWinnersTC(currentWinnersPage, COUNT_WINNERS_ON_PAGE));
+    dispatch(getAllWinnersTC(currentWinnersPage, LIMIT_WINNERS_ON_PAGE));
   };
 
 export const toggleWinnersPageTC =
@@ -140,7 +140,7 @@ export const toggleWinnersPageTC =
     currentWinnersPage = isIncrement
       ? currentWinnersPage + 1
       : currentWinnersPage - 1;
-    dispatch(getAllWinnersTC(currentWinnersPage, COUNT_WINNERS_ON_PAGE));
+    dispatch(getAllWinnersTC(currentWinnersPage, LIMIT_WINNERS_ON_PAGE));
   };
 
 export const deleteWinnerTC =

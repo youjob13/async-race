@@ -1,66 +1,61 @@
-import { Store } from 'redux';
-import BaseControl from '../../../../shared/BaseControl/BaseControl';
+import BaseControl from '../../../../shared/templates/BaseControl/BaseControl';
 import { IPropsToBaseControl } from '../../../../shared/interfaces/api-models';
 import { IWinner } from '../../../../shared/interfaces/winnersState-models';
 import getCarSVG from '../../../../shared/carSVG';
+import {
+  DEFAULT_CAR_COLOR,
+  DEFAULT_CAR_NAME,
+  EmptyString,
+  Tag,
+  WinnersClasses,
+} from '../../../../shared/variables';
 
 class Winner extends BaseControl<HTMLElement> {
   constructor(
-    private propsToBaseControl: IPropsToBaseControl,
-    private winner: IWinner,
-    private carListNumber: number,
-    private store: Store // private carData: ICar
+    private readonly propsToBaseControl: IPropsToBaseControl,
+    private readonly winner: IWinner,
+    private readonly carListNumber: number
   ) {
     super(propsToBaseControl);
-
     this.render();
   }
 
   private render(): void {
-    const { color = '000', name } = this.winner;
-
-    this.node.innerHTML = '';
-
-    const winnerNumber = new BaseControl({
-      tagName: 'td',
-      classes: ['cell', 'winner__number'],
-      text: this.carListNumber.toString(),
-    });
-
+    const { color = DEFAULT_CAR_COLOR, name = DEFAULT_CAR_NAME } = this.winner;
     const carImg = getCarSVG(color);
 
-    const winnerCarImgWrapper = new BaseControl({
-      tagName: 'td',
-      classes: ['cell', 'winner__car'],
-    });
+    this.node.innerHTML = EmptyString;
 
-    winnerCarImgWrapper.node.innerHTML = carImg;
+    const winnersTableCells = [
+      new BaseControl({
+        tagName: Tag.TD,
+        classes: [WinnersClasses.CELL, WinnersClasses.WINNER_NUMBER],
+        text: this.carListNumber.toString(),
+      }),
+      new BaseControl({
+        tagName: Tag.TD,
+        classes: [WinnersClasses.CELL, WinnersClasses.WINNER_CAR],
+      }),
+      new BaseControl({
+        tagName: Tag.TD,
+        classes: [WinnersClasses.CELL, WinnersClasses.WINNER_NAME],
+        text: name,
+      }),
+      new BaseControl({
+        tagName: Tag.TD,
+        classes: [WinnersClasses.CELL, WinnersClasses.WINNER_NUMBER],
+        text: this.winner.wins.toString(),
+      }),
+      new BaseControl({
+        tagName: Tag.TD,
+        classes: [WinnersClasses.CELL, WinnersClasses.WINNER_NUMBER],
+        text: this.winner.time.toString(),
+      }),
+    ];
 
-    const winnerName = new BaseControl({
-      tagName: 'td',
-      classes: ['cell', 'winner__name'],
-      text: name,
-    });
+    winnersTableCells[1].node.innerHTML = carImg;
 
-    const winnerWinsNumber = new BaseControl({
-      tagName: 'td',
-      classes: ['cell', 'winner__number'],
-      text: this.winner.wins.toString(),
-    });
-
-    const winnerTimeNumber = new BaseControl({
-      tagName: 'td',
-      classes: ['cell', 'winner__number'],
-      text: this.winner.time.toString(),
-    });
-
-    this.node.append(
-      winnerNumber.node,
-      winnerCarImgWrapper.node,
-      winnerName.node,
-      winnerWinsNumber.node,
-      winnerTimeNumber.node
-    );
+    this.node.append(...winnersTableCells.map((cell) => cell.node));
   }
 }
 

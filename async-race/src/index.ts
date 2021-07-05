@@ -4,32 +4,29 @@ import Garage from './components/Garage/Garage';
 import Winners from './components/Winners/Winners';
 import store from './store/store';
 import Router from './shared/Router';
+import { ErrorContent, RootElemId, Route } from './shared/variables';
 
 const routes = [
   {
-    path: '',
-    component: (): HTMLElement => {
-      return new Garage(store).node;
-    },
+    path: Route.ROOT,
+    component: (): HTMLElement => new Garage(store).node,
   },
   {
-    path: 'garage',
-    component: (): HTMLElement => {
-      return new Garage(store).node;
-    },
+    path: Route.GARAGE,
+    component: (): HTMLElement => new Garage(store).node,
   },
   {
-    path: 'winners',
-    component: (): HTMLElement => {
-      return new Winners(store).node;
-    },
+    path: Route.WINNERS,
+    component: (): HTMLElement => new Winners(store).node,
   },
 ];
+const rootElem: HTMLElement | null = document.getElementById(RootElemId);
 
 const router = new Router(routes);
 
-const rootElem: HTMLElement | null = document.getElementById('app');
-if (!rootElem) throw new Error('Root elem is not defined');
+if (!rootElem) {
+  throw new Error(ErrorContent.APP_INIT);
+}
 
 const app = new App(rootElem, router);
-app.init();
+app.initApp();
