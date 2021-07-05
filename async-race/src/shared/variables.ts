@@ -5,6 +5,8 @@ export const GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_HEADERS: {
 } = {
   'Content-Type': 'application/json;charset=utf-8',
 };
+export const INITIAL_CARS_NUMBER = 0;
+export const INITIAL_WINNERS_NUMBER = 0;
 export const NUMBER_OF_RANDOMLY_GENERATED_CARS = 100;
 export const COUNT_CARS_ON_PAGE = 7;
 export const LIMIT_WINNERS_ON_PAGE = 10;
@@ -22,6 +24,20 @@ export const WINNERS_TABLE_TITLES = [
 ];
 export const EMPTY_TABLE = 'Winners table is empty';
 
+export enum DrivingMode {
+  STARTED = 'started',
+  STOPPED = 'stopped',
+  DRIVE = 'drive',
+  BROKEN = 'broken',
+}
+
+export enum RequestMethod {
+  POST = 'POST',
+  GET = 'GET',
+  DELETE = 'DELETE',
+  PUT = 'PUT',
+}
+
 export enum WinnersTitles {
   NUMBER = 'Number',
   CAR = 'Car',
@@ -36,6 +52,7 @@ export enum WinnersSorting {
 }
 export enum WinnersSortingOrder {
   ASC = 'ASC',
+  DESC = 'DESC',
 }
 
 export enum Route {
@@ -131,4 +148,9 @@ export enum ErrorContent {
 
 export enum EventName {
   CLICK = 'click',
+}
+
+export enum SliceName {
+  CAR_SLICE = 'carSlice',
+  WINNERS_SLICE = 'winnersSlice',
 }

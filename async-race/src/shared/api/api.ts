@@ -6,7 +6,12 @@ import {
   IWinnerAPIRequest,
   GetAllCars,
 } from '../interfaces/requests-to-API-models';
-import { BASE_URL } from '../variables';
+import {
+  BASE_URL,
+  RequestMethod,
+  WinnersSorting,
+  WinnersSortingOrder,
+} from '../variables';
 import { IWinner } from '../interfaces/winnersState-models';
 
 export const apiWinner: IWinnerAPIRequest = {
@@ -17,7 +22,7 @@ export const apiWinner: IWinnerAPIRequest = {
       const url = new URL(`${this.baseURL}`);
 
       const response = await fetch(`${url}`, {
-        method: 'POST',
+        method: RequestMethod.POST,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -33,7 +38,7 @@ export const apiWinner: IWinnerAPIRequest = {
     try {
       const url = new URL(`${this.baseURL}/${data.id}`);
       const response = await fetch(`${url}`, {
-        method: 'PUT',
+        method: RequestMethod.PUT,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -49,7 +54,7 @@ export const apiWinner: IWinnerAPIRequest = {
     try {
       const url = new URL(`${this.baseURL}/${id}`);
       await fetch(`${url}`, {
-        method: 'DELETE',
+        method: RequestMethod.DELETE,
       });
     } catch (error) {
       throw new Error(error);
@@ -75,8 +80,8 @@ export const apiWinner: IWinnerAPIRequest = {
   async getWinners(
     page?: number,
     limit?: number,
-    sort?: string | 'id' | 'wins' | 'time',
-    order?: string | 'DESC' | 'ASC' // TODO: enum
+    sort?: WinnersSorting,
+    order?: WinnersSortingOrder
   ): Promise<{ winners: IWinner[]; totalWinnersNumber: number }> {
     try {
       const url = new URL(`${this.baseURL}`);
@@ -161,7 +166,7 @@ export const apiCars: ICarsAPIRequest = {
     try {
       const url = new URL(this.baseURL);
       const response = await fetch(`${url}`, {
-        method: 'POST',
+        method: RequestMethod.POST,
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
         },
@@ -177,7 +182,7 @@ export const apiCars: ICarsAPIRequest = {
     try {
       const url = new URL(`${this.baseURL}/${id}`);
       await fetch(`${url}`, {
-        method: 'DELETE',
+        method: RequestMethod.DELETE,
       });
     } catch (error) {
       throw new Error(error);
@@ -188,7 +193,7 @@ export const apiCars: ICarsAPIRequest = {
     try {
       const url = new URL(`${this.baseURL}/${id}`);
       const response = await fetch(`${url}`, {
-        method: 'GET',
+        method: RequestMethod.GET,
       });
       return await response.json();
     } catch (error) {
@@ -200,7 +205,7 @@ export const apiCars: ICarsAPIRequest = {
     try {
       const url = new URL(`${this.baseURL}/${data.id}`);
       const response = await fetch(`${url}`, {
-        method: 'PUT',
+        method: RequestMethod.PUT,
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
         },

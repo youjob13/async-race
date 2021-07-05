@@ -33,5 +33,5 @@ export const getCarSelector = (
   state: ICarsState,
   id: number
 ): ICar | undefined => {
-  return state.cars.find((car) => car.id === id); // TODO: rewrite without undefined
+  return state.cars.find((car) => car.id === id);
 };

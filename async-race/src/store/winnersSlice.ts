@@ -8,16 +8,25 @@ import {
   ThunkActionType,
 } from '../shared/interfaces/api-models';
 import { apiWinner } from '../shared/api/api';
-import { BASE_URL, LIMIT_WINNERS_ON_PAGE } from '../shared/variables';
+import {
+  EmptyString,
+  FIRST_PAGE,
+  INITIAL_WINNERS_NUMBER,
+  LIMIT_WINNERS_ON_PAGE,
+  SliceName,
+  WinnersSorting,
+  WinnersSortingOrder,
+} from '../shared/variables';
+import prepareRequestForWinners from '../shared/helperFunctions/prepareRequestForWinners';
 
 const winnersSlice = createSlice({
-  name: 'winnersSlice',
+  name: SliceName.WINNERS_SLICE,
   initialState: {
     winners: [],
-    currentWinnersPage: 1,
-    winnersNumber: 0,
-    sortingOrder: 'ASC',
-    sortingType: '',
+    currentWinnersPage: FIRST_PAGE,
+    winnersNumber: INITIAL_WINNERS_NUMBER,
+    sortingOrder: WinnersSortingOrder.ASC,
+    sortingType: EmptyString,
   } as IWinnersState,
   reducers: {
     changeSortOrder: (state: IWinnersState, action) => {
@@ -58,25 +67,15 @@ export const extendWinnersParamTC =
     currentWinnersPage?: number
   ): ThunkActionType<ICombineWinnersState> =>
   async (dispatch): Promise<void> => {
-    const additionalWinnersParamsRequest = [];
-
-    for (let i = 0; i < winners.length; i++) {
-      const url = new URL(`${BASE_URL}/garage/${winners[i].id}`);
-
-      additionalWinnersParamsRequest.push(
-        fetch(`${url}`, {
-          method: 'GET',
-        })
-      );
-    }
+    const additionalWinnersParamsRequest = prepareRequestForWinners(winners);
 
     Promise.all(additionalWinnersParamsRequest).then(
       (additionalWinnersParams) => {
-        const additionalWinnersParamsJSON = additionalWinnersParams.map(
+        const additionalWinnersParamsAsJSON = additionalWinnersParams.map(
           (winner) => winner.json()
         );
 
-        Promise.all(additionalWinnersParamsJSON).then(
+        Promise.all(additionalWinnersParamsAsJSON).then(
           (additionalWinnersParamsRes) => {
             const res = additionalWinnersParamsRes.map(
               (winnerAdditionalParam, index) => ({
@@ -104,8 +103,8 @@ export const getAllWinnersTC =
     const { winners, totalWinnersNumber } = await apiWinner.getWinners(
       currentWinnersPage,
       limit,
-      sortingType,
-      sortingOrder
+      <WinnersSorting>sortingType,
+      <WinnersSortingOrder>sortingOrder
     );
 
     dispatch(
@@ -114,16 +113,18 @@ export const getAllWinnersTC =
   };
 
 export const sortWinnersTableTC =
-  (
-    newSortingType: string | 'time' | 'wins' // TODO: enum
-  ): ThunkActionType<ICombineWinnersState> =>
+  (newSortingType: WinnersSorting): ThunkActionType<ICombineWinnersState> =>
   async (dispatch, getState): Promise<void> => {
+    let newSortingOrder;
     const { currentWinnersPage, sortingOrder, sortingType } =
       getState().winnersReducer;
-    let newSortingOrder;
 
     if (sortingType === newSortingType) {
-      newSortingOrder = sortingOrder === 'ASC' ? 'DESC' : 'ASC';
+      newSortingOrder =
+        sortingOrder === WinnersSortingOrder.ASC
+          ? WinnersSortingOrder.DESC
+          : WinnersSortingOrder.ASC;
+
       dispatch(changeSortOrder({ newSortingOrder, newSortingType }));
     } else {
       newSortingOrder = sortingOrder;
@@ -140,7 +141,7 @@ export const toggleWinnersPageTC =
     currentWinnersPage = isIncrement
       ? currentWinnersPage + 1
       : currentWinnersPage - 1;
-    dispatch(getAllWinnersTC(currentWinnersPage, LIMIT_WINNERS_ON_PAGE));
+    dispatch(getAllWinnersTC(currentWinnersPage, LIMIT_WINNERS_ON_PAGE)); // TODO: double in toggleGaragePageTC
   };
 
 export const deleteWinnerTC =

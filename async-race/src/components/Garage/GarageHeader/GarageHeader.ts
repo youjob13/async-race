@@ -5,7 +5,7 @@ import Button from '../../../shared/templates/Button/Button';
 import {
   generateNewCarTC,
   generateOneHundredRandomCarsTC,
-  resetCarsPositionAndNullifyCurrentWinnerTC,
+  resetRaceDataTC,
   startRaceTC,
 } from '../../../store/carsSlice';
 import {
@@ -106,7 +106,7 @@ class GarageHeader extends BaseControl<HTMLElement> {
   private resetCarsParamsAndReturnToDefaultPosition = (): void => {
     this.startRaceBtn.node.removeAttribute(Attribute.DISABLED);
     (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
-      resetCarsPositionAndNullifyCurrentWinnerTC()
+      resetRaceDataTC()
     );
   };
 
