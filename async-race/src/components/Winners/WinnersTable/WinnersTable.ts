@@ -1,21 +1,16 @@
 import { Store } from 'redux';
-import { AnyAction, CombinedState, ThunkDispatch } from '@reduxjs/toolkit';
 import {
   ICombineCarsState,
   ICombineWinnersState,
-  ThunkDispatchType,
 } from '../../../shared/interfaces/api-models';
 import { IPage } from '../../../shared/interfaces/page-model';
 import BaseControl from '../../../shared/templates/BaseControl/BaseControl';
-import {
-  IWinner,
-  IWinnersState,
-} from '../../../shared/interfaces/winnersState-models';
+import { IWinner } from '../../../shared/interfaces/winnersState-models';
 import Winner from './Winner/Winner';
 import Button from '../../../shared/templates/Button/Button';
 import {
-  getCurrentWinnersPageSelector,
-  getWinnersSortOrderSelector,
+  getWinnersPage,
+  getWinnersSortOrder,
 } from '../../../store/winnersSelectors';
 import {
   getAllWinnersTC,
@@ -35,6 +30,20 @@ import {
   WinnersTitles,
 } from '../../../shared/variables';
 import { getAllCarsTC } from '../../../store/carsSlice';
+import dispatchThunk from '../../../shared/helperFunctions/dispatchThunk';
+
+const winnersTablePropsToBaseControl = {
+  tagName: Tag.TABLE,
+  classes: [WinnersClasses.TABLE],
+};
+const winnersWrapperProps = {
+  tagName: Tag.TBODY,
+  classes: [WinnersClasses.TABLE_WINNERS_WRAPPER],
+};
+const titlesWrapperProps = {
+  tagName: Tag.TR,
+  classes: [WinnersClasses.TABLE_TITLES_WRAPPER],
+};
 
 class WinnersTable extends BaseControl<HTMLElement> implements IPage {
   private readonly titles: string[];
@@ -48,25 +57,20 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
   private currentPage: number;
 
   constructor(private readonly store: Store) {
-    super({
-      tagName: Tag.TABLE,
-      classes: [WinnersClasses.TABLE],
-    });
+    super(winnersTablePropsToBaseControl);
     this.titles = WINNERS_TABLE_TITLES;
     this.winners = [];
     this.currentPage = FIRST_PAGE;
 
     this.store.subscribe(() => {
-      const currentSortingOrder = getWinnersSortOrderSelector(
+      const currentSortingOrder = getWinnersSortOrder(
         this.store.getState().winnersReducer
       );
 
       const { currentSortingType, winners: newWinners } =
         this.store.getState().winnersReducer;
 
-      this.currentPage = getCurrentWinnersPageSelector(
-        this.store.getState().winnersReducer
-      );
+      this.currentPage = getWinnersPage(this.store.getState().winnersReducer);
 
       if (JSON.stringify(this.winners) !== JSON.stringify(newWinners)) {
         this.sortingOrder = currentSortingOrder;
@@ -76,49 +80,35 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
       }
     });
 
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
-      getAllCarsTC()
-    );
-    (this.store.dispatch as ThunkDispatchType<ICombineWinnersState>)(
+    dispatchThunk<ICombineCarsState>(this.store, getAllCarsTC());
+    dispatchThunk<ICombineWinnersState>(
+      this.store,
       getAllWinnersTC(this.currentPage, LIMIT_WINNERS_ON_PAGE)
     );
 
     this.render();
   }
 
-  private sortByWinsNumber = (): void => {
-    (
-      this.store.dispatch as ThunkDispatch<
-        CombinedState<{ winnersReducer: IWinnersState }>,
-        unknown,
-        AnyAction
-      >
-    )(sortWinnersTableTC(WinnersSorting.WINS));
-  };
-
-  private sortByTime = (): void => {
-    (
-      this.store.dispatch as ThunkDispatch<
-        CombinedState<{ winnersReducer: IWinnersState }>,
-        unknown,
-        AnyAction
-      >
-    )(sortWinnersTableTC(WinnersSorting.TIME));
+  private sortList = (event: Event): void => {
+    const target = <HTMLElement>event.target;
+    dispatchThunk<ICombineWinnersState>(
+      this.store,
+      sortWinnersTableTC(<WinnersSorting>target.id)
+    );
   };
 
   render(): void {
     this.node.innerHTML = EmptyString;
 
-    const titlesWrapper = new BaseControl({
-      tagName: Tag.TR,
-      classes: [WinnersClasses.TABLE_TITLES_WRAPPER],
-    });
-
     const sortingOrder =
       this.sortingOrder === WinnersSortingOrder.ASC ? '[↑]' : '[↓]';
 
+    const titlesWrapper = new BaseControl(titlesWrapperProps);
+    const winnersWrapper = new BaseControl(winnersWrapperProps);
+
     this.titles.forEach((title) => {
       let titleItem;
+
       if (title === WinnersTitles.BEST_TIME) {
         titleItem = new Button(
           {
@@ -128,8 +118,9 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
               (this.sortingType === WinnersSorting.TIME && sortingOrder) ||
               EmptyString
             }`,
+            attributes: { id: WinnersSorting.TIME },
           },
-          this.sortByTime
+          this.sortList
         );
       } else if (title === WinnersTitles.WINS) {
         titleItem = new Button(
@@ -140,8 +131,9 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
               (this.sortingType === WinnersSorting.WINS && sortingOrder) ||
               EmptyString
             }`,
+            attributes: { id: WinnersSorting.WINS },
           },
-          this.sortByWinsNumber
+          this.sortList
         );
       } else {
         titleItem = new BaseControl({
@@ -154,18 +146,9 @@ class WinnersTable extends BaseControl<HTMLElement> implements IPage {
       titlesWrapper.node.append(titleItem.node);
     });
 
-    const winnersWrapper = new BaseControl({
-      tagName: Tag.TBODY,
-      classes: [WinnersClasses.TABLE_WINNERS_WRAPPER],
-    });
-
     if (this.winners.length) {
       this.winners.forEach((winner, index) => {
         const winnerItem = new Winner(
-          {
-            tagName: Tag.TR,
-            classes: [WinnersClasses.WINNER],
-          },
           winner,
           index +
             FIRST_INDEX +

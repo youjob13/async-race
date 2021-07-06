@@ -1,10 +1,4 @@
 export const BASE_URL = 'http://127.0.0.1:3000';
-export const GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_METHOD = 'POST';
-export const GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_HEADERS: {
-  [key: string]: string;
-} = {
-  'Content-Type': 'application/json;charset=utf-8',
-};
 export const INITIAL_CARS_NUMBER = 0;
 export const INITIAL_WINNERS_NUMBER = 0;
 export const NUMBER_OF_RANDOMLY_GENERATED_CARS = 100;
@@ -14,6 +8,10 @@ export const DEFAULT_CAR_NAME = 'default car';
 export const DEFAULT_CAR_COLOR = '#000';
 export const ZERO_INDEX = 0;
 export const FIRST_INDEX = 1;
+export const INDEX_CAR_IMG = 1;
+export const DIGITS_NUMBER_AFTER_DOT = 2;
+export const MIN_VALUE = 0;
+export const MAX_VALUE = 1;
 export const FIRST_PAGE = 1;
 export const WINNERS_TABLE_TITLES = [
   'Number',
@@ -23,12 +21,47 @@ export const WINNERS_TABLE_TITLES = [
   'Best time',
 ];
 export const EMPTY_TABLE = 'Winners table is empty';
+export const ONE_SECOND = 1000;
+export const INDEX_EDIT_BUTTON = 1;
+export const RESPONSE_HEADER = 'X-Total-Count';
+
+export const RootElemId = 'app';
+export const H1Class = 'h1-title';
+export const ButtonClass = 'button';
+export const EmptyString = '';
+
+export enum AdditionalAPIURL {
+  WINNERS = 'winners',
+  ENGINE = 'engine',
+  GARAGE = 'garage',
+}
+
+export enum WinnerSearchParams {
+  PAGE = '_page',
+  LIMIT = '_limit',
+  SORT = '_sort',
+  ORDER = '_order',
+}
+
+export enum EngineSearchParams {
+  ID = 'id',
+  STATUS = 'status',
+}
+
+export enum ResponseError {
+  NOT_FOUND = 'Error: Not Found',
+  ENGINE_IS_BROKEN = 'Engine is broken',
+}
+
+export enum ContentType {
+  APPLICATION_JSON = 'application/json',
+}
 
 export enum DrivingMode {
   STARTED = 'started',
   STOPPED = 'stopped',
   DRIVE = 'drive',
-  BROKEN = 'broken',
+  BREAKING = 'breaking',
 }
 
 export enum RequestMethod {
@@ -82,10 +115,10 @@ export enum Attribute {
   DISABLED = 'disabled',
 }
 
-export const RootElemId = 'app';
-export const H1Class = 'h1-title';
-export const ButtonClass = 'button';
-export const EmptyString = '';
+export enum PageDirection {
+  NEXT = 'next',
+  PREV = 'prev',
+}
 
 export enum HeaderClasses {
   HEADER = 'header',
@@ -93,7 +126,6 @@ export enum HeaderClasses {
   BUTTON = 'header__button',
   BUTTON_ACTIVE = 'active',
 }
-
 export enum GarageClasses {
   GARAGE = 'garage',
   HEADER = 'garage__header',
@@ -116,7 +148,6 @@ export enum GarageClasses {
   ARROW_LEFT = 'arrow-left',
   ARROW_RIGHT = 'arrow-right',
 }
-
 export enum WinnersClasses {
   WINNERS = 'winners',
   NUMBER = 'winners__number',
@@ -137,9 +168,30 @@ export enum WinnersClasses {
   WINNER_CAR = 'winner__car',
   WINNER_NAME = 'winner__name',
 }
-
-export enum Popup {
+export enum CarClasses {
+  CAR = 'car',
+  GARAGE_CAR = 'garage__car',
+  ROAD = 'car__road',
+  IMAGE_WRAPPER = 'car__img-wrapper',
+  START_ENGINE = 'car__start-engine',
+  STOP_ENGINE = 'car__start-engine',
+  BUTTONS = 'car__buttons',
+  DELETE = 'car__delete',
+  UPDATE_FORM = 'car__update-params-wrapper',
+  EDIT_CONFIRM = 'car__edit_confirm',
+  EDIT = 'car__edit',
+  CONTENT = 'car__content',
+  INFO = 'car__info',
+}
+export enum PopupClasses {
+  POPUP = 'popup',
   POPUP_CONTENT = 'popup__content',
+  WINNERS = 'popup__winners',
+  WRAPPER = 'popup_wrapper',
+}
+export enum ErrorPageClasses {
+  WRAPPER = 'error-page_wrapper',
+  CONTENT = 'error-page_content',
 }
 
 export enum ErrorContent {
@@ -148,9 +200,12 @@ export enum ErrorContent {
 
 export enum EventName {
   CLICK = 'click',
+  INPUT = 'input',
 }
 
 export enum SliceName {
   CAR_SLICE = 'carSlice',
   WINNERS_SLICE = 'winnersSlice',
 }
+
+export type ATTRIBUTES = 'attributes';

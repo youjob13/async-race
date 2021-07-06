@@ -2,19 +2,42 @@ import { Store } from 'redux';
 import BaseControl from '../../../shared/templates/BaseControl/BaseControl';
 import Button from '../../../shared/templates/Button/Button';
 import { toggleGaragePageTC } from '../../../store/carsSlice';
-import {
-  ICombineCarsState,
-  ThunkDispatchType,
-} from '../../../shared/interfaces/api-models';
+import { ICombineCarsState } from '../../../shared/interfaces/api-models';
 import {
   Attribute,
   COUNT_CARS_ON_PAGE,
   FIRST_INDEX,
   FIRST_PAGE,
   GarageClasses,
+  PageDirection,
   Tag,
   ZERO_INDEX,
 } from '../../../shared/variables';
+import dispatchThunk from '../../../shared/helperFunctions/dispatchThunk';
+
+const PREV_PAGE_BUTTON_CONTENT = 'Prev';
+const NEXT_PAGE_BUTTON_CONTENT = 'Next';
+
+const garageFooterPropsToBaseControl = {
+  tagName: Tag.DIV,
+  classes: [GarageClasses.FOOTER],
+};
+const prevPageButtonProps = {
+  tagName: Tag.BUTTON,
+  classes: [GarageClasses.ARROW, GarageClasses.ARROW_LEFT],
+  text: PREV_PAGE_BUTTON_CONTENT,
+  attributes: { id: PageDirection.PREV },
+};
+const nextPageButtonProps = {
+  tagName: Tag.BUTTON,
+  classes: [GarageClasses.ARROW, GarageClasses.ARROW_RIGHT],
+  text: NEXT_PAGE_BUTTON_CONTENT,
+  attributes: { id: PageDirection.NEXT },
+};
+const controlPagesWrapperProps = {
+  tagName: Tag.DIV,
+  classes: [GarageClasses.PAGES],
+};
 
 class GarageFooter extends BaseControl<HTMLElement> {
   constructor(
@@ -22,49 +45,24 @@ class GarageFooter extends BaseControl<HTMLElement> {
     private readonly currentPage: number,
     private readonly carsNumber: number
   ) {
-    super({
-      tagName: Tag.DIV,
-      classes: [GarageClasses.FOOTER],
-    });
+    super(garageFooterPropsToBaseControl);
     this.render();
   }
 
-  private switchToPrevGaragePage = (): void => {
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
-      toggleGaragePageTC(false)
-    );
-  };
-
-  private switchToNextGaragePage = (): void => {
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
-      toggleGaragePageTC(true)
+  private toggleGaragePage = (event: Event): void => {
+    const target = <HTMLElement>event.target;
+    dispatchThunk<ICombineCarsState>(
+      this.store,
+      toggleGaragePageTC(PageDirection.NEXT === target.id)
     );
   };
 
   private render(): void {
     const pageSwitches = [
-      new Button(
-        {
-          tagName: Tag.BUTTON,
-          classes: [GarageClasses.ARROW, GarageClasses.ARROW_LEFT],
-          text: 'Prev',
-        },
-        this.switchToPrevGaragePage
-      ),
-      new Button(
-        {
-          tagName: Tag.BUTTON,
-          classes: [GarageClasses.ARROW, GarageClasses.ARROW_RIGHT],
-          text: 'Next',
-        },
-        this.switchToNextGaragePage
-      ),
+      new Button(prevPageButtonProps, this.toggleGaragePage),
+      new Button(nextPageButtonProps, this.toggleGaragePage),
     ];
-
-    const arrowsPagesWrapper = new BaseControl({
-      tagName: Tag.DIV,
-      classes: [GarageClasses.PAGES],
-    });
+    const controlPagesWrapper = new BaseControl(controlPagesWrapperProps);
 
     if (this.currentPage === FIRST_PAGE)
       pageSwitches[ZERO_INDEX].node.setAttribute(
@@ -78,10 +76,10 @@ class GarageFooter extends BaseControl<HTMLElement> {
         Attribute.DISABLED
       );
 
-    arrowsPagesWrapper.node.append(
+    controlPagesWrapper.node.append(
       ...pageSwitches.map((button) => button.node)
     );
-    this.node.append(arrowsPagesWrapper.node);
+    this.node.append(controlPagesWrapper.node);
   }
 }
 

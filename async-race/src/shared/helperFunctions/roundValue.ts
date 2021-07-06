@@ -1,5 +1,7 @@
+import { DIGITS_NUMBER_AFTER_DOT, ONE_SECOND } from '../variables';
+
 const roundValue = (value: number): number => {
-  return Number((value / 1000).toFixed(2));
+  return Number((value / ONE_SECOND).toFixed(DIGITS_NUMBER_AFTER_DOT));
 };
 
 export default roundValue;

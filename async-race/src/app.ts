@@ -1,7 +1,6 @@
 import './styles.scss';
 import { IRouter } from './shared/interfaces/router-model';
 import Header from './components/Header/Header';
-import { HeaderClasses, Tag } from './shared/variables';
 import MainTitle from './shared/templates/MainTitle';
 
 class App {
@@ -17,14 +16,9 @@ class App {
 
   private render(): void {
     this.rootElem.innerHTML = MainTitle;
-    this.rootElem.append(
-      new Header(
-        { tagName: Tag.HEADER, classes: [HeaderClasses.HEADER] },
-        this.router
-      ).node
-    );
+    this.rootElem.append(new Header(this.router).node);
 
-    const currentPage = this.router.getCurrentPage(); // TODO: ask Ivan
+    const currentPage = this.router.getCurrentPage();
     this.rootElem.append(currentPage);
   }
 

@@ -6,7 +6,9 @@ import {
 } from '@reduxjs/toolkit';
 import { ICarsState } from './carState-model';
 import { IWinnersState } from './winnersState-models';
+import { Tag } from '../variables';
 
+export type RootElem = HTMLElement | null;
 export type ICombineCarsState = CombinedState<{ carReducer: ICarsState }>;
 
 export type ICombineWinnersState = CombinedState<{
@@ -21,21 +23,12 @@ export interface IBaseControl<U> {
   readonly node: U;
 }
 
+export type AttributeType = string | number;
+export type ICarForm = Record<string, string>;
+
 export interface IPropsToBaseControl {
-  tagName: string;
+  tagName: Tag | string;
   classes: string[];
   text?: string;
-  attributes?: IAttr;
-}
-
-export interface IAttr {
-  [key: string]: string | number;
-}
-
-// export type ICarForm<K extends string, T> = {
-// [P in K]: T;
-// };
-
-export interface ICarForm {
-  [key: string]: string;
+  attributes?: Record<string, AttributeType>;
 }

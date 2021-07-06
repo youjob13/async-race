@@ -1,4 +1,6 @@
 import { ICar } from './carState-model';
+import { WinnersSorting, WinnersSortingOrder } from '../variables';
+import { IWinner } from './winnersState-models';
 
 export interface IUpdateWinners {
   id: number;
@@ -31,3 +33,16 @@ export interface ISetAllCars {
   totalCarsNumber: number | null;
   currentGaragePage: number | undefined;
 }
+
+export interface IChangeSortOrder {
+  newSortingOrder: WinnersSortingOrder;
+  newSortingType: WinnersSorting;
+}
+
+export interface ISetWinners {
+  winnersData: IWinner[];
+  totalWinnersNumber: number;
+  currentWinnersPage?: number;
+}
+
+export type WinnerID = number;

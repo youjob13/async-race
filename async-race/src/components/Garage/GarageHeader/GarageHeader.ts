@@ -11,60 +11,107 @@ import {
 import {
   ICarForm,
   ICombineCarsState,
-  ThunkDispatchType,
 } from '../../../shared/interfaces/api-models';
-import { getRaceStatusSelector } from '../../../store/carsSelectors';
+import { getRaceStatus } from '../../../store/carsSelectors';
 import {
   Attribute,
   ButtonClass,
   DEFAULT_CAR_COLOR,
   DEFAULT_CAR_NAME,
+  EmptyString,
   GarageClasses,
   Tag,
 } from '../../../shared/variables';
+import dispatchThunk from '../../../shared/helperFunctions/dispatchThunk';
+
+const START_RACE_BUTTON_TEXT = 'Start Race';
+const RESET_BUTTON_TEXT = 'Reset';
+const GENERATE_CAR_BUTTON_TEXT = 'Generate car';
+const GENERATE_RANDOM_CARS_BUTTON_TEXT = 'Generate 100 cars';
+
+const garageHeaderPropsToBaseControl = {
+  tagName: Tag.HEADER,
+  classes: [GarageClasses.HEADER],
+};
+const startRaceButtonProps = {
+  tagName: ButtonClass,
+  classes: [GarageClasses.BUTTON, ButtonClass],
+  text: START_RACE_BUTTON_TEXT,
+};
+const resetButtonProps = {
+  tagName: ButtonClass,
+  classes: [GarageClasses.BUTTON, ButtonClass],
+  attributes: { disabled: Attribute.DISABLED },
+  text: RESET_BUTTON_TEXT,
+};
+const generateFormWrapperProps = {
+  tagName: Tag.DIV,
+  classes: [GarageClasses.CONTROL],
+};
+const raceBlockWrapperProps = {
+  tagName: Tag.DIV,
+  classes: [GarageClasses.RACE],
+};
+const carGenerateWrapperProps = {
+  tagName: Tag.DIV,
+  classes: [GarageClasses.GENERATE_CAR, GarageClasses.CAR_WRAPPER],
+};
+const inputNameProps = {
+  tagName: Tag.INPUT,
+  classes: [
+    GarageClasses.GENERATE_CAR_INPUT,
+    GarageClasses.GENERATE_CAR_INPUT_NAME,
+  ],
+  attributes: { type: 'text', name: 'name' },
+};
+const inputColorProps = {
+  tagName: Tag.INPUT,
+  classes: [
+    GarageClasses.GENERATE_CAR_INPUT,
+    GarageClasses.GENERATE_CAR_INPUT_COLOR,
+  ],
+  attributes: { type: 'color', name: 'color' },
+};
+const buttonGenerateCarProps = {
+  tagName: Tag.BUTTON,
+  classes: [GarageClasses.GENERATE_CAR_BUTTON, ButtonClass],
+  text: GENERATE_CAR_BUTTON_TEXT,
+};
+const generateRandomCarsProps = {
+  tagName: Tag.BUTTON,
+  classes: [GarageClasses.GENERATE_CAR_BUTTON, ButtonClass],
+  text: GENERATE_RANDOM_CARS_BUTTON_TEXT,
+};
+const raceControlWrapperProps = {
+  tagName: Tag.DIV,
+  classes: [GarageClasses.BUTTONS_WRAPPER],
+};
 
 class GarageHeader extends BaseControl<HTMLElement> {
-  private readonly generateCarForm: ICarForm;
+  private readonly carGeneratedForm: ICarForm;
 
-  private startRaceBtn: Button;
+  private readonly startRaceBtn: Button;
 
-  private resetBtn: Button;
+  private readonly resetBtn: Button;
 
   constructor(
-    private store: Store,
-    private currentPage: number,
-    private carsNumber: number
+    private readonly store: Store,
+    private readonly currentPage: number,
+    private readonly carsNumber: number
   ) {
-    super({
-      tagName: Tag.HEADER,
-      classes: [GarageClasses.HEADER],
-    });
-    this.startRaceBtn = new Button(
-      {
-        tagName: ButtonClass,
-        classes: [GarageClasses.BUTTON, ButtonClass],
-        text: 'Start Race',
-      },
-      this.startRace
-    );
+    super(garageHeaderPropsToBaseControl);
+    this.startRaceBtn = new Button(startRaceButtonProps, this.startRace);
     this.resetBtn = new Button(
-      {
-        tagName: ButtonClass,
-        classes: [GarageClasses.BUTTON, ButtonClass],
-        attributes: { disabled: Attribute.DISABLED },
-        text: 'Reset',
-      },
+      resetButtonProps,
       this.resetCarsParamsAndReturnToDefaultPosition
     );
-    this.generateCarForm = {
+    this.carGeneratedForm = {
       name: DEFAULT_CAR_NAME,
       color: DEFAULT_CAR_COLOR,
     };
 
     this.store.subscribe(() => {
-      const raceStatus = getRaceStatusSelector(
-        this.store.getState().carReducer
-      );
+      const raceStatus = getRaceStatus(this.store.getState().carReducer);
 
       if (!raceStatus) {
         this.resetBtn.node.removeAttribute(Attribute.DISABLED);
@@ -76,130 +123,70 @@ class GarageHeader extends BaseControl<HTMLElement> {
     this.render();
   }
 
-  private onGenerateRandomCarsButtonClick = (): void => {
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
-      // TODO: try recast
+  private generateRandomCars = (): void => {
+    dispatchThunk<ICombineCarsState>(
+      this.store,
       generateOneHundredRandomCarsTC()
     );
   };
 
-  private onGenerateCarButtonClick = (): void => {
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
-      generateNewCarTC({
-        name: this.generateCarForm.name,
-        color: this.generateCarForm.color,
-      })
-    );
+  private generateCar = (): void => {
+    const carParams = {
+      name: this.carGeneratedForm.name,
+      color: this.carGeneratedForm.color,
+    };
+
+    dispatchThunk<ICombineCarsState>(this.store, generateNewCarTC(carParams));
   };
 
   private enterCarParams = (type: string, value: string): void => {
-    this.generateCarForm[type] = value;
+    this.carGeneratedForm[type] = value;
   };
 
   private startRace = (): void => {
     this.startRaceBtn.node.setAttribute(Attribute.DISABLED, Attribute.DISABLED);
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
-      startRaceTC()
-    );
+    dispatchThunk<ICombineCarsState>(this.store, startRaceTC());
   };
 
   private resetCarsParamsAndReturnToDefaultPosition = (): void => {
     this.startRaceBtn.node.removeAttribute(Attribute.DISABLED);
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
-      resetRaceDataTC()
-    );
+    dispatchThunk<ICombineCarsState>(this.store, resetRaceDataTC());
   };
 
   private render(): void {
-    this.node.innerHTML = '';
+    this.node.innerHTML = EmptyString;
 
-    const garageGenerateWrapper = new BaseControl({
-      tagName: Tag.DIV,
-      classes: [GarageClasses.CONTROL],
-    });
-
-    const garageRaceWrapper = new BaseControl({
-      tagName: Tag.DIV,
-      classes: [GarageClasses.RACE],
-    });
-
-    const generateCarWrapper = new BaseControl({
-      tagName: Tag.DIV,
-      classes: [GarageClasses.GENERATE_CAR, GarageClasses.CAR_WRAPPER],
-    });
-
+    const generateFormWrapper = new BaseControl(generateFormWrapperProps);
+    const raceBlockWrapper = new BaseControl(raceBlockWrapperProps);
+    const carGenerateWrapper = new BaseControl(carGenerateWrapperProps);
     const garageGenerateControls = [
-      new Input(
-        {
-          tagName: Tag.INPUT,
-          classes: [
-            GarageClasses.GENERATE_CAR_INPUT,
-            GarageClasses.GENERATE_CAR_INPUT_NAME,
-          ],
-          attributes: { type: 'text', name: 'name' },
-        },
-        this.enterCarParams
-      ),
-      new Input(
-        {
-          tagName: Tag.INPUT,
-          classes: [
-            GarageClasses.GENERATE_CAR_INPUT,
-            GarageClasses.GENERATE_CAR_INPUT_COLOR,
-          ],
-          attributes: { type: 'color', name: 'color' },
-        },
-        this.enterCarParams
-      ),
-      new Button(
-        {
-          tagName: Tag.BUTTON,
-          classes: [GarageClasses.GENERATE_CAR_BUTTON, ButtonClass],
-          text: 'Generate car',
-        },
-        this.onGenerateCarButtonClick
-      ),
-      new Button(
-        {
-          tagName: Tag.BUTTON,
-          classes: [GarageClasses.GENERATE_CAR_BUTTON, ButtonClass],
-          text: 'Generate 100 cars',
-        },
-        this.onGenerateRandomCarsButtonClick
-      ),
+      new Input(inputNameProps, this.enterCarParams),
+      new Input(inputColorProps, this.enterCarParams),
+      new Button(buttonGenerateCarProps, this.generateCar),
+      new Button(generateRandomCarsProps, this.generateRandomCars),
     ];
-
-    generateCarWrapper.node.append(
-      ...garageGenerateControls.map((control) => control.node)
-    );
-
-    const buttonsWrapper = new BaseControl({
-      tagName: Tag.DIV,
-      classes: [GarageClasses.BUTTONS_WRAPPER],
-    });
-
-    buttonsWrapper.node.append(this.startRaceBtn.node, this.resetBtn.node);
-
-    const currentPage = new BaseControl({
+    const raceControlWrapper = new BaseControl(raceControlWrapperProps);
+    const pageOutput = new BaseControl({
       tagName: Tag.OUTPUT,
       classes: [GarageClasses.CURRENT_PAGE],
       text: `#Page: ${this.currentPage}`,
     });
-
-    garageRaceWrapper.node.append(buttonsWrapper.node, currentPage.node);
-
     const carsNumberOutput = new BaseControl({
       tagName: Tag.OUTPUT,
       classes: [GarageClasses.CARS_NUMBER],
       text: `Cars in garage: ${this.carsNumber.toString()}`,
     });
 
-    garageGenerateWrapper.node.append(
-      generateCarWrapper.node,
+    carGenerateWrapper.node.append(
+      ...garageGenerateControls.map((control) => control.node)
+    );
+    raceControlWrapper.node.append(this.startRaceBtn.node, this.resetBtn.node);
+    raceBlockWrapper.node.append(raceControlWrapper.node, pageOutput.node);
+    generateFormWrapper.node.append(
+      carGenerateWrapper.node,
       carsNumberOutput.node
     );
-
-    this.node.append(garageRaceWrapper.node, garageGenerateWrapper.node);
+    this.node.append(raceBlockWrapper.node, generateFormWrapper.node);
   }
 }
 

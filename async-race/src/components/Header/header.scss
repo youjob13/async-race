@@ -1,32 +1,40 @@
 .header {
   display: flex;
   justify-content: center;
-  padding: 10px 0;
+  padding: 0.7rem 0;
   background-color: #25355a;
-  height: 50px;
+  height: 4rem;
+
   &__buttons-wrapper {
     display: flex;
-    column-gap: 15px;
+    column-gap: 2rem;
   }
+
   &__button {
-    padding: 2px 30px;
-    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.2rem 3rem;
+    border-radius: 0.5rem;
     background-color: #7f6cbb;
     text-decoration: none;
     color: #fffff0;
-    font-size: 19px;
+    font-size: 1.4rem;
     font-weight: 500;
     font-family: "Teko", sans-serif;
     transition: 0.2s;
-    border: 2px solid transparent;
+    border: 0.2rem solid transparent;
+
     &:hover {
       background-color: #4c2db3;
     }
+
     &:active {
       background-color: #3b1ba5;
       border: 2px solid #fff;
     }
   }
+
   &__button.active {
     background-color: #3b1ba5;
     border: 2px solid #fff;

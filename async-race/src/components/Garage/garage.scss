@@ -1,31 +1,31 @@
 .garage {
   display: grid;
-  grid-template-rows: 80px auto 60px;
-  height: calc(100% - 50px);
+  grid-template-rows: 6rem auto 5rem;
+  height: calc(100% - 4rem);
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background-color: #0f6868;
-    padding: 15px 120px;
+    padding: 2rem 10rem;
   }
 
   &__cars-number,
   &__current-page {
-    font-size: 25px;
+    font-size: 1.3rem;
     color: #fff;
-    padding: 10px;
   }
 
   &__buttons-wrapper {
     display: flex;
-    column-gap: 15px;
+    column-gap: 1.2rem;
+    margin-bottom: 1rem;
   }
 
   &__button {
-    font-size: 20px;
-    padding: 4px 25px;
+    font-size: 1.5rem;
+    padding: 0.4rem 2rem;
     border-radius: 6px;
     background-color: #fff;
     transition: 0.2s;
@@ -42,34 +42,34 @@
   }
 
   &__inner {
-    padding: 1em 120px;
+    padding: 1em 10rem;
     background-color: #96b1f0;
   }
 
   &__car {
     .car {
       &__image {
-        width: 90px;
+        width: 5rem;
       }
     }
   }
 
   &__pages {
-    padding: 15px 120px;
+    padding: 1.2rem 10rem;
     background-color: darkslategray;
     display: flex;
-    column-gap: 15px;
+    column-gap: 1.2rem;
 
     .arrow {
       cursor: pointer;
       background-color: #fff;
-      padding: 4px 10px;
-      border-radius: 5px;
+      padding: 0.4rem 1rem;
+      border-radius: 0.5rem;
       border: 2px solid transparent;
       transition: 0.2s;
 
       &:hover {
-        border: 2px solid #333;
+        border: 0.2rem solid #333;
       }
 
       &:active {
@@ -87,6 +87,7 @@
   .generate-car {
     &__wrapper {
       display: flex;
+      margin-bottom: 1rem;
     }
 
     &__button {

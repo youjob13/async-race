@@ -1,17 +1,16 @@
 import { Store } from 'redux';
-import { AnyAction, CombinedState, ThunkDispatch } from '@reduxjs/toolkit';
-import { getCarSelector } from '../../../../store/carsSelectors';
+import { getCar } from '../../../../store/carsSelectors';
 import './car.scss';
 import {
   IBaseControl,
   ICarForm,
   ICombineCarsState,
-  ThunkDispatchType,
+  ICombineWinnersState,
 } from '../../../../shared/interfaces/api-models';
 import BaseControl from '../../../../shared/templates/BaseControl/BaseControl';
 import Button from '../../../../shared/templates/Button/Button';
 import Input from '../../../../shared/templates/Input/Input';
-import { ICar, ICarsState } from '../../../../shared/interfaces/carState-model';
+import { ICar } from '../../../../shared/interfaces/carState-model';
 import {
   deleteCarTC,
   setEditCarMode,
@@ -21,58 +20,124 @@ import {
 } from '../../../../store/carsSlice';
 import getCarSVG from '../../../../shared/carSVG';
 import { deleteWinnerTC } from '../../../../store/winnersSlice';
-import { IWinnersState } from '../../../../shared/interfaces/winnersState-models';
+import dispatchThunk from '../../../../shared/helperFunctions/dispatchThunk';
+import {
+  Attribute,
+  ButtonClass,
+  CarClasses,
+  DrivingMode,
+  EmptyString,
+  GarageClasses,
+  INDEX_EDIT_BUTTON,
+  ONE_SECOND,
+  Tag,
+} from '../../../../shared/variables';
+
+const START_ENGINE_BUTTON_TEXT = 'Start';
+const STOP_ENGINE_BUTTON_TEXT = 'Stop';
+const DELETE_CAR_BUTTON_TEXT = 'Delete';
+const CONFIRM_EDIT_BUTTON_TEXT = 'Confirm';
+const EDIT_BUTTON_TEXT = 'Edit';
+
+const carPropsToBaseControl = {
+  tagName: Tag.DIV,
+  classes: [CarClasses.GARAGE_CAR, CarClasses.CAR],
+};
+const roadProps = {
+  tagName: Tag.DIV,
+  classes: [CarClasses.ROAD],
+};
+const carImgWrapperProps = {
+  tagName: Tag.DIV,
+  classes: [CarClasses.IMAGE_WRAPPER],
+};
+const startEngineButtonProps = {
+  tagName: Tag.BUTTON,
+  classes: [CarClasses.START_ENGINE, ButtonClass],
+  text: START_ENGINE_BUTTON_TEXT,
+};
+const stopEngineButtonProps = {
+  tagName: Tag.BUTTON,
+  classes: [CarClasses.STOP_ENGINE, ButtonClass],
+  text: STOP_ENGINE_BUTTON_TEXT,
+};
+const controlWrapperProps = {
+  tagName: Tag.DIV,
+  classes: [CarClasses.BUTTONS],
+};
+const removeCarButtonProps = {
+  tagName: Tag.BUTTON,
+  classes: [CarClasses.DELETE, ButtonClass],
+  text: DELETE_CAR_BUTTON_TEXT,
+};
+const carParamsUpdateFormProps = {
+  tagName: Tag.DIV,
+  classes: [CarClasses.UPDATE_FORM],
+};
+const inputNameProps = {
+  tagName: Tag.INPUT,
+  classes: [
+    GarageClasses.GENERATE_CAR_INPUT,
+    GarageClasses.GENERATE_CAR_INPUT_NAME,
+  ],
+  attributes: { type: 'text', name: 'name' },
+};
+const inputColorProps = {
+  tagName: Tag.INPUT,
+  classes: [
+    GarageClasses.GENERATE_CAR_INPUT,
+    GarageClasses.GENERATE_CAR_INPUT_COLOR,
+  ],
+  attributes: { type: 'color', name: 'color' },
+};
+const confirmEditButtonProps = {
+  tagName: Tag.BUTTON,
+  classes: [CarClasses.EDIT_CONFIRM, ButtonClass],
+  text: CONFIRM_EDIT_BUTTON_TEXT,
+};
+const editCarButtonProps = {
+  tagName: Tag.BUTTON,
+  classes: [CarClasses.EDIT, ButtonClass],
+  text: EDIT_BUTTON_TEXT,
+};
+const carContentProps = {
+  tagName: Tag.DIV,
+  classes: [CarClasses.CONTENT],
+};
 
 class Car extends BaseControl<HTMLElement> {
-  private carImgWrapper: IBaseControl<HTMLElement>;
+  private readonly carImgWrapper: IBaseControl<HTMLElement>;
 
-  private road: IBaseControl<HTMLElement>;
+  private readonly road: IBaseControl<HTMLElement>;
 
-  private startEngineBtn: Button;
+  private readonly startEngineBtn: Button;
 
-  private stopEngineBtn: Button;
+  private readonly stopEngineBtn: Button;
 
-  private updateValueCarForm: ICarForm;
+  private readonly carParamsUpdateForm: ICarForm;
 
   private requestAnimId: number;
 
-  constructor(private car: ICar, private store: Store) {
-    super({ tagName: 'div', classes: ['garage__car', 'car'] });
-    this.road = new BaseControl({
-      tagName: 'div',
-      classes: ['car__road'],
-    });
-    this.carImgWrapper = new BaseControl({
-      tagName: 'div',
-      classes: ['car__img-wrapper'],
-    });
+  constructor(private car: ICar, private readonly store: Store) {
+    super(carPropsToBaseControl);
+    this.road = new BaseControl(roadProps);
+    this.carImgWrapper = new BaseControl(carImgWrapperProps);
     this.startEngineBtn = new Button(
-      {
-        tagName: 'button',
-        classes: ['car__start-engine', 'button'],
-        text: 'Start',
-      },
-      this.onStartEngineBtnClick
+      startEngineButtonProps,
+      this.turnOnCarEngine
     );
     this.stopEngineBtn = new Button(
-      {
-        tagName: 'button',
-        classes: ['car__start-engine', 'button'],
-        text: 'Stop',
-      },
-      this.onStopEngineBtnClick
+      stopEngineButtonProps,
+      this.turnOffCarEngine
     );
-    this.updateValueCarForm = {
-      name: '',
-      color: '',
+    this.carParamsUpdateForm = {
+      name: EmptyString,
+      color: EmptyString,
     };
     this.requestAnimId = 0;
 
     this.store.subscribe(() => {
-      const updatedCar = getCarSelector(
-        this.store.getState().carReducer,
-        this.car.id
-      );
+      const updatedCar = getCar(this.store.getState().carReducer, this.car.id);
 
       if (!updatedCar) return;
 
@@ -80,18 +145,21 @@ class Car extends BaseControl<HTMLElement> {
         if (updatedCar.wins !== this.car.wins) {
           this.car = { ...updatedCar };
           return;
-        } // TODO: rewrite
+        }
 
         this.car = { ...updatedCar };
-        if (updatedCar.drivingMode === 'started') {
-          // this.car = { ...updatedCar };
-          if (this.car.timeToFinish) {
-            this.startEngine();
-          }
-        } else if (updatedCar.drivingMode === 'breaking') {
-          // this.car = { ...updatedCar };
+
+        if (updatedCar.drivingMode === DrivingMode.BREAKING) {
+          return;
+        }
+
+        if (
+          updatedCar.drivingMode === DrivingMode.STARTED &&
+          this.car.timeToFinish
+        ) {
+          this.startCarMove();
         } else if (updatedCar) {
-          this.resetCarPosition(); // TODO: rewrite
+          this.resetCarPosition();
           this.render();
         }
       }
@@ -100,79 +168,78 @@ class Car extends BaseControl<HTMLElement> {
     this.render();
   }
 
-  private onDeleteBtnClick = (): void => {
-    (
-      this.store.dispatch as ThunkDispatch<
-        CombinedState<{ carReducer: ICarsState }>,
-        unknown,
-        AnyAction
-      >
-    )(deleteCarTC(this.car.id));
-    (
-      this.store.dispatch as ThunkDispatch<
-        CombinedState<{ winnersReducer: IWinnersState }>,
-        unknown,
-        AnyAction
-      >
-    )(deleteWinnerTC(this.car.id));
+  private removeCar = (): void => {
+    dispatchThunk<ICombineCarsState>(this.store, deleteCarTC(this.car.id));
+    dispatchThunk<ICombineWinnersState>(
+      this.store,
+      deleteWinnerTC(this.car.id)
+    );
   };
 
-  private handleInput = (type: string, value: string): void => {
-    this.updateValueCarForm[type] = value;
+  private enterCarParam = (type: string, value: string): void => {
+    this.carParamsUpdateForm[type] = value;
   };
 
-  private onConfirmEditBtnClick = (): void => {
+  private confirmEdit = (): void => {
+    const carName =
+      this.carParamsUpdateForm.name !== EmptyString
+        ? this.carParamsUpdateForm.name
+        : this.car.name;
+
+    const carColor =
+      this.carParamsUpdateForm.color !== EmptyString
+        ? this.carParamsUpdateForm.color
+        : this.car.color;
+
     const newCarParams = {
       id: this.car.id,
-      name:
-        this.updateValueCarForm.name !== ''
-          ? this.updateValueCarForm.name
-          : this.car.name,
-      color:
-        this.updateValueCarForm.color !== ''
-          ? this.updateValueCarForm.color
-          : this.car.color,
+      name: carName,
+      color: carColor,
     };
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
+
+    dispatchThunk<ICombineCarsState>(
+      this.store,
       updateCarParamsTC(newCarParams)
     );
   };
 
-  private onStartEngineBtnClick = (): void => {
-    this.startEngineBtn.node.setAttribute('disabled', 'disabled');
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
-      startCarEngineTC(this.car.id)
+  private turnOnCarEngine = (): void => {
+    this.startEngineBtn.node.setAttribute(
+      Attribute.DISABLED,
+      Attribute.DISABLED
     );
+    dispatchThunk<ICombineCarsState>(this.store, startCarEngineTC(this.car.id));
   };
 
-  private onEditBtnClick = (): void => {
+  private openCarEditForm = (): void => {
     this.store.dispatch(setEditCarMode(this.car.id));
   };
 
-  private onStopEngineBtnClick = (): void => {
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
-      stopCarEngineTC(this.car.id, 'stopped')
+  private turnOffCarEngine = (): void => {
+    dispatchThunk<ICombineCarsState>(
+      this.store,
+      stopCarEngineTC(this.car.id, DrivingMode.STOPPED)
     );
   };
 
   private resetCarPosition = (): void => {
     this.carImgWrapper.node.style.transform = `translateX(0)`;
-    this.startEngineBtn.node.removeAttribute('disabled');
+    this.startEngineBtn.node.removeAttribute(Attribute.DISABLED);
   };
 
-  private startEngine = (): void => {
-    this.stopEngineBtn.node.removeAttribute('disabled');
+  private startCarMove = (): void => {
+    this.stopEngineBtn.node.removeAttribute(Attribute.DISABLED);
     const timeToFinish = this.car.timeToFinish || 0;
 
     const roadLength =
       this.road.node.getBoundingClientRect().width -
       this.carImgWrapper.node.getBoundingClientRect().width;
 
-    const speed = (roadLength / timeToFinish) * 1000;
+    const speed = (roadLength / timeToFinish) * ONE_SECOND;
 
     const startTime = performance.now();
 
-    this.requestAnimId = window.requestAnimationFrame(
+    this.requestAnimId = requestAnimationFrame(
       this.animateCarMove.bind(this, startTime, roadLength, speed)
     );
   };
@@ -182,125 +249,80 @@ class Car extends BaseControl<HTMLElement> {
     roadLength: number,
     speed: number
   ) => {
-    if (this.car.drivingMode === 'breaking') {
-      window.cancelAnimationFrame(this.requestAnimId);
+    if (this.car.drivingMode === DrivingMode.BREAKING) {
+      cancelAnimationFrame(this.requestAnimId);
       return;
     }
-    if (this.car.drivingMode === 'stopped') {
+    if (this.car.drivingMode === DrivingMode.STOPPED) {
       this.resetCarPosition();
-      window.cancelAnimationFrame(this.requestAnimId);
+      cancelAnimationFrame(this.requestAnimId);
       return;
     }
 
-    const carPosition = ((performance.now() - startTime) / 1000) * speed;
+    const carPosition = ((performance.now() - startTime) / ONE_SECOND) * speed;
 
     this.carImgWrapper.node.style.transform = `translateX(${carPosition}px)`;
 
-    if (carPosition < roadLength && this.car.drivingMode === 'started') {
-      window.requestAnimationFrame(
+    if (
+      carPosition < roadLength &&
+      this.car.drivingMode === DrivingMode.STARTED
+    ) {
+      requestAnimationFrame(
         this.animateCarMove.bind(this, startTime, roadLength, speed)
       );
     } else {
-      window.cancelAnimationFrame(this.requestAnimId);
+      cancelAnimationFrame(this.requestAnimId);
     }
   };
 
   render(): void {
-    this.node.innerHTML = '';
+    this.node.innerHTML = EmptyString;
 
-    const buttonsWrapper = new BaseControl({
-      tagName: 'div',
-      classes: ['car__buttons'],
-    });
-
-    const deleteCarBtn = new Button(
-      {
-        tagName: 'button',
-        classes: ['car__delete', 'button'],
-        text: 'Delete',
-      },
-      this.onDeleteBtnClick
-    );
-
-    if (this.car.isEdit) {
-      const updateCarParamsWrapper = new BaseControl({
-        tagName: 'div',
-        classes: ['car__update-params-wrapper'],
-      });
-
-      const inputName = new Input(
-        {
-          tagName: 'input',
-          classes: ['generate-car__input', 'generate-car__input_name'],
-          attributes: { type: 'text', name: 'name' },
-        },
-        this.handleInput
-      );
-
-      const inputColor = new Input(
-        {
-          tagName: 'input',
-          classes: ['generate-car__input', 'generate-car__input_name'],
-          attributes: { type: 'color', name: 'color' },
-        },
-        this.handleInput
-      );
-
-      const confirmEditBtn = new Button(
-        {
-          tagName: 'button',
-          classes: ['car__edit_confirm', 'button'],
-          text: 'Confirm',
-        },
-        this.onConfirmEditBtnClick
-      );
-
-      updateCarParamsWrapper.node.append(
-        inputName.node,
-        inputColor.node,
-        confirmEditBtn.node
-      );
-      buttonsWrapper.node.append(
-        deleteCarBtn.node,
-        updateCarParamsWrapper.node,
-        this.startEngineBtn.node,
-        this.stopEngineBtn.node
-      );
-    } else {
-      const editCarBtn = new Button(
-        {
-          tagName: 'button',
-          classes: ['car__edit', 'button'],
-          text: 'Edit',
-        },
-        this.onEditBtnClick
-      );
-      buttonsWrapper.node.append(
-        deleteCarBtn.node,
-        editCarBtn.node,
-        this.startEngineBtn.node,
-        this.stopEngineBtn.node
-      );
-    }
-
+    const controlWrapper = new BaseControl(controlWrapperProps);
+    const carControlButtons = [
+      new Button(removeCarButtonProps, this.removeCar),
+      new Button(editCarButtonProps, this.openCarEditForm),
+      this.startEngineBtn,
+      this.stopEngineBtn,
+    ];
     const carImg = getCarSVG(this.car.color);
-
-    this.carImgWrapper.node.innerHTML = carImg;
-    this.road.node.append(this.carImgWrapper.node);
-
-    const carContent = new BaseControl({
-      tagName: 'div',
-      classes: ['car__content'],
-    });
-
+    const carContent = new BaseControl(carContentProps);
     const textContent = new BaseControl({
-      tagName: 'p',
-      classes: ['car__info'],
+      tagName: Tag.P,
+      classes: [CarClasses.INFO],
       text: this.car.name,
     });
 
-    carContent.node.append(textContent.node, buttonsWrapper.node);
+    if (this.car.isEdit) {
+      carControlButtons[INDEX_EDIT_BUTTON].node.setAttribute(
+        Attribute.DISABLED,
+        Attribute.DISABLED
+      );
 
+      const carParamsUpdateFormWrapper = new BaseControl(
+        carParamsUpdateFormProps
+      );
+      const carParamsUpdateForm = [
+        new Input(inputNameProps, this.enterCarParam),
+        new Input(inputColorProps, this.enterCarParam),
+        new Button(confirmEditButtonProps, this.confirmEdit),
+      ];
+
+      carParamsUpdateFormWrapper.node.append(
+        ...carParamsUpdateForm.map((control) => control.node)
+      );
+      controlWrapper.node.append(
+        ...carControlButtons.map((button) => button.node),
+        carParamsUpdateFormWrapper.node
+      );
+    }
+
+    controlWrapper.node.append(
+      ...carControlButtons.map((button) => button.node)
+    );
+    this.carImgWrapper.node.innerHTML = carImg;
+    this.road.node.append(this.carImgWrapper.node);
+    carContent.node.append(textContent.node, controlWrapper.node);
     this.node.append(carContent.node, this.road.node);
   }
 }

@@ -1,26 +1,31 @@
 .car {
-  border-bottom: 2px solid #000;
+  border-bottom: 0.2rem solid #000;
+
   &__img-wrapper {
     position: relative;
     display: inline-block;
   }
+
   &__content {
     display: flex;
     align-items: center;
     position: relative;
   }
+
   &__info {
-    margin-right: 12px;
-    font-size: 16px;
+    margin-right: 1rem;
+    font-size: 1rem;
     font-weight: 400;
   }
+
   &__buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 5px;
+    gap: 0.4rem;
     position: absolute;
     left: -7em;
   }
+
   &__update-params-wrapper {
     display: flex;
     align-items: center;
@@ -28,19 +33,23 @@
     left: 100%;
     top: -2em;
   }
+
   .button {
-    padding: 0 10px;
+    padding: 0 0.5rem;
     border-radius: 6px;
     transition: 0.2s;
     background-color: #fff;
     cursor: pointer;
+
     &:hover {
       background-color: rgb(172, 165, 165);
     }
+
     &:active {
       background-color: rgb(214, 214, 214);
     }
   }
+
   &__edit_confirm {
     border-radius: 0 !important;
     border-bottom-right-radius: 6px !important;

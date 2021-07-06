@@ -5,33 +5,29 @@ import {
   ICurrentWinner,
 } from '../shared/interfaces/carState-model';
 
-export const getCarsSelector = (state: ICarsState): ICar[] => state.cars;
+export const getCars = (state: ICarsState): ICar[] => state.cars;
 
-export const getCurrentGaragePageSelector = (state: ICarsState): number =>
+export const getCurrentGaragePage = (state: ICarsState): number =>
   state.currentGaragePage;
 
-export const getCarsNumberSelector = (state: ICarsState): number =>
-  state.carsNumber;
+export const getCarsNumber = (state: ICarsState): number => state.carsNumber;
 
-export const getRaceStatusSelector = (state: ICarsState): boolean =>
+export const getRaceStatus = (state: ICarsState): boolean =>
   state.isStartedRace;
 
-export const getCurrentWinnerSelector = (
-  state: ICarsState
-): ICurrentWinner | null => state.currentWinner;
+export const getCurrentWinner = (state: ICarsState): ICurrentWinner | null =>
+  state.currentWinner;
 
-export const getCarsStateSelector = createSelector(
-  getCarsSelector,
-  getCurrentGaragePageSelector,
-  (cars, currentGaragePage) => ({
+export const getCarsState = createSelector(
+  [getCars, getCurrentGaragePage, getCarsNumber, getCurrentWinner],
+  (cars, currentGaragePage, carsNumber, currentWinner) => ({
     newCars: cars,
     newGaragePage: currentGaragePage,
+    newCarsNumber: carsNumber,
+    newWinner: currentWinner,
   })
 );
 
-export const getCarSelector = (
-  state: ICarsState,
-  id: number
-): ICar | undefined => {
+export const getCar = (state: ICarsState, id: number): ICar | undefined => {
   return state.cars.find((car) => car.id === id);
 };

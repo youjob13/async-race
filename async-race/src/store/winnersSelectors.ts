@@ -1,16 +1,10 @@
 import { IWinnersState } from '../shared/interfaces/winnersState-models';
 
-// export const getWinnersSelector = (state: IWinnersState): IWinner[] =>
-//   state.winners;
-
-export const getCurrentWinnersPageSelector = (state: IWinnersState): number =>
-  state.currentWinnersPage;
-
-export const getWinnersNumberSelector = (state: IWinnersState): number =>
+export const getWinnersNumber = (state: IWinnersState): number =>
   state.winnersNumber;
 
-export const getWinnersSortOrderSelector = (state: IWinnersState): string =>
+export const getWinnersSortOrder = (state: IWinnersState): string =>
   state.sortingOrder;
 
-// export const getWinnersSortTypeSelector = (state: IWinnersState): string =>
-//   state.sortingType;
+export const getWinnersPage = (state: IWinnersState): number =>
+  state.currentWinnersPage;
