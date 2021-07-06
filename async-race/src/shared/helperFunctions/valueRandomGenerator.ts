@@ -1,4 +1,6 @@
-const randomNumberInRange = (min = 0, max = 1) => {
+import { MAX_VALUE, MIN_VALUE } from '../variables';
+
+const randomNumberInRange = (min = MIN_VALUE, max = MAX_VALUE) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 

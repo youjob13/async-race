@@ -5,10 +5,10 @@ import './button.scss';
 class Button extends BaseControl<HTMLElement> {
   constructor(
     propsToBaseControl: IPropsToBaseControl,
-    private onBtnClick: (e: Event) => void
+    private onBtnClick: (event: Event) => void
   ) {
     super(propsToBaseControl);
-    this.node.onclick = (e: Event) => this.onBtnClick(e);
+    this.node.onclick = (event: Event) => this.onBtnClick(event);
   }
 }
 

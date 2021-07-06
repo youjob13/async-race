@@ -1,5 +1,4 @@
 import './header.scss';
-import { IPropsToBaseControl } from '../../shared/interfaces/api-models';
 import BaseControl from '../../shared/templates/BaseControl/BaseControl';
 import Button from '../../shared/templates/Button/Button';
 import {
@@ -12,17 +11,31 @@ import {
 } from '../../shared/variables';
 import { IRouter } from '../../shared/interfaces/router-model';
 
+const buttonActiveClass = [
+  HeaderClasses.BUTTON,
+  HeaderClasses.BUTTON_ACTIVE,
+  ButtonClass,
+];
+const buttonNonActiveClass = [HeaderClasses.BUTTON, ButtonClass];
+const GARAGE_BUTTON_TEXT = 'Garage';
+const WINNERS_BUTTON_TEXT = 'Winners';
+
+const headerPropsToBaseControl = {
+  tagName: Tag.HEADER,
+  classes: [HeaderClasses.HEADER],
+};
+const buttonsWrapperPropsToBaseControl = {
+  tagName: Tag.DIV,
+  classes: [HeaderClasses.BUTTONS_WRAP],
+};
+
 class Header extends BaseControl<HTMLElement> {
-  constructor(
-    propsToBaseControl: IPropsToBaseControl,
-    private readonly router: IRouter
-  ) {
-    super(propsToBaseControl);
+  constructor(private readonly router: IRouter) {
+    super(headerPropsToBaseControl);
     this.render();
   }
 
   private onPageToggleClick = (event: Event): void => {
-    // TODO: ask Ivan (почему header должен знать)
     event.preventDefault();
     const target = <HTMLAnchorElement>event.target;
     this.router.changePath(target.getAttribute(Attribute.HREF) || Route.ROOT);
@@ -31,24 +44,23 @@ class Header extends BaseControl<HTMLElement> {
   render(): void {
     this.node.innerHTML = EmptyString;
 
-    const stylesGarageButton = // TODO: ask Ivan
-      this.router.getHash() === Route.GARAGE ||
-      this.router.getHash() === Route.ROOT
-        ? [HeaderClasses.BUTTON, HeaderClasses.BUTTON_ACTIVE, ButtonClass]
-        : [HeaderClasses.BUTTON, ButtonClass];
+    const hash = this.router.getHash();
+
+    const stylesGarageButton =
+      hash === Route.GARAGE || hash === Route.ROOT
+        ? buttonActiveClass
+        : buttonNonActiveClass;
 
     const stylesWinnersButton =
-      this.router.getHash() === Route.WINNERS
-        ? [HeaderClasses.BUTTON, HeaderClasses.BUTTON_ACTIVE, ButtonClass]
-        : [HeaderClasses.BUTTON, ButtonClass];
+      hash === Route.WINNERS ? buttonActiveClass : buttonNonActiveClass;
 
     const headerButtons = [
       new Button(
         {
           tagName: Tag.A,
           classes: stylesWinnersButton,
-          text: 'Winners',
-          attributes: { href: 'winners' },
+          text: WINNERS_BUTTON_TEXT,
+          attributes: { href: Route.WINNERS },
         },
         this.onPageToggleClick
       ),
@@ -56,17 +68,14 @@ class Header extends BaseControl<HTMLElement> {
         {
           tagName: Tag.A,
           classes: stylesGarageButton,
-          text: 'Garage',
-          attributes: { href: 'garage' },
+          text: GARAGE_BUTTON_TEXT,
+          attributes: { href: Route.GARAGE },
         },
         this.onPageToggleClick
       ),
-    ]; // TODO: ask Ivan
+    ];
 
-    const buttonsWrapper = new BaseControl({
-      tagName: Tag.DIV,
-      classes: [HeaderClasses.BUTTONS_WRAP],
-    });
+    const buttonsWrapper = new BaseControl(buttonsWrapperPropsToBaseControl);
 
     buttonsWrapper.node.append(
       ...headerButtons.map((headerButton) => headerButton.node)

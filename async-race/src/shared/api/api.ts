@@ -5,17 +5,25 @@ import {
   IEngineAPIRequest,
   IWinnerAPIRequest,
   GetAllCars,
+  IWinnerAPIResponse,
+  IEngineAPIResponse,
 } from '../interfaces/requests-to-API-models';
 import {
+  AdditionalAPIURL,
   BASE_URL,
+  ContentType,
+  EngineSearchParams,
   RequestMethod,
+  RESPONSE_HEADER,
+  ResponseError,
+  WinnerSearchParams,
   WinnersSorting,
   WinnersSortingOrder,
 } from '../variables';
 import { IWinner } from '../interfaces/winnersState-models';
 
 export const apiWinner: IWinnerAPIRequest = {
-  baseURL: `${BASE_URL}/winners`,
+  baseURL: `${BASE_URL}/${AdditionalAPIURL.WINNERS}`,
 
   async createWinner(data: IWinner): Promise<IWinner> {
     try {
@@ -24,7 +32,7 @@ export const apiWinner: IWinnerAPIRequest = {
       const response = await fetch(`${url}`, {
         method: RequestMethod.POST,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': ContentType.APPLICATION_JSON,
         },
         body: JSON.stringify(data),
       });
@@ -40,7 +48,7 @@ export const apiWinner: IWinnerAPIRequest = {
       const response = await fetch(`${url}`, {
         method: RequestMethod.PUT,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': ContentType.APPLICATION_JSON,
         },
         body: JSON.stringify({ wins: data.wins, time: data.time }),
       });
@@ -65,14 +73,17 @@ export const apiWinner: IWinnerAPIRequest = {
     try {
       const url = new URL(`${this.baseURL}/${id}`);
       const response = await fetch(`${url}`);
+
       if (response.status === 404) {
         throw new Error(response.statusText);
       }
+
       return await response.json();
     } catch (error) {
-      if (error.toString() === 'Error: Not Found') {
+      if (error.toString() === ResponseError.NOT_FOUND) {
         return undefined;
       }
+
       throw new Error(error);
     }
   },
@@ -82,19 +93,21 @@ export const apiWinner: IWinnerAPIRequest = {
     limit?: number,
     sort?: WinnersSorting,
     order?: WinnersSortingOrder
-  ): Promise<{ winners: IWinner[]; totalWinnersNumber: number }> {
+  ): Promise<IWinnerAPIResponse> {
     try {
       const url = new URL(`${this.baseURL}`);
-      url.searchParams.append('_page', `${page}`);
-      url.searchParams.append('_limit', `${limit}`);
-      url.searchParams.append('_sort', `${sort}`);
-      url.searchParams.append('_order', `${order}`);
+
+      url.searchParams.append(WinnerSearchParams.PAGE, `${page}`);
+      url.searchParams.append(WinnerSearchParams.LIMIT, `${limit}`);
+      url.searchParams.append(WinnerSearchParams.SORT, `${sort}`);
+      url.searchParams.append(WinnerSearchParams.ORDER, `${order}`);
 
       const response = await fetch(`${url}`);
       const winners = await response.json();
+
       return {
         winners,
-        totalWinnersNumber: Number(response.headers.get('X-Total-Count')),
+        totalWinnersNumber: Number(response.headers.get(RESPONSE_HEADER)),
       };
     } catch (error) {
       throw new Error(error);
@@ -103,16 +116,13 @@ export const apiWinner: IWinnerAPIRequest = {
 };
 
 export const apiEngine: IEngineAPIRequest = {
-  baseURL: `${BASE_URL}/engine`,
+  baseURL: `${BASE_URL}/${AdditionalAPIURL.ENGINE}`,
 
-  async toggleEngine(
-    id: number,
-    status: string
-  ): Promise<{ velocity: number; distance: number }> {
+  async toggleEngine(id: number, status: string): Promise<IEngineAPIResponse> {
     try {
       const url = new URL(`${this.baseURL}`);
-      url.searchParams.append('id', `${id}`);
-      url.searchParams.append('status', `${status}`);
+      url.searchParams.append(EngineSearchParams.ID, `${id}`);
+      url.searchParams.append(EngineSearchParams.STATUS, `${status}`);
 
       const response = await fetch(`${url}`);
       return await response.json();
@@ -124,38 +134,42 @@ export const apiEngine: IEngineAPIRequest = {
   async switchEngineMode(id: number, status: string): Promise<boolean> {
     try {
       const url = new URL(`${this.baseURL}`);
-      url.searchParams.append('id', `${id}`);
-      url.searchParams.append('status', `${status}`);
+      url.searchParams.append(EngineSearchParams.ID, `${id}`);
+      url.searchParams.append(EngineSearchParams.STATUS, `${status}`);
 
       const response = await fetch(`${url}`);
 
       if (response.status === 500) {
-        throw new Error('Engine is broken');
+        throw new Error(ResponseError.ENGINE_IS_BROKEN);
       }
 
       return await response.json();
     } catch (error) {
-      if (error.toString() === 'Error: Engine is broken') {
+      if (error.toString() === `Error: ${ResponseError.ENGINE_IS_BROKEN}`) {
         return false;
       }
+
       throw new Error(error);
     }
   },
 };
 
 export const apiCars: ICarsAPIRequest = {
-  baseURL: `${BASE_URL}/garage`,
+  baseURL: `${BASE_URL}/${AdditionalAPIURL.GARAGE}`,
 
   async getAllCars(page?: number, limit?: number): Promise<GetAllCars> {
     try {
       const url = new URL(this.baseURL);
-      url.searchParams.append('_page', `${page}`);
-      url.searchParams.append('_limit', `${limit}`);
+
+      url.searchParams.append(WinnerSearchParams.PAGE, `${page}`);
+      url.searchParams.append(WinnerSearchParams.LIMIT, `${limit}`);
+
       const response = await fetch(`${url}`);
       const cars = await response.json();
+
       return {
         cars,
-        totalCarsNumber: Number(response.headers.get('X-Total-Count')),
+        totalCarsNumber: Number(response.headers.get(RESPONSE_HEADER)),
       };
     } catch (error) {
       throw new Error(error);
@@ -168,7 +182,7 @@ export const apiCars: ICarsAPIRequest = {
       const response = await fetch(`${url}`, {
         method: RequestMethod.POST,
         headers: {
-          'Content-Type': 'application/json;charset=utf-8',
+          'Content-Type': ContentType.APPLICATION_JSON,
         },
         body: JSON.stringify(data),
       });
@@ -207,7 +221,7 @@ export const apiCars: ICarsAPIRequest = {
       const response = await fetch(`${url}`, {
         method: RequestMethod.PUT,
         headers: {
-          'Content-Type': 'application/json;charset=utf-8',
+          'Content-Type': ContentType.APPLICATION_JSON,
         },
         body: JSON.stringify(data),
       });

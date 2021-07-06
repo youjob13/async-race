@@ -1,5 +1,6 @@
 import BaseControl from '../BaseControl/BaseControl';
 import { IAttr } from '../../interfaces/api-models';
+import { EventName } from '../../variables';
 
 class Input extends BaseControl<HTMLInputElement> {
   constructor(
@@ -11,7 +12,7 @@ class Input extends BaseControl<HTMLInputElement> {
     private inputCallback?: (value: string, type: string) => void
   ) {
     super(propsToBaseControl);
-    this.node.addEventListener('input', this.handleInput.bind(this));
+    this.node.addEventListener(EventName.INPUT, this.handleInput.bind(this));
   }
 
   private handleInput(): void {

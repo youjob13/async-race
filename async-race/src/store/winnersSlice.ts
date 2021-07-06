@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   IWinner,
   IWinnersState,
@@ -18,6 +18,11 @@ import {
   WinnersSortingOrder,
 } from '../shared/variables';
 import prepareRequestForWinners from '../shared/helperFunctions/prepareRequestForWinners';
+import {
+  IChangeSortOrder,
+  ISetWinners,
+  WinnerID,
+} from '../shared/interfaces/actions-models';
 
 const winnersSlice = createSlice({
   name: SliceName.WINNERS_SLICE,
@@ -29,24 +34,36 @@ const winnersSlice = createSlice({
     sortingType: EmptyString,
   } as IWinnersState,
   reducers: {
-    changeSortOrder: (state: IWinnersState, action) => {
+    changeSortOrder: (
+      state: IWinnersState,
+      action: PayloadAction<IChangeSortOrder>
+    ) => {
       const { newSortingOrder, newSortingType } = action.payload;
+
       return {
         ...state,
         sortingOrder: newSortingOrder,
         sortingType: newSortingType || state.sortingType,
       };
     },
-    setAllWinners: (state: IWinnersState, action) => {
-      const { res, totalWinnersNumber, currentWinnersPage } = action.payload;
+    setAllWinners: (
+      state: IWinnersState,
+      action: PayloadAction<ISetWinners>
+    ) => {
+      const {
+        winnersData,
+        totalWinnersNumber,
+        currentWinnersPage = FIRST_PAGE,
+      } = action.payload;
+
       return {
         ...state,
-        winners: [...res],
         currentWinnersPage,
+        winners: [...winnersData],
         winnersNumber: totalWinnersNumber,
       };
     },
-    deleteWinner: (state: IWinnersState, action) => {
+    deleteWinner: (state: IWinnersState, action: PayloadAction<WinnerID>) => {
       return {
         ...state,
         winners: state.winners.filter((winner) => winner.id !== action.payload),
@@ -77,7 +94,7 @@ export const extendWinnersParamTC =
 
         Promise.all(additionalWinnersParamsAsJSON).then(
           (additionalWinnersParamsRes) => {
-            const res = additionalWinnersParamsRes.map(
+            const winnersData = additionalWinnersParamsRes.map(
               (winnerAdditionalParam, index) => ({
                 ...winners[index],
                 ...winnerAdditionalParam,
@@ -85,7 +102,11 @@ export const extendWinnersParamTC =
             );
 
             dispatch(
-              setAllWinners({ res, totalWinnersNumber, currentWinnersPage })
+              setAllWinners({
+                winnersData,
+                totalWinnersNumber,
+                currentWinnersPage,
+              })
             );
           }
         );
@@ -138,10 +159,12 @@ export const toggleWinnersPageTC =
   (isIncrement: boolean): ThunkActionType<ICombineWinnersState> =>
   async (dispatch, getState): Promise<void> => {
     let { currentWinnersPage } = getState().winnersReducer;
+
     currentWinnersPage = isIncrement
       ? currentWinnersPage + 1
       : currentWinnersPage - 1;
-    dispatch(getAllWinnersTC(currentWinnersPage, LIMIT_WINNERS_ON_PAGE)); // TODO: double in toggleGaragePageTC
+
+    dispatch(getAllWinnersTC(currentWinnersPage, LIMIT_WINNERS_ON_PAGE));
   };
 
 export const deleteWinnerTC =

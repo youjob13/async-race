@@ -1,7 +1,8 @@
 import { IRoute, IRouter } from './interfaces/router-model';
+import ErrorPage from '../components/ErrorPage/ErrorPage';
 
 class Router implements IRouter {
-  private currentPage: HTMLElement | '404 error';
+  private currentPage: HTMLElement;
 
   constructor(private routes: IRoute[]) {
     this.currentPage = routes[0].component();
@@ -15,7 +16,7 @@ class Router implements IRouter {
 
   routeToPage(): void {
     const currentHash = this.getHash();
-    this.currentPage = '404 error'; // TODO: realise 404 page
+    this.currentPage = new ErrorPage().node;
 
     this.routes.forEach((route) => {
       if (route.path === currentHash) {
@@ -24,7 +25,7 @@ class Router implements IRouter {
     });
   }
 
-  getCurrentPage(): HTMLElement | '404 error' {
+  getCurrentPage(): HTMLElement {
     this.routeToPage();
     return this.currentPage;
   }

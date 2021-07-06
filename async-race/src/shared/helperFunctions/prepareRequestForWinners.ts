@@ -1,20 +1,22 @@
 import { IWinner } from '../interfaces/winnersState-models';
-import { BASE_URL, RequestMethod } from '../variables';
+import { AdditionalAPIURL, BASE_URL, RequestMethod } from '../variables';
 
 const prepareRequestForWinners = (winners: IWinner[]): Promise<Response>[] => {
-  const request = [];
+  const requests = [];
 
   for (let i = 0; i < winners.length; i++) {
-    const url = new URL(`${BASE_URL}/garage/${winners[i].id}`);
+    const url = new URL(
+      `${BASE_URL}/${AdditionalAPIURL.GARAGE}/${winners[i].id}`
+    );
 
-    request.push(
+    requests.push(
       fetch(`${url}`, {
         method: RequestMethod.GET,
       })
     );
   }
 
-  return request;
+  return requests;
 };
 
 export default prepareRequestForWinners;

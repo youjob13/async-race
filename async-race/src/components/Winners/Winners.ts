@@ -3,41 +3,62 @@ import { Store } from 'redux';
 import { IPage } from '../../shared/interfaces/page-model';
 import BaseControl from '../../shared/templates/BaseControl/BaseControl';
 import WinnersTable from './WinnersTable/WinnersTable';
-import { IWinner } from '../../shared/interfaces/winnersState-models';
-import { getWinnersNumberSelector } from '../../store/winnersSelectors';
+import { getWinnersNumber, getWinnersPage } from '../../store/winnersSelectors';
 import Button from '../../shared/templates/Button/Button';
 import { toggleWinnersPageTC } from '../../store/winnersSlice';
-import {
-  ICombineWinnersState,
-  ThunkDispatchType,
-} from '../../shared/interfaces/api-models';
+import { ICombineWinnersState } from '../../shared/interfaces/api-models';
 import {
   EmptyString,
   FIRST_PAGE,
+  INITIAL_WINNERS_NUMBER,
+  PageDirection,
   Tag,
   WinnersClasses,
 } from '../../shared/variables';
+import dispatchThunk from '../../shared/helperFunctions/dispatchThunk';
+
+const winnersPropsToBaseControl = {
+  tagName: Tag.MAIN,
+  classes: [WinnersClasses.WINNERS],
+};
+const pagesControlsProps = {
+  tagName: Tag.DIV,
+  classes: [WinnersClasses.PAGES_CONTROLS],
+};
+const prevPageButtonProps = {
+  tagName: Tag.BUTTON,
+  classes: [WinnersClasses.PAGE_CONTROL, WinnersClasses.PREV_BUTTON],
+  text: PageDirection.PREV,
+  attributes: { id: PageDirection.PREV },
+};
+const nextPageButtonProps = {
+  tagName: Tag.BUTTON,
+  classes: [WinnersClasses.PAGE_CONTROL, WinnersClasses.NEXT_BUTTON],
+  text: PageDirection.NEXT,
+  attributes: { id: PageDirection.NEXT },
+};
 
 class Winners extends BaseControl<HTMLElement> implements IPage {
-  private readonly currentPage: number;
-
-  private readonly winners: IWinner[];
+  private currentPage: number;
 
   private winnersNumber: number;
 
   constructor(private readonly store: Store) {
-    super({
-      tagName: Tag.MAIN,
-      classes: [WinnersClasses.WINNERS],
-    });
-    this.winnersNumber = 0;
-    this.winners = [];
+    super(winnersPropsToBaseControl);
+    this.winnersNumber = INITIAL_WINNERS_NUMBER;
     this.currentPage = FIRST_PAGE;
 
     this.store.subscribe(() => {
-      const newWinnersNumber = getWinnersNumberSelector(
+      const newWinnersNumber = getWinnersNumber(
         this.store.getState().winnersReducer
       );
+
+      const newPage = getWinnersPage(this.store.getState().winnersReducer);
+
+      if (newPage !== this.currentPage) {
+        this.currentPage = newPage;
+        this.render();
+      }
 
       if (newWinnersNumber !== this.winnersNumber) {
         this.winnersNumber = newWinnersNumber;
@@ -48,15 +69,12 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
     this.render();
   }
 
-  private switchToPrevWinnersPage = () => {
-    (this.store.dispatch as ThunkDispatchType<ICombineWinnersState>)(
-      toggleWinnersPageTC(false)
-    );
-  };
+  private toggleWinnersPage = (event: Event) => {
+    const target = <HTMLElement>event.target;
 
-  private switchToNextWinnersPage = () => {
-    (this.store.dispatch as ThunkDispatchType<ICombineWinnersState>)(
-      toggleWinnersPageTC(true)
+    dispatchThunk<ICombineWinnersState>(
+      this.store,
+      toggleWinnersPageTC(target.id === PageDirection.NEXT)
     );
   };
 
@@ -68,37 +86,16 @@ class Winners extends BaseControl<HTMLElement> implements IPage {
       classes: [WinnersClasses.NUMBER],
       text: `Winners: ${this.winnersNumber}`,
     });
-
     const currentPage = new BaseControl({
       tagName: Tag.P,
       classes: [WinnersClasses.PAGE_NUMBER],
-      text: '', // TODO: current page
+      text: this.currentPage.toString(),
     });
-
     const winnersTable = new WinnersTable(this.store);
-
-    const pagesControls = new BaseControl({
-      tagName: Tag.DIV,
-      classes: [WinnersClasses.PAGES_CONTROLS],
-    });
-
+    const pagesControls = new BaseControl(pagesControlsProps);
     const winnersPageNavigationButtons = [
-      new Button(
-        {
-          tagName: Tag.BUTTON,
-          classes: [WinnersClasses.PAGE_CONTROL, WinnersClasses.PREV_BUTTON],
-          text: 'Prev',
-        },
-        this.switchToPrevWinnersPage
-      ),
-      new Button(
-        {
-          tagName: Tag.BUTTON,
-          classes: [WinnersClasses.PAGE_CONTROL, WinnersClasses.NEXT_BUTTON],
-          text: 'Next',
-        },
-        this.switchToNextWinnersPage
-      ),
+      new Button(prevPageButtonProps, this.toggleWinnersPage),
+      new Button(nextPageButtonProps, this.toggleWinnersPage),
     ];
 
     pagesControls.node.append(

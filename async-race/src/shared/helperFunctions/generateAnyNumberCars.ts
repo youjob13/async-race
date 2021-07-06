@@ -1,7 +1,8 @@
 import {
+  AdditionalAPIURL,
   BASE_URL,
-  GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_HEADERS,
-  GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_METHOD,
+  ContentType,
+  RequestMethod,
 } from '../variables';
 import {
   carNameRandomGenerator,
@@ -10,6 +11,7 @@ import {
 
 const generateAnyNumberCars = (numberCars: number): Promise<Response>[] => {
   const requests = [];
+
   for (let i = 0; i < numberCars; i++) {
     const randomGeneratedCar = {
       name: carNameRandomGenerator(),
@@ -17,13 +19,16 @@ const generateAnyNumberCars = (numberCars: number): Promise<Response>[] => {
     };
 
     requests.push(
-      fetch(`${BASE_URL}/garage`, {
-        method: GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_METHOD,
-        headers: GENERATE_ONE_HUNDRED_RANDOM_CARS_REQUEST_HEADERS,
+      fetch(`${BASE_URL}/${AdditionalAPIURL.GARAGE}`, {
+        method: RequestMethod.POST,
+        headers: {
+          'Content-Type': ContentType.APPLICATION_JSON,
+        },
         body: JSON.stringify(randomGeneratedCar),
       })
     );
   }
+
   return requests;
 };
 export default generateAnyNumberCars;

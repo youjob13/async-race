@@ -5,6 +5,7 @@ import Winners from './components/Winners/Winners';
 import store from './store/store';
 import Router from './shared/Router';
 import { ErrorContent, RootElemId, Route } from './shared/variables';
+import { RootElem } from './shared/interfaces/api-models';
 
 const routes = [
   {
@@ -20,7 +21,7 @@ const routes = [
     component: (): HTMLElement => new Winners(store).node,
   },
 ];
-const rootElem: HTMLElement | null = document.getElementById(RootElemId);
+const rootElem: RootElem = document.getElementById(RootElemId);
 
 const router = new Router(routes);
 

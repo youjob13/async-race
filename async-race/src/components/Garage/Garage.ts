@@ -1,33 +1,30 @@
 import { Store } from 'redux';
-import {
-  getCarsNumberSelector,
-  getCarsStateSelector,
-  getCarsSelector,
-  getCurrentGaragePageSelector,
-  getCurrentWinnerSelector,
-} from '../../store/carsSelectors';
+import { getCarsState, getCurrentGaragePage } from '../../store/carsSelectors';
 import './garage.scss';
 import { IPage } from '../../shared/interfaces/page-model';
 import { ICar } from '../../shared/interfaces/carState-model';
 import { getAllCarsTC } from '../../store/carsSlice';
-
 import BaseControl from '../../shared/templates/BaseControl/BaseControl';
 import GarageHeader from './GarageHeader/GarageHeader';
 import GarageFooter from './GarageFooter/GarageFooter';
 import GarageContent from './GarageContent/GarageContent';
 import WinnerPopup from '../Popup/WinnerPopup';
-import {
-  ICombineCarsState,
-  ThunkDispatchType,
-} from '../../shared/interfaces/api-models';
+import { ICombineCarsState } from '../../shared/interfaces/api-models';
 import {
   COUNT_CARS_ON_PAGE,
   EmptyString,
   EventName,
   GarageClasses,
-  Popup,
+  INITIAL_CARS_NUMBER,
+  PopupClasses,
   Tag,
 } from '../../shared/variables';
+import dispatchThunk from '../../shared/helperFunctions/dispatchThunk';
+
+const garagePropsToBaseControl = {
+  tagName: Tag.MAIN,
+  classes: [GarageClasses.GARAGE],
+};
 
 class Garage extends BaseControl<HTMLElement> implements IPage {
   private cars: ICar[];
@@ -39,33 +36,25 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
   private winnerPopup: BaseControl<HTMLElement> | null;
 
   constructor(private readonly store: Store) {
-    super({ tagName: Tag.MAIN, classes: [GarageClasses.GARAGE] });
-    this.carsNumber = 0;
-    this.winnerPopup = null; // TODO: think and recast
-    this.cars = getCarsSelector(this.store.getState().carReducer);
-    this.currentPage = getCurrentGaragePageSelector(
-      this.store.getState().carReducer
-    );
+    super(garagePropsToBaseControl);
+    this.carsNumber = INITIAL_CARS_NUMBER;
+    this.winnerPopup = null;
+    this.cars = [];
+    this.currentPage = getCurrentGaragePage(this.store.getState().carReducer);
 
     this.node.addEventListener(EventName.CLICK, (event: Event) => {
       const target = <HTMLElement>event.target;
 
-      if (this.winnerPopup && !target.classList.contains(Popup.POPUP_CONTENT)) {
-        this.winnerPopup.node.remove(); // TODO: think
+      if (
+        this.winnerPopup &&
+        !target.classList.contains(PopupClasses.POPUP_CONTENT)
+      ) {
+        this.winnerPopup.node.remove();
       }
     });
 
-    // TODO: try to move out
-    this.store.subscribe(() => {
-      const { newCars, newGaragePage } = getCarsStateSelector(
-        this.store.getState().carReducer
-      );
-
-      const newCarsNumber = getCarsNumberSelector(
-        this.store.getState().carReducer
-      );
-
-      const newWinner = getCurrentWinnerSelector(
+    store.subscribe(() => {
+      const { newCars, newGaragePage, newWinner, newCarsNumber } = getCarsState(
         this.store.getState().carReducer
       );
 
@@ -74,20 +63,21 @@ class Garage extends BaseControl<HTMLElement> implements IPage {
         this.node.append(this.winnerPopup.node);
       }
 
-      if (this.carsNumber !== newCarsNumber) {
-        this.cars = [...newCars]; // TODO: twice
+      if (newCarsNumber !== this.carsNumber) {
+        this.cars = [...newCars];
         this.carsNumber = newCarsNumber;
         this.render();
       }
 
       if (newGaragePage !== this.currentPage) {
-        this.cars = [...newCars]; // TODO: twice
+        this.cars = [...newCars];
         this.currentPage = newGaragePage;
         this.render();
       }
     });
 
-    (this.store.dispatch as ThunkDispatchType<ICombineCarsState>)(
+    dispatchThunk<ICombineCarsState>(
+      store,
       getAllCarsTC(this.currentPage, COUNT_CARS_ON_PAGE)
     );
 

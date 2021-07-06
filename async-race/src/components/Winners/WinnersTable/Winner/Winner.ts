@@ -1,31 +1,34 @@
 import BaseControl from '../../../../shared/templates/BaseControl/BaseControl';
-import { IPropsToBaseControl } from '../../../../shared/interfaces/api-models';
 import { IWinner } from '../../../../shared/interfaces/winnersState-models';
 import getCarSVG from '../../../../shared/carSVG';
 import {
   DEFAULT_CAR_COLOR,
   DEFAULT_CAR_NAME,
   EmptyString,
+  INDEX_CAR_IMG,
   Tag,
   WinnersClasses,
 } from '../../../../shared/variables';
 
+const winnerPropsToBaseControl = {
+  tagName: Tag.TR,
+  classes: [WinnersClasses.WINNER],
+};
+
 class Winner extends BaseControl<HTMLElement> {
   constructor(
-    private readonly propsToBaseControl: IPropsToBaseControl,
     private readonly winner: IWinner,
     private readonly carListNumber: number
   ) {
-    super(propsToBaseControl);
+    super(winnerPropsToBaseControl);
     this.render();
   }
 
   private render(): void {
-    const { color = DEFAULT_CAR_COLOR, name = DEFAULT_CAR_NAME } = this.winner;
-    const carImg = getCarSVG(color);
-
     this.node.innerHTML = EmptyString;
 
+    const { color = DEFAULT_CAR_COLOR, name = DEFAULT_CAR_NAME } = this.winner;
+    const carImg = getCarSVG(color);
     const winnersTableCells = [
       new BaseControl({
         tagName: Tag.TD,
@@ -53,7 +56,7 @@ class Winner extends BaseControl<HTMLElement> {
       }),
     ];
 
-    winnersTableCells[1].node.innerHTML = carImg;
+    winnersTableCells[INDEX_CAR_IMG].node.innerHTML = carImg;
 
     this.node.append(...winnersTableCells.map((cell) => cell.node));
   }

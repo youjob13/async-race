@@ -2,7 +2,7 @@ export interface IRouter {
   changePath: (path: string) => void;
   getHash: () => string;
   routeToPage: () => void;
-  getCurrentPage: () => HTMLElement | '404 error';
+  getCurrentPage: () => HTMLElement;
 }
 
 export interface IRoute {

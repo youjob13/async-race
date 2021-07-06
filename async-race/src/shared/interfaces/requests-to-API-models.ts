@@ -2,6 +2,16 @@ import { ICar } from './carState-model';
 import { IWinner } from './winnersState-models';
 import { WinnersSorting, WinnersSortingOrder } from '../variables';
 
+export interface IWinnerAPIResponse {
+  winners: IWinner[];
+  totalWinnersNumber: number;
+}
+
+export interface IEngineAPIResponse {
+  velocity: number;
+  distance: number;
+}
+
 export type CreateCarRequest = { name: string; color: string };
 
 export type GetAllCars = { cars: ICar[]; totalCarsNumber: number | null };
@@ -19,10 +29,7 @@ export interface ICarsAPIRequest extends IAPIRequest {
 }
 
 export interface IEngineAPIRequest extends IAPIRequest {
-  toggleEngine: (
-    id: number,
-    status: string
-  ) => Promise<{ velocity: number; distance: number }>;
+  toggleEngine: (id: number, status: string) => Promise<IEngineAPIResponse>;
   switchEngineMode: (id: number, status: string) => Promise<boolean>;
 }
 
@@ -36,5 +43,5 @@ export interface IWinnerAPIRequest extends IAPIRequest {
     limit?: number,
     sort?: WinnersSorting,
     order?: WinnersSortingOrder
-  ) => Promise<{ winners: IWinner[]; totalWinnersNumber: number }>;
+  ) => Promise<IWinnerAPIResponse>;
 }

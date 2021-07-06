@@ -7,6 +7,7 @@ import {
 import { ICarsState } from './carState-model';
 import { IWinnersState } from './winnersState-models';
 
+export type RootElem = HTMLElement | null;
 export type ICombineCarsState = CombinedState<{ carReducer: ICarsState }>;
 
 export type ICombineWinnersState = CombinedState<{
@@ -31,10 +32,6 @@ export interface IPropsToBaseControl {
 export interface IAttr {
   [key: string]: string | number;
 }
-
-// export type ICarForm<K extends string, T> = {
-// [P in K]: T;
-// };
 
 export interface ICarForm {
   [key: string]: string;
